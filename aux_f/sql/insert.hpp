@@ -1,0 +1,82 @@
+#pragma once
+#include "getid_record.hpp"
+
+namespace dg::sql {
+	int64_t GetMaxId(const QSqlDatabase &db, const char* table);
+
+	namespace detail {
+		template <class Str>
+		QString ConcatKey(Str result, bool) {
+			return result;
+		}
+		template <class Str, class Val, class... Args>
+		QString ConcatKey(Str str, const bool first, const char* key, const Val&, const Args&... args) {
+			return ConcatKey(str % ", " % key, false, args...);
+		}
+		template <class Str, class Val, class... Args>
+		QString ConcatKey(Str str, const char* key, const Val&, const Args&... args) {
+			return ConcatKey(str % key, false, args...);
+		}
+
+		template <class Str>
+		QString Placeholder(Str str, std::integral_constant<std::size_t, 0>) {
+			return str;
+		}
+		template <class Str, std::size_t N>
+		QString Placeholder(Str str, std::integral_constant<std::size_t, N>) {
+			return Placeholder(str % ", ?", std::integral_constant<std::size_t, N-1>());
+		}
+		template <std::size_t N>
+		QString Placeholder() {
+			return Placeholder(QString("?"), std::integral_constant<std::size_t, N-1>());
+		}
+	}
+	template <class... Args>
+	void InsertInto(const QSqlDatabase &db, const char* table, const Args&... args) {
+		Q_ASSERT((sizeof...(args) & 1) == 0);
+		detail::SkipOne(
+			[table, &db, &args...](const auto&... args1){
+				QueryWithNull(
+					db,
+					QString("INSERT INTO ") % table % "("
+					% detail::ConcatKey(QString(""), args...) % ")\n"
+					% "VALUES(" % detail::Placeholder<sizeof...(args)/2>() % ");",
+					args1...
+				);
+			},
+			args...
+		);
+	}
+	template <class... Args>
+	bool InsertIntoIfNotExist(const QSqlDatabase &db, const char* table, const Args&... args) {
+		QSqlQuery q(db);
+		q.prepare(
+			QString("INSERT INTO ") % table % "(" % detail::ConcatKey(QString(""), args...) % ")"
+			% "SELECT " % detail::Placeholder<sizeof...(args)/2>() % "\n"
+			% "WHERE NOT EXISTS (SELECT 1 FROM " % table % " WHERE " % MakeConditionalExpression(args...) % ");"
+		);
+		detail::SkipOne(
+			[&q](const auto&... args){
+				detail::AddBind<true>(q, args...);
+				detail::AddBind<false>(q, args...);
+			},
+			args...
+		);
+		Query(q);
+		return q.numRowsAffected() == 1;
+	}
+	template <class... Args>
+	std::pair<int64_t, bool> InsertIntoIfNotExist_GetId(const QSqlDatabase &db, const char* table, const Args&... args) {
+		if(!InsertIntoIfNotExist(db, table, args...)) {
+			const auto num = GetIdFromRecord(db, table, "id", args...);
+			Q_ASSERT(num);
+			return {*num, false};
+		}
+		return {GetMaxId(db, table), true};
+	}
+	template <class... Args>
+	int64_t InsertInto_GetId(const QSqlDatabase &db, const char* table, const Args&... args) {
+		InsertInto(db, table, args...);
+		return GetMaxId(db, table);
+	}
+}

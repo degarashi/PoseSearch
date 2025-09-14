@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>530</width>
+    <height>383</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Orientation::Vertical</enum>
+      </property>
+      <widget class="QFrame" name="MyFrame">
+       <layout class="QHBoxLayout" name="ConditionLayout">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QComboBox" name="cbQuery">
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListView" name="lvQueryView"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QPushButton" name="pbConditionAdd">
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbConditionDelete">
+            <property name="text">
+             <string>Delete</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbConditionClear">
+            <property name="text">
+             <string>Clear</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sboxLimit">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>128</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbQuery">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Query</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="ResultView" name="lvResult">
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+       </property>
+       <property name="movement">
+        <enum>QListView::Movement::Free</enum>
+       </property>
+       <property name="layoutMode">
+        <enum>QListView::LayoutMode::SinglePass</enum>
+       </property>
+       <property name="viewMode">
+        <enum>QListView::ViewMode::IconMode</enum>
+       </property>
+       <property name="uniformItemSizes">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>530</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMenu_m">
+    <property name="title">
+     <string>Menu(&amp;m)</string>
+    </property>
+    <addaction name="actionDelete_Thumbnails_d"/>
+    <addaction name="separator"/>
+    <addaction name="actionDetach_Database_b"/>
+    <addaction name="actionQuit_q"/>
+   </widget>
+   <widget class="QMenu" name="menuConditions_c">
+    <property name="title">
+     <string>Conditions(&amp;c)</string>
+    </property>
+    <addaction name="actionConditionSave_s"/>
+    <addaction name="actionConditionLoad_l"/>
+   </widget>
+   <addaction name="menuMenu_m"/>
+   <addaction name="menuConditions_c"/>
+  </widget>
+  <action name="actionQuit_q">
+   <property name="text">
+    <string>Quit(&amp;q)</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::QuitRole</enum>
+   </property>
+  </action>
+  <action name="actionDelete_Thumbnails_d">
+   <property name="text">
+    <string>Delete Thumbnails (&amp;d)</string>
+   </property>
+  </action>
+  <action name="actionDetach_Database_b">
+   <property name="text">
+    <string>Detach Database and Quit(&amp;b)</string>
+   </property>
+  </action>
+  <action name="actionConditionSave_s">
+   <property name="text">
+    <string>Save(&amp;s)</string>
+   </property>
+  </action>
+  <action name="actionConditionLoad_l">
+   <property name="text">
+    <string>Load(&amp;l)</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ResultView</class>
+   <extends>QListView</extends>
+   <header>widget/resultview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>lvResult</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resultViewDoubleClicked(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>59</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbConditionClear</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>clearCondition()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>123</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>448</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbConditionDelete</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>deleteCondition()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>498</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbQuery</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>query()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>470</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>433</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbConditionAdd</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>addCondition()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>63</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>458</x>
+     <y>27</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionQuit_q</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDelete_Thumbnails_d</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>deleteThumbnails()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lvQueryView</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>queryDoubleClicked(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>126</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbQuery</sender>
+   <signal>textActivated(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>addCondition()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>52</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>7</x>
+     <y>106</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDetach_Database_b</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>detachDB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConditionSave_s</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>saveConditions()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConditionLoad_l</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadConditions()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onAddClicked()</slot>
+  <slot>clearCondition()</slot>
+  <slot>deleteCondition()</slot>
+  <slot>query()</slot>
+  <slot>addCondition()</slot>
+  <slot>resultViewDoubleClicked(QModelIndex)</slot>
+  <slot>deleteThumbnails()</slot>
+  <slot>queryDoubleClicked(QModelIndex)</slot>
+  <slot>detachDB()</slot>
+  <slot>saveConditions()</slot>
+  <slot>loadConditions()</slot>
+ </slots>
+</ui>
