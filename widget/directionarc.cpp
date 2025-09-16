@@ -53,7 +53,6 @@ void DirectionArc::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void DirectionArc::_calcDirAndApply(const QPoint& p) {
-	constexpr float PI = 3.141592;
 	// ウィジェットのサイズを取得
 	const auto s = size();
 	// 中心座標を計算
