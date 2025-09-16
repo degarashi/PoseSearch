@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-
 project(PoseSearch VERSION 0.1 LANGUAGES CXX)
+include(ExternalProject)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -10,27 +10,27 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# compile_commands.json をツール用にコピー
 add_custom_target(copy-compile-commands ALL
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
           ${CMAKE_BINARY_DIR}/compile_commands.json
           ${CMAKE_SOURCE_DIR}/compile_commands.json
 )
 
-# Debugビルド時は-O0で、Releaseビルド時は-O2
+# ビルドタイプに応じた最適化フラグの設定
+set(OPTIMIZATION_FLAGS "-O2")
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     set(OPTIMIZATION_FLAGS "-O0")
-else()
-    set(OPTIMIZATION_FLAGS "-O2")
 endif()
 
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/sqlite-vec.dll
-    COMMAND clang ${OPTIMIZATION_FLAGS} -shared -o ${CMAKE_BINARY_DIR}/sqlite-vec.dll ${CMAKE_SOURCE_DIR}/sqlite3/sqlite-vec.c -I. -fPIC
-    DEPENDS ${CMAKE_SOURCE_DIR}/sqlite3/sqlite-vec.c
-    COMMENT "Building sqlite-vec.dll"
+# sqlite-vec.dll をビルド
+ExternalProject_Add(sqlite_vec
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/sqlite3
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND clang ${OPTIMIZATION_FLAGS} -shared -o ${CMAKE_BINARY_DIR}/sqlite-vec.dll ${CMAKE_SOURCE_DIR}/sqlite3/sqlite-vec.c -I. -fPIC
+    INSTALL_COMMAND ""
+    BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/sqlite-vec.dll
 )
-add_custom_target(sqlite_vec DEPENDS ${CMAKE_BINARY_DIR}/sqlite-vec.dll)
-
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED
@@ -41,16 +41,15 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED
     Concurrent
 )
 
-# ファイル検索リスト
+# ファイル検索対象のディレクトリリスト
 set(TARGET_FILES_DIR
-	.
-	aux_f
-	aux_f/sql
+    .
+    aux_f
+    aux_f/sql
     param
-	widget
+    widget
     widget/condition
 )
-
 
 # @brief 指定されたディレクトリからソースファイルとヘッダーファイルを収集する関数
 #
