@@ -1,78 +1,112 @@
 #include "directionarc.hpp"
-#include <QPen>
-#include <QPainter>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPen>
+#include <QVector2D>
+#include <cmath>
 
-DirectionArc::DirectionArc(QWidget *parent)
-	: QWidget{parent},
-	_margin(2),
-	  _angleDeg(0)
-{}
+namespace {
+	// 描画用の論理サイズ（paintEventでスケーリング）
+	constexpr int LogicalSize = 100;
+	constexpr int DefaultHint = 64;
+	constexpr int ArcSpanDeg = 180;
+	constexpr int ArcStartDeg = -90;
+	constexpr int PenWidth = 2;
+	constexpr int InnerPadding = 5;
+	constexpr int DefaultMargin = 2;
+	constexpr int MinDeg = -90;
+	constexpr int MaxDeg = 90;
+} // namespace
+
+DirectionArc::DirectionArc(QWidget *parent) : QWidget{parent}, _margin(DefaultMargin), _angleDeg(0) {
+}
 
 QSize DirectionArc::minimumSizeHint() const {
-	return {64,64};
+	return {DefaultHint, DefaultHint};
 }
 
 QSize DirectionArc::sizeHint() const {
-	return {64,64};
+	return minimumSizeHint();
 }
 
-void DirectionArc::paintEvent(QPaintEvent* event) {
-	QPen pen(Qt::black);
-	pen.setWidth(2);
-
-	QPainter painter(this);
-	painter.setWindow(0, 0, 100, 100);
-	painter.setRenderHint(QPainter::RenderHint::Antialiasing, true);
-
-	// 外周を描画
+void DirectionArc::_drawOuterCircle(QPainter &painter) const {
 	painter.setBrush(Qt::white);
 	painter.setPen(Qt::NoPen);
-	painter.drawEllipse(_margin, _margin, 100-_margin*2, 100-_margin*2);
+	painter.drawEllipse(_margin, _margin, LogicalSize - _margin * 2, LogicalSize - _margin * 2);
+}
 
-	// 左半分を斜め線で塗りつぶし
-	painter.fillRect(0,0,50,100, Qt::BrushStyle::BDiagPattern);
+void DirectionArc::_drawLeftHalfPattern(QPainter &painter) const {
+	painter.fillRect(0, 0, LogicalSize / 2, LogicalSize, Qt::BDiagPattern);
+}
 
-	// 円弧を描画
+void DirectionArc::_drawArc(QPainter &painter) const {
+	QPen pen(Qt::black, PenWidth);
 	painter.setPen(pen);
-	painter.drawArc(0+_margin, _margin, 100-_margin*2, 100-_margin*2, -90*16, 180*16);
+	painter.drawArc(_margin, _margin, LogicalSize - _margin * 2, LogicalSize - _margin * 2, ArcStartDeg * 16,
+					ArcSpanDeg * 16);
+}
 
-	// 現在の角度を線分で表示
+void DirectionArc::_drawAngleLine(QPainter &painter) const {
 	const auto rad = qDegreesToRadians(_angleDeg);
-	const auto s = std::sin(rad);
-	const auto c = std::cos(rad);
-	const float len = 50 - _margin*2 - 5;
-	painter.drawLine(50, 50, 50+c*len, 50-s*len);
+	const float sinVal = std::sin(rad);
+	const float cosVal = std::cos(rad);
+	const float len = (LogicalSize / 2.f) - _margin * 2.f - InnerPadding;
+
+	QPen pen(Qt::black, PenWidth);
+	painter.setPen(pen);
+	painter.drawLine(LogicalSize / 2.f, LogicalSize / 2.f, LogicalSize / 2.f + cosVal * len,
+					 LogicalSize / 2.f - sinVal * len);
 }
 
-void DirectionArc::mousePressEvent(QMouseEvent* event) {
-	_calcDirAndApply(event->pos());
-}
-void DirectionArc::mouseMoveEvent(QMouseEvent* event) {
-	_calcDirAndApply(event->pos());
+void DirectionArc::paintEvent(QPaintEvent *event) {
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing, true);
+
+	// 実サイズに合わせてスケーリング
+	painter.setWindow(0, 0, LogicalSize, LogicalSize);
+	painter.setViewport(rect());
+
+	_drawOuterCircle(painter);
+	_drawLeftHalfPattern(painter);
+	_drawArc(painter);
+	_drawAngleLine(painter);
 }
 
-void DirectionArc::_calcDirAndApply(const QPoint& p) {
-	// ウィジェットのサイズを取得
-	const auto s = size();
-	// 中心座標を計算
-	const QPoint center(s.width()/2, s.height()/2);
+void DirectionArc::mousePressEvent(QMouseEvent *event) {
+	_handleMouseInput(event->pos());
+}
+
+void DirectionArc::mouseMoveEvent(QMouseEvent *event) {
+	_handleMouseInput(event->pos());
+}
+
+void DirectionArc::_handleMouseInput(const QPoint &p) {
+	const QPoint center(width() / 2, height() / 2);
 
 	QVector2D dir(p - center);
-	dir.normalize();
-	dir.setY(-dir.y());
-	if(dir.x() < 0)
+	if (dir.lengthSquared() == 0.0f)
 		return;
 
-	// Y成分から角度を計算
-	const float ang = qRadiansToDegrees(std::asin(dir.y()));
-	setAngleDeg(ang);
+	dir.normalize();
+	dir.setY(-dir.y());
+
+	float ang;
+	if (dir.x() < 0) {
+		if (dir.y() < 0)
+			ang = MinDeg;
+		else
+			ang = MaxDeg;
+	}
+	else
+		ang = qRadiansToDegrees(std::asin(dir.y()));
+	setAngleDeg(static_cast<int>(ang));
 }
+
 void DirectionArc::setAngleDeg(int deg) {
-	deg = std::clamp<int>(deg, -90, 90);
-	if(_angleDeg != deg) {
+	deg = std::clamp(deg, MinDeg, MaxDeg);
+	if (_angleDeg != deg) {
 		_angleDeg = deg;
 		emit angleChanged(_angleDeg);
-		repaint();
+		update();
 	}
 }
