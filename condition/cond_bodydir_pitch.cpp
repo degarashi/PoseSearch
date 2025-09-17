@@ -43,17 +43,15 @@ QuerySeed Cond_BodyDirPitch::getSqlQuery(const QueryParam &param) const {
 	const auto clampedVal = dg::Remap(static_cast<float>(_pitch), -90.f, 90.f, -1.f, 1.f);
 	auto ba = dg::VecToByteArray(clampedVal);
 	return {
-		QString("WITH tmp AS (SELECT poseId, distance "
-				"FROM MasseTorsoVec "
-				"WHERE pitch MATCH :pitch_val "
-				"LIMIT %1 ), %2 AS ( "
-				"SELECT tmp.poseId, tmp.distance AS score "
-				"FROM tmp "
-				"INNER JOIN MasseTorsoDir AS MT "
-				"	ON tmp.poseId = MT.poseId "
-				") ")
-			.arg(param.limit)
-			.arg(param.outputTableName),
+		QString(
+			// Vec0から値を取り出す -> outputTable
+			"WITH %1 AS ( "
+			"SELECT poseId, distance AS score "
+			"FROM MasseTorsoVec "
+			"WHERE pitch MATCH :pitch_val "
+			"LIMIT %2 ) ")
+			.arg(param.outputTableName)
+			.arg(param.limit),
 		{
 			{":pitch_val", std::move(ba)},
 		},
