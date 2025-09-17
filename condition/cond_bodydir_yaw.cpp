@@ -42,17 +42,13 @@ void Cond_BodyDirYaw::loadParamFromDialog(const QVariantList &vl) {
 QuerySeed Cond_BodyDirYaw::getSqlQuery(const QueryParam &param) const {
 	const auto ba = dg::VecToByteArray(param.ratio < 0.f ? -_yawDir : _yawDir);
 	return {
-		QString("WITH tmp AS (SELECT poseId, distance "
-				"FROM MasseTorsoVec "
-				"WHERE yaw MATCH :body_dir "
-				"LIMIT %1 ), %2 AS ( "
-				"SELECT tmp.poseId, (2.0 - tmp.distance)/2 AS score "
-				"FROM tmp "
-				"INNER JOIN MasseTorsoDir AS MT "
-				"	ON tmp.poseId = MT.poseId "
-				") ")
-			.arg(param.limit)
-			.arg(param.outputTableName),
+		QString("WITH %1 AS ( "
+				"SELECT poseId, (2.0 - distance)/2 AS score "
+				"	FROM MasseTorsoVec "
+				"	WHERE yaw MATCH :body_dir "
+				"	LIMIT %2 ) ")
+			.arg(param.outputTableName)
+			.arg(param.limit),
 		{
 			{":body_dir", std::move(ba)},
 		},
