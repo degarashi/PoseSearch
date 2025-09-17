@@ -38,6 +38,12 @@ namespace dg {
 		constexpr size_t Dim = tuple_index<Src_t, TypeList>::value + 1;
 		return _VecToByteArray(v, std::make_index_sequence<Dim>{});
 	}
+	// float単体用
+	inline QByteArray VecToByteArray(const float v) {
+		QByteArray ret;
+		ret.append(reinterpret_cast<const char *>(&v), sizeof(v));
+		return ret;
+	}
 
 	// ----------- ByteArrayToVec -----------
 	template <class T, size_t N, size_t... Idx>
