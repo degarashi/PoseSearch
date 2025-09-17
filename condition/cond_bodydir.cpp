@@ -1,5 +1,5 @@
-#include "condition.hpp"
 #include "aux_f/convert.hpp"
+#include "condition.hpp"
 #include "param/directionparam3d.h"
 #include "param/paramwrapper.h"
 #include "param/querydialog.h"
@@ -36,17 +36,13 @@ void Cond_BodyDir::loadParamFromDialog(const QVariantList &vl) {
 QuerySeed Cond_BodyDir::getSqlQuery(const QueryParam &param) const {
 	const auto ba = dg::VecToByteArray(param.ratio < 0.f ? -_dir : _dir);
 	return {
-		QString("WITH tmp AS (SELECT poseId, distance "
-				"FROM MasseTorsoVec "
-				"WHERE dir MATCH :body_dir "
-				"LIMIT %1 ), %2 AS ( "
-				"SELECT tmp.poseId, (2.0 - tmp.distance)/2 AS score "
-				"FROM tmp "
-				"INNER JOIN MasseTorsoDir AS MT "
-				"	ON tmp.poseId = MT.poseId "
-				") ")
-			.arg(param.limit)
-			.arg(param.outputTableName),
+		QString("WITH %1 AS ( "
+				"SELECT poseId, (2.0 - distance)/2 AS score "
+				"	FROM MasseTorsoVec "
+				"	WHERE dir MATCH :body_dir "
+				"	LIMIT %2 )")
+			.arg(param.outputTableName)
+			.arg(param.limit),
 		{
 			{":body_dir", std::move(ba)},
 		},
