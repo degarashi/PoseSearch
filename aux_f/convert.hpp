@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QStringList>
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
@@ -55,4 +56,43 @@ namespace dg {
 		return MakeReturn<Ret>(va);
 	}
 
+	// ----------- VecToString -----------
+	// メンバ関数の存在を判定する concept
+	template <typename T>
+	concept HasW = requires(const T &t) {
+		{ t.w() } -> std::convertible_to<float>;
+	};
+
+	template <typename T>
+	concept HasZ = requires(const T &t) {
+		{ t.z() } -> std::convertible_to<float>;
+	};
+
+	// 次元数をコンパイル時に決定
+	template <typename T>
+	constexpr int vec_dimension() {
+		if constexpr (HasW<T>) {
+			return 4;
+		}
+		else if constexpr (HasZ<T>) {
+			return 3;
+		}
+		else {
+			return 2;
+		}
+	}
+
+	// 本体
+	template <typename Vec>
+		requires requires(const Vec &v) {
+			{ v[0] } -> std::convertible_to<float>;
+		}
+	QString VecToString(const Vec &v, int precision = 3) {
+		QStringList parts;
+		constexpr int N = vec_dimension<Vec>();
+		for (int i = 0; i < N; ++i) {
+			parts << QString::number(v[i], 'f', precision);
+		}
+		return "[" + parts.join(' ') + "]";
+	}
 } // namespace dg
