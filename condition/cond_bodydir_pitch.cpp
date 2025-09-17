@@ -47,7 +47,7 @@ QuerySeed Cond_BodyDirPitch::getSqlQuery(const QueryParam &param) const {
 				"FROM MasseTorsoVec "
 				"WHERE pitch MATCH :pitch_val "
 				"LIMIT %1 ), %2 AS ( "
-				"SELECT tmp.poseId, (2.0 - tmp.distance)/2 AS score "
+				"SELECT tmp.poseId, tmp.distance AS score "
 				"FROM tmp "
 				"INNER JOIN MasseTorsoDir AS MT "
 				"	ON tmp.poseId = MT.poseId "
