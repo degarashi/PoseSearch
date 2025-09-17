@@ -23,6 +23,8 @@ namespace dg {
 	namespace {
 		using TypeList = std::tuple<float, QVector2D, QVector3D, QVector4D>;
 	}
+
+	// ----------- VecToByteArray -----------
 	template <typename Src_t, size_t... Idx>
 	QByteArray _VecToByteArray(const Src_t &v, std::index_sequence<Idx...>) {
 		QByteArray ret;
@@ -37,6 +39,7 @@ namespace dg {
 		return _VecToByteArray(v, std::make_index_sequence<Dim>{});
 	}
 
+	// ----------- ByteArrayToVec -----------
 	template <class T, size_t N, size_t... Idx>
 	T _MakeReturn(float (&data)[N], std::index_sequence<Idx...>) {
 		static_assert(N == sizeof...(Idx));
