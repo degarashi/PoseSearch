@@ -25,7 +25,7 @@ namespace dg::sql {
 	}
 	void Database::createTempTable(const QString &tableName, const bool ignoreError) const {
 		exec(QString("CREATE TEMPORARY TABLE %2 %1 ("
-					 "poseId INTEGER PRIMARY KEY,"
+					 "poseId INTEGER NOT NULL,"
 					 "score REAL NOT NULL"
 					 ")")
 				 .arg(tableName, ignoreError ? "NOT EXISTS" : ""));
