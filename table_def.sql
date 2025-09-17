@@ -74,7 +74,8 @@ CREATE TABLE Reliability (
 CREATE VIRTUAL TABLE MasseTorsoVec USING vec0(
 	poseId      INTEGER NOT NULL UNIQUE,
 	dir         float[3],
-	yaw         float[2]
+	yaw         float[2],
+	pitch		float[1]
 );
 
 CREATE TABLE TagInfo (
