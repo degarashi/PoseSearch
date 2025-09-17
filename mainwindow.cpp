@@ -5,9 +5,9 @@
 #include <aux_f/sql/database.hpp>
 #include "./ui_mainwindow.h"
 #include "aux_f/sql/query.hpp"
-#include "my_db.hpp"
-#include "my_settings.hpp"
-#include "my_thumbnail.hpp"
+#include "singleton/my_db.hpp"
+#include "singleton/my_settings.hpp"
+#include "singleton/my_thumbnail.hpp"
 #include "param/querydialog.h"
 #include "widget/condition.hpp"
 #include "widget/conditionlistmodel.hpp"

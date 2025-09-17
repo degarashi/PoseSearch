@@ -49,6 +49,7 @@ set(TARGET_FILES_DIR
     param
     widget
     widget/condition
+	singleton
 )
 
 # @brief 指定されたディレクトリからソースファイルとヘッダーファイルを収集する関数

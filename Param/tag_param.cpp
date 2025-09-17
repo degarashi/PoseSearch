@@ -1,6 +1,6 @@
 #include "tag_param.h"
 #include "aux_f/exception.hpp"
-#include "my_db.hpp"
+#include "singleton/my_db.hpp"
 #include "ui_tag_param.h"
 
 TagParam::TagParam(const QString &initial, QWidget *parent) : ParamBaseT(parent), _ui(new Ui::TagParam) {

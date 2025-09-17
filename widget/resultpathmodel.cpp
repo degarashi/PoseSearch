@@ -5,8 +5,8 @@
 #include <QImage>
 #include <QMimeData>
 #include <QUrl>
-#include "my_db.hpp"
-#include "my_thumbnail.hpp"
+#include "singleton/my_db.hpp"
+#include "singleton/my_thumbnail.hpp"
 
 // ---------------------------- ResultPathModel ------------------------------
 ResultPathModel::ResultPathModel(QObject *parent) : QAbstractListModel(parent) {

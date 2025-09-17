@@ -4,9 +4,9 @@
 #include <QSettings>
 #include "aux_f/exception.hpp"
 #include "mainwindow.h"
-#include "my_db.hpp"
-#include "my_settings.hpp"
-#include "my_thumbnail.hpp"
+#include "singleton/my_db.hpp"
+#include "singleton/my_settings.hpp"
+#include "singleton/my_thumbnail.hpp"
 
 int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
