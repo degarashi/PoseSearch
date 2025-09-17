@@ -104,4 +104,8 @@ namespace dg {
 		}
 		return "[" + parts.join(' ') + "]";
 	}
+	// float単体用
+	inline QString VecToString(const float value, const int precision = 3) {
+		return "[" + QString::number(value, 'f', precision) + "]";
+	}
 } // namespace dg
