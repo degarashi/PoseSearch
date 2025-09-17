@@ -48,8 +48,8 @@ set(TARGET_FILES_DIR
     aux_f/sql
     param
     widget
-    widget/condition
 	singleton
+    condition
 )
 
 # @brief 指定されたディレクトリからソースファイルとヘッダーファイルを収集する関数

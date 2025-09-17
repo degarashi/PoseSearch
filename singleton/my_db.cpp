@@ -1,7 +1,7 @@
 #include "my_db.hpp"
 #include "aux_f/sql/exception.hpp"
 #include "aux_f/sql/query.hpp"
-#include "widget/condition.hpp"
+#include "condition/condition.hpp"
 
 namespace dg {
 	void LoadVecExtension(dg::sql::Database &db) {

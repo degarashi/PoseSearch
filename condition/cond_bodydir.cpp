@@ -1,4 +1,4 @@
-#include "../condition.hpp"
+#include "condition.hpp"
 #include "aux_f/convert.hpp"
 #include "param/directionparam3d.h"
 #include "param/paramwrapper.h"

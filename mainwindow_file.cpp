@@ -6,7 +6,7 @@
 #include <fstream>
 #include "mainwindow.h"
 #include "widget/conditionlistmodel.hpp"
-#include "widget/condition.hpp"
+#include "condition/condition.hpp"
 
 void MainWindow::loadConditions() {
 	// ファイルダイアログでファイルを選択

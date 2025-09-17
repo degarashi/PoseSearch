@@ -1,4 +1,4 @@
-#include "../condition.hpp"
+#include "condition.hpp"
 #include "param/paramwrapper.h"
 #include "param/querydialog.h"
 #include "param/tag_param.h"

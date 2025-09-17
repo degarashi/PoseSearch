@@ -9,7 +9,7 @@
 #include "singleton/my_settings.hpp"
 #include "singleton/my_thumbnail.hpp"
 #include "param/querydialog.h"
-#include "widget/condition.hpp"
+#include "condition/condition.hpp"
 #include "widget/conditionlistmodel.hpp"
 #include "widget/resultpathmodel.h"
 

@@ -1,5 +1,5 @@
 #include "conditionlistmodel.hpp"
-#include "condition.hpp"
+#include "condition/condition.hpp"
 
 bool ConditionListModel::setData(const QModelIndex &index, const QVariant &value, const int role) {
 	if (!index.isValid())
