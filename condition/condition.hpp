@@ -109,6 +109,21 @@ class Cond_BodyDirYaw : public Condition, public StaticClassBase<Cond_BodyDirYaw
 			ar(cereal::base_class<Condition>(this));
 		}
 };
+// 条件：胴体の方向(Pitch)
+class Cond_BodyDirPitch : public Condition, public StaticClassBase<Cond_BodyDirPitch> {
+	private:
+		int _pitch;
+
+	public:
+		Cond_BodyDirPitch();
+		DEF_FUNCS
+
+		template <typename Ar>
+		void serialize(Ar &ar) {
+			ar(_pitch);
+			ar(cereal::base_class<Condition>(this));
+		}
+};
 #undef DEF_FUNCS
 
 QJsonArray VecToJArray(const QVector3D &v);
