@@ -39,11 +39,6 @@ QJsonArray VecToJArray(const QVector3D &v) {
 	return {v.x(), v.y(), v.z()};
 }
 
-QString VecToString(const QVector3D &v) {
-	// フォーマット指定子 'f' の精度を3桁に固定
-	return QString("[%1 %2 %3]").arg(v.x(), 0, 'f', 3).arg(v.y(), 0, 'f', 3).arg(v.z(), 0, 'f', 3);
-}
-
 QString AttachGUID(QJsonObject &js) {
 	const auto uid = QUuid::createUuid();
 	const QString guid = uid.toString(QUuid::StringFormat::Id128);

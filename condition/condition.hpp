@@ -96,6 +96,5 @@ class Cond_Tag : public Condition, public StaticClassBase<Cond_Tag> {
 };
 #undef DEF_FUNCS
 
-QString VecToString(const QVector3D &v);
 QJsonArray VecToJArray(const QVector3D &v);
 QString AttachGUID(QJsonObject &js);
