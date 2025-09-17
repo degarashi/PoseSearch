@@ -3,7 +3,7 @@ CREATE TABLE Thumbnail (
 	fileId		INTEGER PRIMARY KEY,
 	width		INTEGER NOT NULL CHECK(width > 0),
 	height		INTEGER NOT NULL CHECK(height > 0),
-	cacheName	TEXT NOT NULL UNIQUE
+	cacheName	TEXT NOT NULL -- 同一ファイルがあった場合、ダブるのでUNIQUEにはしない
 );
 
 -------------- PoseDB ----------------------
