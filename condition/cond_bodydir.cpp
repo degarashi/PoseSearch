@@ -20,7 +20,7 @@ Condition_SP Cond_BodyDir::clone() const {
 }
 
 QString Cond_BodyDir::textPresent() const {
-	return _textPresent(QString("dir: %1").arg(VecToString(_dir)));
+	return _textPresent(QString("dir: %1").arg(dg::VecToString(_dir)));
 }
 
 void Cond_BodyDir::setupDialog(QueryDialog &dlg) const {
