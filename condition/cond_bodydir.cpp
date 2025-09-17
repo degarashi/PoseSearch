@@ -38,7 +38,7 @@ QuerySeed Cond_BodyDir::getSqlQuery(const QueryParam &param) const {
 	return {
 		QString("WITH tmp AS (SELECT poseId, distance "
 				"FROM MasseTorsoVec "
-				"WHERE torsoDir MATCH :body_dir "
+				"WHERE dir MATCH :body_dir "
 				"LIMIT %1 ), %2 AS ( "
 				"SELECT tmp.poseId, (2.0 - tmp.distance)/2 AS score "
 				"FROM tmp "
