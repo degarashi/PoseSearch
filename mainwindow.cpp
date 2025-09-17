@@ -17,6 +17,7 @@
 Condition *g_conds[] = {
 	&Cond_BodyDir::StaticClass(),
 	&Cond_Tag::StaticClass(),
+	&Cond_BodyDirYaw::StaticClass(),
 };
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _ui(new Ui::MainWindow) {
