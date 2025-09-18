@@ -25,6 +25,7 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		QString getTag(int idx) const;
 		dg::sql::Database &database() const;
 		QString getFilePath(int fileId) const;
+		int getFileId(int poseId) const;
 
 		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 
