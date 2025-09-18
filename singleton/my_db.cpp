@@ -86,7 +86,7 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 	}
 	// scoreTableにずらっとスコアが入っているので
 	// FilePathと関連付けてソートし取り出す
-	auto q = _db->exec(QString("SELECT Pose.id, File.id, SUM(Result.score) AS score "
+	auto q = _db->exec(QString("SELECT Pose.id, SUM(Result.score) AS score "
 							   "	FROM %1 AS Result "
 							   "INNER JOIN Pose "
 							   "	ON Result.poseId = Pose.id "
@@ -99,18 +99,16 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 					   limit);
 	// 結果の集計
 	std::vector<int> res;
-	if(_debugMode)
+	if (_debugMode)
 		_prevInfo.clear();
 
 	while (q.next()) {
 		bool ok;
-		const int fileId = q.value(1).toInt(&ok);
+		const int poseId = q.value(0).toInt(&ok);
 		Q_ASSERT(ok);
-		res.emplace_back(fileId);
+		res.emplace_back(poseId);
 		if (_debugMode) {
-			const int poseId = q.value(0).toInt(&ok);
-			Q_ASSERT(ok);
-			const float score = q.value(2).toFloat(&ok);
+			const float score = q.value(1).toFloat(&ok);
 			Q_ASSERT(ok);
 			auto q2 = _db->exec(QString("SELECT score FROM %1 "
 										"	WHERE poseId = ? "

@@ -37,10 +37,14 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 	return {};
 }
 
-void ResultPathModel::addIds(const std::vector<int> &fileIds) {
-	const int count = fileIds.size();
+void ResultPathModel::addIds(const std::vector<int> &poseIds) {
+	const int count = poseIds.size();
 	if (count == 0)
 		return;
+
+	std::vector<int> fileIds;
+	for (const auto poseId : poseIds)
+		fileIds.emplace_back(myDb_c.getFileId(poseId));
 
 	const auto thumbnails = myTn.getThumbnails(fileIds);
 	Q_ASSERT(thumbnails.size() == count);

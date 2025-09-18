@@ -15,7 +15,7 @@ class ResultPathModel : public QAbstractListModel {
 		QStringList mimeTypes() const override;
 		Qt::DropActions supportedDragActions() const override;
 
-		void addIds(const std::vector<int> &fileIds);
+		void addIds(const std::vector<int> &poseIds);
 		void clear();
 
 	private:
