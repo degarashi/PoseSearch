@@ -1,7 +1,7 @@
 #include "my_db.hpp"
+#include "aux_f/q_value.hpp"
 #include "aux_f/sql/exception.hpp"
 #include "aux_f/sql/query.hpp"
-#include "aux_f/sql/value.hpp"
 #include "condition/condition.hpp"
 
 namespace {
@@ -144,6 +144,6 @@ QString MyDatabase::getFilePath(const int fileId) const {
 int MyDatabase::getFileId(const int poseId) const {
 	auto q = _db->exec("SELECT fileId FROM Pose WHERE id=?", poseId);
 	if (q.next())
-		return dg::sql::ConvertQV<int>(q.value(0));
+		return dg::ConvertQV<int>(q.value(0));
 	return -1;
 }
