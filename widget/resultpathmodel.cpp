@@ -24,9 +24,16 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 		if (index.row() < _data.size()) {
 			const auto &ent = _data[index.row()];
 			switch (role) {
-				case Qt::ToolTipRole:
+				case Qt::ToolTipRole: {
 					// カーソルホバー時に表示する文字列
-					return QString("%1\nScore: %2").arg(myDb_c.getFilePath(ent.fileId)).arg(myDb_c.getScore(ent.poseId).score);
+					auto msg = QString("%1\nScore: %2")
+								   .arg(myDb_c.getFilePath(ent.fileId))
+								   .arg(myDb_c.getScore(ent.poseId).score);
+					const auto sc = myDb_c.getScore(ent.poseId);
+					for (auto &&scl : sc.individual)
+						msg += QString("\n\t%1").arg(scl);
+					return msg;
+				}
 				case Qt::DecorationRole:
 					return ent.thumbnail;
 				case Qt::UserRole:
