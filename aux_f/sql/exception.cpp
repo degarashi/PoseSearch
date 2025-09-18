@@ -1,4 +1,5 @@
 #include "exception.hpp"
+#include <QRegularExpression>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
@@ -35,11 +36,15 @@ namespace dg::sql {
 	}
 	// ------------------- ExecutionError -------------------
 	namespace {
-
+		void RemoveLeadingSpaces(QString text) {
+			// ^\s+   : 行頭の空白（スペースやタブなど）1文字以上
+			// (?m)   : 複数行モード（^ と $ が行頭・行末にマッチする）
+			QRegularExpression re(QStringLiteral("(?m)^\\s+"));
+			text.replace(re, "");
+		}
 		QString PrettyPrintQuery(const QString &query) {
 			QString prettyQuery = query;
-			prettyQuery.replace("(", "(\n");
-			prettyQuery.replace(", ", ",\n");
+			RemoveLeadingSpaces(prettyQuery);
 			return prettyQuery;
 		}
 
