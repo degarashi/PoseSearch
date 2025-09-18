@@ -20,7 +20,8 @@ class ResultPathModel : public QAbstractListModel {
 
 	private:
 		struct Entry {
-				int id;
+				int poseId;
+				int fileId;
 				QPixmap thumbnail;
 		};
 		QList<Entry> _data;

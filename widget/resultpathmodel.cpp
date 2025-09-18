@@ -25,11 +25,12 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 			const auto &ent = _data[index.row()];
 			switch (role) {
 				case Qt::ToolTipRole:
-					return myDb_c.getFilePath(ent.id);
+					// カーソルホバー時に表示する文字列
+					return QString("%1\nScore: %2").arg(myDb_c.getFilePath(ent.fileId)).arg(myDb_c.getScore(ent.poseId).score);
 				case Qt::DecorationRole:
 					return ent.thumbnail;
 				case Qt::UserRole:
-					return ent.id;
+					return ent.fileId;
 				default:;
 			}
 		}
@@ -51,7 +52,7 @@ void ResultPathModel::addIds(const std::vector<int> &poseIds) {
 
 	beginInsertRows(QModelIndex(), _data.size(), _data.size() + count - 1);
 	for (int i = 0; i < count; ++i)
-		_data.append(Entry{fileIds[i], thumbnails[i]});
+		_data.append(Entry{poseIds[i], fileIds[i], thumbnails[i]});
 	endInsertRows();
 }
 
