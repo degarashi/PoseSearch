@@ -28,7 +28,7 @@ namespace dg::sql {
 					 "poseId INTEGER NOT NULL,"
 					 "score REAL NOT NULL"
 					 ")")
-				 .arg(tableName, ignoreError ? "NOT EXISTS" : ""));
+				 .arg(tableName, ignoreError ? "IF NOT EXISTS" : ""));
 	}
 
 	int Database::getNTempTable() const {
