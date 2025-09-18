@@ -15,11 +15,11 @@ namespace dg {
 class MyDatabase : public dg::Singleton<MyDatabase> {
 	public:
 		// (Debug用) スコア情報
-		struct QueryResult {
+		struct QueryScore {
 				float score;
-				std::vector<float> indivScore;
+				std::vector<float> individual;
 		};
-		using QueryResult_V = std::vector<QueryResult>;
+		using QueryResult_V = std::vector<QueryScore>;
 		MyDatabase(std::unique_ptr<dg::sql::Database> db);
 		const QStringList &getTagList() const;
 		QString getTag(int idx) const;
@@ -28,11 +28,10 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		int getFileId(int poseId) const;
 
 		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
+		QueryScore getScore(int poseId) const;
 
 	private:
 		QStringList _tags;
 		std::unique_ptr<dg::sql::Database> _db;
-
 		bool _debugMode;
-		mutable QueryResult_V _prevInfo;
 };

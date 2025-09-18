@@ -9,7 +9,8 @@ namespace {
 											 "cond_index INTEGER NOT NULL,"
 											 "score REAL NOT NULL,"
 											 "PRIMARY KEY(poseId, cond_index)");
-}
+	const dg::sql::Name ScoreTable{"temp", "score_accum"};
+} // namespace
 namespace dg {
 	void LoadVecExtension(dg::sql::Database &db) {
 		// sqlite-vec.dll 拡張機能をロード
@@ -64,10 +65,9 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 	if (clist.empty())
 		return {};
 
-	const dg::sql::Name scoreTable{"temp", "score_accum"};
 	// --- スコア計算用テーブル ---
-	_db->dropTable(scoreTable, true);
-	_db->createTempTable(scoreTable.table, score_layout, false);
+	_db->dropTable(ScoreTable, true);
+	_db->createTempTable(ScoreTable.table, score_layout, false);
 
 	for (int index = 0; auto &&cond : clist) {
 		const auto qp = cond->getSqlQuery({
@@ -78,7 +78,7 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 		qp.exec(*_db,
 				QString("INSERT INTO %1 "
 						"SELECT poseId, %2, score * :ratio FROM %3")
-					.arg(scoreTable.text())
+					.arg(ScoreTable.text())
 					.arg(index)
 					.arg(ResultTableName),
 				SearchAllLimit);
@@ -95,31 +95,44 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 							   "GROUP BY Result.poseId "
 							   "ORDER BY score DESC "
 							   "LIMIT ?")
-						   .arg(scoreTable.text()),
+						   .arg(ScoreTable.text()),
 					   limit);
 	// 結果の集計
 	std::vector<int> res;
-	if (_debugMode)
-		_prevInfo.clear();
 
 	while (q.next()) {
 		bool ok;
 		const int poseId = q.value(0).toInt(&ok);
 		Q_ASSERT(ok);
 		res.emplace_back(poseId);
-		if (_debugMode) {
-			const float score = q.value(1).toFloat(&ok);
-			Q_ASSERT(ok);
-			auto q2 = _db->exec(QString("SELECT score FROM %1 "
-										"	WHERE poseId = ? "
-										"ORDER BY cond_index ASC ")
-									.arg(scoreTable.text()),
-								poseId);
-			_prevInfo.emplace_back(score, fetchAll<float>(q2));
-		}
 	}
-	_db->dropTable(scoreTable);
 	return res;
+}
+
+MyDatabase::QueryScore MyDatabase::getScore(const int poseId) const {
+	const auto QStr = QStringLiteral(R"(
+		SELECT score, SUM(score) OVER() AS accum_score
+			FROM %1
+		WHERE poseId = ?
+		ORDER BY cond_index ASC
+	)");
+	auto q = _db->exec(QString(QStr).arg(ScoreTable.text()), poseId);
+
+	QueryScore ret;
+	if (!q.next())
+		throw dg::RuntimeError(QString("Pose ID %1 not found in score table.").arg(poseId));
+
+	bool ok;
+	ret.score = q.value(1).toFloat(&ok);
+	Q_ASSERT(ok);
+	do {
+		const float score = q.value(0).toFloat(&ok);
+		Q_ASSERT(ok);
+		ret.individual.emplace_back(score);
+	}
+	while (q.next());
+
+	return ret;
 }
 
 QString MyDatabase::getFilePath(const int fileId) const {
