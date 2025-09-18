@@ -88,3 +88,43 @@ CREATE TABLE Tags (
 	tagId               INTEGER NOT NULL REFERENCES TagInfo(id),
 	PRIMARY KEY (poseId, tagId)
 );
+
+-- 大腿の方向 --
+CREATE TABLE MasseThighDir (
+	poseId      INTEGER REFERENCES Pose(id),
+	is_right    INTEGER NOT NULL CHECK(is_right IN (0,1)),  -- 0 = L, 1 = R
+	x           REAL NOT NULL,
+	y           REAL NOT NULL,
+	z           REAL NOT NULL,
+	PRIMARY KEY(poseId, is_right),
+	CHECK((x*x + y*y + z*z) BETWEEN 0.995 AND 1.005)            -- should be unit vector
+);
+
+-- 大腿の伸展 --
+CREATE TABLE ThighFlexion (
+	poseId      INTEGER REFERENCES Pose(id),
+	is_right    INTEGER NOT NULL CHECK(is_right IN (0,1)),  -- 0 = L, 1 = R
+	dotBody		REAL CHECK(dotBody BETWEEN -1.0 AND 1.0),
+	angleRad    REAL CHECK(angleRad BETWEEN -3.141592 AND 3.141592),
+	dotSpine	REAL CHECK(dotSpine BETWEEN -1.0 AND 1.0),
+	PRIMARY KEY(poseId, is_right)
+);
+
+-- 下腿の方向 --
+CREATE TABLE MasseCrusDir (
+	poseId      INTEGER REFERENCES Pose(id),
+	is_right    INTEGER NOT NULL CHECK(is_right IN (0,1)),  -- 0 = L, 1 = R
+	x           REAL NOT NULL,
+	y           REAL NOT NULL,
+	z           REAL NOT NULL,
+	PRIMARY KEY(poseId, is_right),
+	CHECK((x*x + y*y + z*z) BETWEEN 0.995 AND 1.005)            -- should be unit vector
+);
+
+-- 下腿の伸展 --
+CREATE TABLE CrusFlexion (
+	poseId      INTEGER REFERENCES Pose(id),
+	is_right    INTEGER NOT NULL CHECK(is_right IN (0,1)),  -- 0 = L, 1 = R
+	angleRad    REAL CHECK(angleRad BETWEEN 0.0 AND 3.141592),
+	PRIMARY KEY(poseId, is_right)
+);
