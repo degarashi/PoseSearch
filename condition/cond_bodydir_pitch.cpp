@@ -46,7 +46,7 @@ QuerySeed Cond_BodyDirPitch::getSqlQuery(const QueryParam &param) const {
 		QString(
 			// Vec0から値を取り出す -> outputTable
 			"WITH %1 AS ( "
-			"SELECT poseId, distance AS score "
+			"SELECT poseId, (2.0 - distance)/2 AS score "
 			"FROM MasseTorsoVec "
 			"WHERE pitch MATCH :pitch_val "
 			"LIMIT :limit ) ")
