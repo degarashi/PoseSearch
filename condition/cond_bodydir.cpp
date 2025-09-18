@@ -34,17 +34,15 @@ void Cond_BodyDir::loadParamFromDialog(const QVariantList &vl) {
 }
 
 QuerySeed Cond_BodyDir::getSqlQuery(const QueryParam &param) const {
-	const auto ba = dg::VecToByteArray(param.ratio < 0.f ? -_dir : _dir);
 	return {
 		QString("WITH %1 AS ( "
 				"SELECT poseId, (2.0 - distance)/2 AS score "
 				"	FROM MasseTorsoVec "
 				"	WHERE dir MATCH :body_dir "
-				"	LIMIT %2 )")
-			.arg(param.outputTableName)
-			.arg(param.limit),
+				"	LIMIT :limit )")
+			.arg(param.outputTableName),
 		{
-			{":body_dir", std::move(ba)},
+			{":body_dir", dg::VecToByteArray(param.ratio < 0.f ? -_dir : _dir)},
 		},
 		std::abs(param.ratio),
 	};

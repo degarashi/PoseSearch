@@ -40,7 +40,6 @@ QuerySeed Cond_Tag::getSqlQuery(const QueryParam &param) const {
 				.arg(param.outputTableName),
 			{
 				{":tag_name", _tagName},
-				{":limit", param.limit},
 			},
 			param.ratio};
 }

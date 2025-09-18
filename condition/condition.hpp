@@ -21,7 +21,6 @@ struct QuerySeed {
 
 struct QueryParam {
 		QString outputTableName;
-		int limit;
 		float ratio;
 };
 class Condition;

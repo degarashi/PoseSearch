@@ -49,9 +49,8 @@ QuerySeed Cond_BodyDirPitch::getSqlQuery(const QueryParam &param) const {
 			"SELECT poseId, distance AS score "
 			"FROM MasseTorsoVec "
 			"WHERE pitch MATCH :pitch_val "
-			"LIMIT %2 ) ")
-			.arg(param.outputTableName)
-			.arg(param.limit),
+			"LIMIT :limit ) ")
+			.arg(param.outputTableName),
 		{
 			{":pitch_val", std::move(ba)},
 		},
