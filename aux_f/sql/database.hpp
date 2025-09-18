@@ -41,7 +41,7 @@ namespace dg::sql {
 			void renameTable(const Name &src, const QString &dst);
 			void dropTable(const Name &table, bool ignoreError = false);
 			void clearTable(const Name &table);
-			void createTempTable(const QString &tableName, bool ignoreError = false) const;
+			void createTempTable(const QString &tableName, const QString &body, bool ignoreError = false) const;
 			int getNTempTable() const;
 			bool hasTable(const Name &name) const;
 

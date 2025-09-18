@@ -3,6 +3,10 @@
 #include "aux_f/sql/query.hpp"
 #include "condition/condition.hpp"
 
+namespace {
+	const auto temp_layout = QStringLiteral("poseId INTEGER NOT NULL,"
+											"score REAL NOT NULL");
+}
 namespace dg {
 	void LoadVecExtension(dg::sql::Database &db) {
 		// sqlite-vec.dll 拡張機能をロード
@@ -22,7 +26,7 @@ namespace dg {
 		// data0 + data1 -> tmp_table
 		const QString tmpTable = QStringLiteral("calc_temp");
 		const dg::sql::Name tmpTableN{"temp", tmpTable};
-		db.createTempTable(tmpTable);
+		db.createTempTable(tmpTable, temp_layout, false);
 		db.exec(QString("INSERT INTO %1 (poseId, score) "
 						"SELECT poseId, SUM(score) AS score "
 						"FROM ( "
@@ -69,16 +73,12 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 
 	_db->dropTable(temp0, true);
 	// 固定レイアウトのスコア計算用テーブル
-	// CREATE TEMPORARY TABLE %2 %1 (
-	//		poseId INTEGER NOT NULL,
-	// 		score REAL NOT NULL
-	// )
-	_db->createTempTable(temp0.table);
+	_db->createTempTable(temp0.table, temp_layout, false);
 
 	for (auto &&cond : clist) {
 		// (この時点で消えている筈だが一応)
 		_db->dropTable(temp1, true);
-		_db->createTempTable(temp1.table);
+		_db->createTempTable(temp1.table, temp_layout, false);
 
 		// 一時テーブルの名前は他と被らなければ特になんでもいい
 		const QString ResultTableName("result");

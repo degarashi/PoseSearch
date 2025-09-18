@@ -23,12 +23,8 @@ namespace dg::sql {
 				throw FeatureNotSupported(f);
 		}
 	}
-	void Database::createTempTable(const QString &tableName, const bool ignoreError) const {
-		exec(QString("CREATE TEMPORARY TABLE %2 %1 ("
-					 "poseId INTEGER NOT NULL,"
-					 "score REAL NOT NULL"
-					 ")")
-				 .arg(tableName, ignoreError ? "IF NOT EXISTS" : ""));
+	void Database::createTempTable(const QString &tableName, const QString &body, const bool ignoreError) const {
+		exec(QString("CREATE TEMPORARY TABLE %2 %1 (%3)").arg(tableName, ignoreError ? "IF NOT EXISTS" : "", body));
 	}
 
 	int Database::getNTempTable() const {
