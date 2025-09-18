@@ -19,16 +19,19 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 				float score;
 				std::vector<float> indivScore;
 		};
+		using QueryResult_V = std::vector<QueryResult>;
 		MyDatabase(std::unique_ptr<dg::sql::Database> db);
 		const QStringList &getTagList() const;
 		QString getTag(int idx) const;
 		dg::sql::Database &database() const;
 		QString getFilePath(int fileId) const;
 
-		std::vector<int> query(int limit, const std::vector<Condition *> &clist,
-							   std::vector<QueryResult> *debugInfo = nullptr) const;
+		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 
 	private:
 		QStringList _tags;
 		std::unique_ptr<dg::sql::Database> _db;
+
+		bool _debugMode;
+		mutable QueryResult_V _prevInfo;
 };

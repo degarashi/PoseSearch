@@ -26,7 +26,7 @@ namespace dg {
 	}
 } // namespace dg
 
-MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) : _db(std::move(db)) {
+MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) : _db(std::move(db)), _debugMode(false) {
 	// タグリストを取得してメンバ変数に格納
 	auto q = _db->exec("SELECT name FROM TagInfo");
 	while (q.next()) {
@@ -59,8 +59,7 @@ namespace {
 	}
 } // namespace
 
-std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist,
-								   std::vector<QueryResult> *debugInfo) const {
+std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist) const {
 	if (clist.empty())
 		return {};
 
@@ -99,15 +98,15 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 					   limit);
 	// 結果の集計
 	std::vector<int> res;
-	if (debugInfo)
-		debugInfo->clear();
+	if(_debugMode)
+		_prevInfo.clear();
 
 	while (q.next()) {
 		bool ok;
 		const int fileId = q.value(1).toInt(&ok);
 		Q_ASSERT(ok);
 		res.emplace_back(fileId);
-		if (debugInfo) {
+		if (_debugMode) {
 			const int poseId = q.value(0).toInt(&ok);
 			Q_ASSERT(ok);
 			const float score = q.value(2).toFloat(&ok);
@@ -117,7 +116,7 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 										"ORDER BY cond_index ASC ")
 									.arg(scoreTable.text()),
 								poseId);
-			debugInfo->emplace_back(score, fetchAll<float>(q2));
+			_prevInfo.emplace_back(score, fetchAll<float>(q2));
 		}
 	}
 	_db->dropTable(scoreTable);
