@@ -1,8 +1,26 @@
 #include "condition.hpp"
 #include <QJsonDocument>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include "aux_f/sql/database.hpp"
 #include "param/float_slider_param.h"
 #include "param/paramwrapper.h"
 #include "param/querydialog.h"
+
+// --- QuerySeed ---
+QSqlQuery QuerySeed::exec(dg::sql::Database &db, const QString &qtext, const int limit) const {
+	QSqlQuery q(db.database());
+	q.prepare(queryText + qtext);
+	setupParams(q, limit);
+	dg::sql::Query(q);
+	return std::move(q);
+}
+void QuerySeed::setupParams(QSqlQuery &q, const int limit) const {
+	for (auto &p : queryParams)
+		q.bindValue(p.first, p.second);
+	q.bindValue(":ratio", ratio);
+	q.bindValue(":limit", limit);
+}
 
 namespace {
 	// スライダーの範囲を定義

@@ -95,13 +95,7 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 			QSqlQuery q(_db->database());
 			for (;;) {
 				// 検出された件数をカウント
-				q.prepare(qp.queryText + QString("SELECT COUNT(*), MIN(score) FROM %1").arg(ResultTableName));
-				for (auto &p : qp.queryParams)
-					q.bindValue(p.first, p.second);
-				q.bindValue(":ratio", qp.ratio);
-				q.bindValue(":limit", curLimit);
-
-				dg::sql::Query(q);
+				auto q = qp.exec(*_db, QString("SELECT COUNT(*), MIN(score) FROM %1").arg(ResultTableName), curLimit);
 				Q_ASSERT(q.next());
 				const int num = q.value(0).toInt();
 				if (prevNum == num)
@@ -123,16 +117,12 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 				qDebug() << curLimit;
 			}
 			// curLimit件数を踏まえて、改めて処理 (-> temp1)
-			q.prepare(qp.queryText +
-					  QString("INSERT INTO %1 "
-							  "SELECT poseId, score * :ratio AS score "
-							  "FROM %2")
-						  .arg(temp1.text(), ResultTableName));
-			for (auto &p : qp.queryParams)
-				q.bindValue(p.first, p.second);
-			q.bindValue(":ratio", qp.ratio);
-			q.bindValue(":limit", curLimit);
-			dg::sql::Query(q);
+			qp.exec(*_db,
+					QString("INSERT INTO %1 "
+							"SELECT poseId, score * :ratio AS score "
+							"FROM %2")
+						.arg(temp1.text(), ResultTableName),
+					curLimit);
 		}
 		// スコアの足し合わせ
 		// [temp0 += temp1; drop(temp1)]

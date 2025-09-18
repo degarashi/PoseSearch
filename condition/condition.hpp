@@ -11,12 +11,19 @@ QT_BEGIN_NAMESPACE
 class QSqlDatabase;
 QT_END_NAMESPACE
 
+namespace dg::sql {
+	class Database;
+}
+class QSqlQuery;
 struct QuerySeed {
 		using QueryPair = QPair<QString, QVariant>;
 		using QueryParams = QVector<QueryPair>;
 		QString queryText;
 		QueryParams queryParams;
 		float ratio;
+
+		void setupParams(QSqlQuery &q, int limit) const;
+		QSqlQuery exec(dg::sql::Database &db, const QString &qtext, int limit) const;
 };
 
 struct QueryParam {
