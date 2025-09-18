@@ -14,13 +14,19 @@ namespace dg {
 
 class MyDatabase : public dg::Singleton<MyDatabase> {
 	public:
+		// (Debug用) スコア情報
+		struct QueryResult {
+				float score;
+				std::vector<float> indivScore;
+		};
 		MyDatabase(std::unique_ptr<dg::sql::Database> db);
 		const QStringList &getTagList() const;
 		QString getTag(int idx) const;
-		dg::sql::Database& database() const;
+		dg::sql::Database &database() const;
 		QString getFilePath(int fileId) const;
 
-		std::vector<int> query(int limit, const std::vector<Condition*> &clist) const;
+		std::vector<int> query(int limit, const std::vector<Condition *> &clist,
+							   std::vector<QueryResult> *debugInfo = nullptr) const;
 
 	private:
 		QStringList _tags;

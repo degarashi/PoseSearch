@@ -5,7 +5,9 @@
 
 namespace {
 	const auto score_layout = QStringLiteral("poseId INTEGER NOT NULL,"
-											 "score REAL NOT NULL");
+											 "cond_index INTEGER NOT NULL,"
+											 "score REAL NOT NULL,"
+											 "PRIMARY KEY(poseId, cond_index)");
 }
 namespace dg {
 	void LoadVecExtension(dg::sql::Database &db) {
@@ -46,9 +48,19 @@ namespace {
 	constexpr int SearchAllLimit = 4096;
 	// 一時テーブルの名前は他と被らなければ特になんでもいい
 	const QString ResultTableName("result");
+
+	template <typename T>
+	std::vector<T> fetchAll(QSqlQuery &query, const int column = 0) {
+		std::vector<T> result;
+		while (query.next()) {
+			result.emplace_back(query.value(column).value<T>());
+		}
+		return result;
+	}
 } // namespace
 
-std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist) const {
+std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist,
+								   std::vector<QueryResult> *debugInfo) const {
 	if (clist.empty())
 		return {};
 
@@ -57,7 +69,7 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 	_db->dropTable(scoreTable, true);
 	_db->createTempTable(scoreTable.table, score_layout, false);
 
-	for (auto &&cond : clist) {
+	for (int index = 0; auto &&cond : clist) {
 		const auto qp = cond->getSqlQuery({
 			.outputTableName = ResultTableName,
 			.ratio = cond->getRatio(),
@@ -65,15 +77,16 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 		// 単にResultテーブルへ追加
 		qp.exec(*_db,
 				QString("INSERT INTO %1 "
-						"SELECT poseId, score FROM %2")
-					.arg(scoreTable.text(), ResultTableName),
+						"SELECT poseId, %2, score * :ratio FROM %3")
+					.arg(scoreTable.text())
+					.arg(index)
+					.arg(ResultTableName),
 				SearchAllLimit);
+		++index;
 	}
-	// 結果の集計
-	std::vector<int> res;
 	// scoreTableにずらっとスコアが入っているので
 	// FilePathと関連付けてソートし取り出す
-	auto q = _db->exec(QString("SELECT File.id, SUM(Result.score) AS score "
+	auto q = _db->exec(QString("SELECT Pose.id, File.id, SUM(Result.score) AS score "
 							   "	FROM %1 AS Result "
 							   "INNER JOIN Pose "
 							   "	ON Result.poseId = Pose.id "
@@ -84,10 +97,28 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 							   "LIMIT ?")
 						   .arg(scoreTable.text()),
 					   limit);
+	// 結果の集計
+	std::vector<int> res;
+	if (debugInfo)
+		debugInfo->clear();
+
 	while (q.next()) {
-		const int id = q.value("id").toInt();
-		qDebug() << id << ", " << q.value("score");
-		res.push_back(id);
+		bool ok;
+		const int fileId = q.value(1).toInt(&ok);
+		Q_ASSERT(ok);
+		res.emplace_back(fileId);
+		if (debugInfo) {
+			const int poseId = q.value(0).toInt(&ok);
+			Q_ASSERT(ok);
+			const float score = q.value(2).toFloat(&ok);
+			Q_ASSERT(ok);
+			auto q2 = _db->exec(QString("SELECT score FROM %1 "
+										"	WHERE poseId = ? "
+										"ORDER BY cond_index ASC ")
+									.arg(scoreTable.text()),
+								poseId);
+			debugInfo->emplace_back(score, fetchAll<float>(q2));
+		}
 	}
 	_db->dropTable(scoreTable);
 	return res;
