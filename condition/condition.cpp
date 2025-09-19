@@ -23,9 +23,13 @@ void QuerySeed::setupParams(QSqlQuery &q, const int limit) const {
 }
 
 namespace {
-	// スライダーの範囲を定義
-	constexpr dg::Range<float> SliderRange{-2.f, 2.f};
+	// Ratioスライダーのデフォルト範囲
+	constexpr float SliderRange = 2.f;
 } // namespace
+
+bool Condition::_supportNegativeRatio() const {
+	return true;
+}
 
 // --- Condtiion ---
 void Condition::_clone(Condition &dst) const {
@@ -38,7 +42,8 @@ QString Condition::_textPresent(const QString &src) const {
 
 void Condition::setupDialog(QueryDialog &dlg) const {
 	// Ratio項
-	dlg.addParam(new ParamWrapper(new FloatSliderParam(SliderRange, _ratio), "Ratio"));
+	const dg::Range<float> ratioRange{_supportNegativeRatio() ? -SliderRange : 0.f, SliderRange};
+	dlg.addParam(new ParamWrapper(new FloatSliderParam(ratioRange, _ratio), "Ratio"));
 	dlg.setWindowTitle(dialogName());
 }
 

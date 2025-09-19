@@ -30,6 +30,10 @@ void Cond_BodyDirPitch::setupDialog(QueryDialog &dlg) const {
 	Condition::setupDialog(dlg);
 }
 
+bool Cond_BodyDirPitch::_supportNegativeRatio() const {
+	return false;
+}
+
 void Cond_BodyDirPitch::loadParamFromDialog(const QVariantList &vl) {
 	bool ok;
 	_pitch = vl[0].toInt(&ok);
@@ -54,6 +58,6 @@ QuerySeed Cond_BodyDirPitch::getSqlQuery(const QueryParam &param) const {
 		{
 			{":pitch_val", std::move(ba)},
 		},
-		std::abs(param.ratio),
+		param.ratio,
 	};
 }
