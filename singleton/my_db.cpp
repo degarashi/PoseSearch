@@ -5,10 +5,12 @@
 #include "condition/condition.hpp"
 
 namespace {
+	// スコア計算用の一時テーブルのレイアウト
 	const auto score_layout = QStringLiteral("poseId INTEGER NOT NULL,"
 											 "cond_index INTEGER NOT NULL,"
 											 "score REAL NOT NULL,"
 											 "PRIMARY KEY(poseId, cond_index)");
+	// スコア計算用の一時テーブルの名前
 	const dg::sql::Name ScoreTable{"temp", "score_accum"};
 } // namespace
 namespace dg {
@@ -47,10 +49,12 @@ QString MyDatabase::getTag(const int idx) const {
 	return _tags.at(idx);
 }
 namespace {
+	// 検索時の最大件数
 	constexpr int SearchAllLimit = 4096;
 	// 一時テーブルの名前は他と被らなければ特になんでもいい
 	const QString ResultTableName("result");
 
+	// クエリ結果を std::vector<T> として取得するヘルパー関数
 	template <typename T>
 	std::vector<T> fetchAll(QSqlQuery &query, const int column = 0) {
 		std::vector<T> result;
