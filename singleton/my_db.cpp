@@ -63,6 +63,35 @@ namespace {
 		}
 		return result;
 	}
+
+	// QVariant から QVector3D を生成するヘルパー関数
+	QVector3D ConvertVec3(const QVariant &vx, const QVariant &vy, const QVariant &vz) {
+		return {
+			dg::ConvertQV<float>(vx),
+			dg::ConvertQV<float>(vy),
+			dg::ConvertQV<float>(vz),
+		};
+	}
+	// 指定されたテーブルから poseId に対応する QVector3D を1つ取得する関数
+	std::optional<QVector3D> fetchSingleVec3(const dg::sql::Database &db, const QString &table, const int poseId) {
+		auto q = db.exec(QString("SELECT x, y, z FROM %1 WHERE poseId = ? LIMIT 1").arg(table), poseId);
+		if (!q.next())
+			return std::nullopt;
+		return ConvertVec3(q.value(0), q.value(1), q.value(2));
+	}
+
+	// 指定された poseId の左右の方向ベクトルを取得する共通関数
+	std::array<std::optional<QVector3D>, 2> fetchLimbDirs(const dg::sql::Database &db, const QString &table,
+														  const int poseId) {
+		std::array<std::optional<QVector3D>, 2> dirs; // [0]=left, [1]=right
+		auto q = db.exec(QString("SELECT is_right, x, y, z FROM %1 WHERE poseId = ?").arg(table), poseId);
+		while (q.next()) {
+			const int isRight = dg::ConvertQV<int>(q.value(0));
+			const int idx = (isRight != 0) ? 1 : 0;
+			dirs[idx] = ConvertVec3(q.value(1), q.value(2), q.value(3));
+		}
+		return dirs;
+	}
 } // namespace
 
 std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist) const {
@@ -150,4 +179,32 @@ int MyDatabase::getFileId(const int poseId) const {
 	if (q.next())
 		return dg::ConvertQV<int>(q.value(0));
 	return -1;
+}
+
+MyDatabase::PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
+	// torsoDir
+	const auto torsoOpt = fetchSingleVec3(*_db, "MasseTorsoDir", poseId);
+	if (!torsoOpt)
+		throw dg::RuntimeError(QString("MasseTorsoDir not found for poseId=%1").arg(poseId));
+	const QVector3D torsoDir = *torsoOpt;
+
+	// thighDir (left/right)
+	const auto thighDirs = fetchLimbDirs(*_db, "MasseThighDir", poseId);
+	if (!thighDirs[0])
+		throw dg::RuntimeError(QString("Left MasseThighDir not found for poseId=%1").arg(poseId));
+	if (!thighDirs[1])
+		throw dg::RuntimeError(QString("Right MasseThighDir not found for poseId=%1").arg(poseId));
+
+	// crusDir (left/right)
+	const auto crusDirs = fetchLimbDirs(*_db, "MasseCrusDir", poseId);
+	if (!crusDirs[0])
+		throw dg::RuntimeError(QString("Left MasseCrusDir not found for poseId=%1").arg(poseId));
+	if (!crusDirs[1])
+		throw dg::RuntimeError(QString("Right MasseCrusDir not found for poseId=%1").arg(poseId));
+
+	return PoseInfo{
+		torsoDir,
+		{*(thighDirs[0]), *(thighDirs[1])},
+		{*(crusDirs[0]), *(crusDirs[1])},
+	};
 }

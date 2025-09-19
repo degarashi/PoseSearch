@@ -1,5 +1,6 @@
 #pragma once
 #include <QStringList>
+#include <QVector3D>
 #include "aux_f/sql/database.hpp"
 #include "singleton.hpp"
 
@@ -26,6 +27,15 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		dg::sql::Database &database() const;
 		QString getFilePath(int fileId) const;
 		int getFileId(int poseId) const;
+
+		struct PoseInfo {
+				QVector3D torsoDir;
+				// [0] = left, [1] = right
+				QVector3D thighDir[2];
+				QVector3D crusDir[2];
+		};
+		// ent.poseIdに関連する姿勢情報を一括取得して返す関数を定義
+		PoseInfo getPoseInfo(int poseId) const;
 
 		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 		QueryScore getScore(int poseId) const;
