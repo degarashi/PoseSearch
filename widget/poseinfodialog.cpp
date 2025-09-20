@@ -21,7 +21,7 @@ namespace {
 	constexpr int CONNECTION_COUNT = sizeof(CONNECTIONS) / sizeof(CONNECTIONS[0]);
 } // namespace
 
-PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *parent) : QDialog(parent), _ui(new Ui::PoseInfoDialog) {
+PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *const parent) : QDialog(parent), _ui(new Ui::PoseInfoDialog) {
 	_ui->setupUi(this);
 
 	// 画像ファイルパスを取得
@@ -55,17 +55,17 @@ PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *parent) : QDialog(pare
 		painter.setPen(QPen(Qt::red, 2));
 
 		// landmarksは正規化座標(0〜1)と仮定
-		auto w = img.width();
-		auto h = img.height();
+		const int w = img.width();
+		const int h = img.height();
 
 		for (int i = 0; i < CONNECTION_COUNT; ++i) {
-			int idx1 = CONNECTIONS[i][0];
-			int idx2 = CONNECTIONS[i][1];
+			const int idx1 = CONNECTIONS[i][0];
+			const int idx2 = CONNECTIONS[i][1];
 			if (idx1 < static_cast<int>(info.landmarks.size()) && idx2 < static_cast<int>(info.landmarks.size())) {
 				const auto &lm1 = info.landmarks[idx1];
 				const auto &lm2 = info.landmarks[idx2];
-				QPoint p1(static_cast<int>(lm1.x() * w), static_cast<int>(lm1.y() * h));
-				QPoint p2(static_cast<int>(lm2.x() * w), static_cast<int>(lm2.y() * h));
+				const QPoint p1(static_cast<int>(lm1.x() * w), static_cast<int>(lm1.y() * h));
+				const QPoint p2(static_cast<int>(lm2.x() * w), static_cast<int>(lm2.y() * h));
 				painter.drawLine(p1, p2);
 			}
 		}
