@@ -75,7 +75,7 @@ namespace {
 	constexpr float UPPER_ARM_OFFSET = 15.0f;
 	constexpr float FOREARM_OFFSET = 15.0f;
 
-	bool IsLeftIndex(LandmarkIndex idx) {
+	bool IsLeftIndex(const LandmarkIndex idx) {
 		return idx == LandmarkIndex::LEFT_SHOULDER || idx == LandmarkIndex::LEFT_ELBOW ||
 			idx == LandmarkIndex::LEFT_WRIST || idx == LandmarkIndex::LEFT_HIP || idx == LandmarkIndex::LEFT_KNEE ||
 			idx == LandmarkIndex::LEFT_ANKLE || idx == LandmarkIndex::LEFT_HEEL ||
@@ -83,16 +83,15 @@ namespace {
 			idx == LandmarkIndex::LEFT_INDEX || idx == LandmarkIndex::LEFT_THUMB;
 	}
 
-	bool IsRightIndex(LandmarkIndex idx) {
+	bool IsRightIndex(const LandmarkIndex idx) {
 		return idx == LandmarkIndex::RIGHT_SHOULDER || idx == LandmarkIndex::RIGHT_ELBOW ||
 			idx == LandmarkIndex::RIGHT_WRIST || idx == LandmarkIndex::RIGHT_HIP || idx == LandmarkIndex::RIGHT_KNEE ||
 			idx == LandmarkIndex::RIGHT_ANKLE || idx == LandmarkIndex::RIGHT_HEEL ||
 			idx == LandmarkIndex::RIGHT_FOOT_INDEX || idx == LandmarkIndex::RIGHT_PINKY ||
 			idx == LandmarkIndex::RIGHT_INDEX || idx == LandmarkIndex::RIGHT_THUMB;
 	}
-
-	void DrawConnection(QPainter &painter, const QPointF &p1, const QPointF &p2, bool left1, bool right1, bool left2,
-						bool right2, const QPen &leftPen, const QPen &rightPen) {
+	void DrawConnection(QPainter &painter, const QPointF &p1, const QPointF &p2, const bool left1, const bool right1,
+						const bool left2, const bool right2, const QPen &leftPen, const QPen &rightPen) {
 		if (left1 && left2) {
 			painter.setPen(leftPen);
 			painter.drawLine(p1, p2);
@@ -128,21 +127,21 @@ namespace {
 
 	class PolygonToolTipFilter final : public QObject {
 		public:
-			PolygonToolTipFilter(const QPolygonF &poly, const QString &text, QObject *parent = nullptr) :
+			PolygonToolTipFilter(const QPolygonF &poly, const QString &text, QObject *const parent = nullptr) :
 				QObject(parent), _poly(poly), _text(text) {
 			}
 
 		protected:
-			bool eventFilter(QObject *obj, QEvent *event) override {
-				auto *w = qobject_cast<QWidget *>(obj);
+			bool eventFilter(QObject *const obj, QEvent *const event) override {
+				auto *const w = qobject_cast<QWidget *>(obj);
 				if (!w)
 					return QObject::eventFilter(obj, event);
 
 				switch (event->type()) {
 					case QEvent::MouseMove: {
-						const auto *me = static_cast<QMouseEvent *>(event);
+						const auto *const me = static_cast<QMouseEvent *>(event);
 						const QPointF p = me->position();
-						bool inside = !_poly.isEmpty() && _poly.containsPoint(p, Qt::OddEvenFill);
+						const bool inside = !_poly.isEmpty() && _poly.containsPoint(p, Qt::OddEvenFill);
 						if (inside && !_visible) {
 							QToolTip::showText(w->mapToGlobal(me->pos()), _text, w);
 							_visible = true;
@@ -183,18 +182,20 @@ namespace {
 	}
 
 	// 指定されたランドマークインデックスのペアからポリゴンを作成し、イベントフィルタをインストールするヘルパー関数
-	void CreateAndInstallSegmentPolyFilter(QWidget *view, const MyDatabase::PoseInfo &info, int w, int h,
-										   const std::pair<LandmarkIndex, LandmarkIndex> &segment, float offset,
-										   const QString &segmentName) {
-		LandmarkIndex idx1 = segment.first;
-		LandmarkIndex idx2 = segment.second;
+	void CreateAndInstallSegmentPolyFilter(QWidget *const view, const MyDatabase::PoseInfo &info, const int w,
+										   const int h, const std::pair<LandmarkIndex, LandmarkIndex> &segment,
+										   const float offset, const QString &segmentName) {
+		const LandmarkIndex idx1 = segment.first;
+		const LandmarkIndex idx2 = segment.second;
 
 		if (static_cast<int>(idx1) < static_cast<int>(info.landmarks.size()) &&
 			static_cast<int>(idx2) < static_cast<int>(info.landmarks.size())) {
+
 			const auto &lm1 = info.landmarks[static_cast<int>(idx1)];
 			const auto &lm2 = info.landmarks[static_cast<int>(idx2)];
-			QPointF p1F(lm1.x() * w, lm1.y() * h);
-			QPointF p2F(lm2.x() * w, lm2.y() * h);
+
+			const QPointF p1F(lm1.x() * w, lm1.y() * h);
+			const QPointF p2F(lm2.x() * w, lm2.y() * h);
 
 			QString text = segmentName;
 			if (IsLeftIndex(idx1)) {
@@ -204,19 +205,19 @@ namespace {
 				text = "(R)";
 			}
 			text += segmentName;
+
 			InstallPolyFilter(view, MakeQuadPoly(p1F, p2F, offset), text);
 		}
 	}
-
 	// 骨格描画処理をまとめたメソッド
-	void DrawSkeleton(QPainter &painter, const MyDatabase::PoseInfo &info, int w, int h) {
+	void DrawSkeleton(QPainter &painter, const MyDatabase::PoseInfo &info, const int w, const int h) {
 		painter.setRenderHint(QPainter::Antialiasing, true);
-		QPen leftPen(QColor(0, 200, 0), 2);
-		QPen rightPen(QColor(220, 0, 0), 2);
+		const QPen leftPen(QColor(0, 200, 0), 2);
+		const QPen rightPen(QColor(220, 0, 0), 2);
 
 		for (const auto &connection : CONNECTIONS) {
-			LandmarkIndex idx1 = connection.first;
-			LandmarkIndex idx2 = connection.second;
+			const LandmarkIndex idx1 = connection.first;
+			const LandmarkIndex idx2 = connection.second;
 
 			if (static_cast<int>(idx1) >= static_cast<int>(info.landmarks.size()) ||
 				static_cast<int>(idx2) >= static_cast<int>(info.landmarks.size()))
@@ -224,8 +225,8 @@ namespace {
 
 			const auto &lm1 = info.landmarks[static_cast<int>(idx1)];
 			const auto &lm2 = info.landmarks[static_cast<int>(idx2)];
-			QPointF p1F(lm1.x() * w, lm1.y() * h);
-			QPointF p2F(lm2.x() * w, lm2.y() * h);
+			const QPointF p1F(lm1.x() * w, lm1.y() * h);
+			const QPointF p2F(lm2.x() * w, lm2.y() * h);
 
 			DrawConnection(painter, p1F, p2F, IsLeftIndex(idx1), IsRightIndex(idx1), IsLeftIndex(idx2),
 						   IsRightIndex(idx2), leftPen, rightPen);
@@ -233,29 +234,29 @@ namespace {
 
 		// 頭部ランドマークの描画（点）
 		{
-			QPen headPen(QColor(30, 144, 255), 2); // DodgerBlue
-			QBrush headBrush(QColor(30, 144, 255, 180));
+			const QPen headPen(QColor(30, 144, 255), 2); // DodgerBlue
+			const QBrush headBrush(QColor(30, 144, 255, 180));
 			painter.setPen(headPen);
 			painter.setBrush(headBrush);
 			const float r = 3.5f;
 
 			for (int i = 0; i < HEAD_LANDMARK_COUNT; ++i) {
-				LandmarkIndex idx = HEAD_LANDMARKS[i];
+				const LandmarkIndex idx = HEAD_LANDMARKS[i];
 				if (static_cast<int>(idx) >= static_cast<int>(info.landmarks.size()))
 					continue;
 
 				const auto &lm = info.landmarks[static_cast<int>(idx)];
-				QPointF p(lm.x() * w, lm.y() * h);
+				const QPointF p(lm.x() * w, lm.y() * h);
 				painter.drawEllipse(QRectF(p.x() - r, p.y() - r, r * 2.0, r * 2.0));
 			}
 		}
 	}
-	void SetupPosePolygons(Ui::PoseInfoDialog *ui, const MyDatabase::PoseInfo &info, int w, int h) {
+	void SetupPosePolygons(Ui::PoseInfoDialog *const ui, const MyDatabase::PoseInfo &info, const int w, const int h) {
 		// 胴体ポリゴン
 		const LandmarkIndex torsoIdx[] = {LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::RIGHT_SHOULDER,
 										  LandmarkIndex::RIGHT_HIP, LandmarkIndex::LEFT_HIP};
 		bool torsoOk = true;
-		for (LandmarkIndex idx : torsoIdx) {
+		for (const LandmarkIndex idx : torsoIdx) {
 			if (static_cast<int>(idx) >= static_cast<int>(info.landmarks.size())) {
 				torsoOk = false;
 				break;
