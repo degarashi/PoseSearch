@@ -7,4 +7,5 @@ class ResultView : public QListView {
 
 	protected:
 		void startDrag(Qt::DropActions supportedActions) override;
+		void contextMenuEvent(QContextMenuEvent *event) override;
 };
