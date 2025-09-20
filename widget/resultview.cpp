@@ -9,13 +9,18 @@ ResultView::ResultView(QWidget *parent) : QListView(parent) {
 }
 
 void ResultView::startDrag(Qt::DropActions supportedActions) {
+	Q_UNUSED(supportedActions);
 	qDebug() << "start drag";
-	QModelIndexList indexes = selectedIndexes();
+
+	const QModelIndexList indexes = selectedIndexes();
 	if (indexes.isEmpty())
 		return;
 
-	QMimeData* mime = model()->mimeData(indexes);
-	QDrag *drag = new QDrag(this);
+	QMimeData *mime = model()->mimeData(indexes);
+	if (!mime)
+		return;
+
+	auto *drag = new QDrag(this);
 	drag->setMimeData(mime);
 	drag->exec(Qt::CopyAction);
 }
