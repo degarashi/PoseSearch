@@ -9,6 +9,8 @@
 #include <QMimeData>
 #include <QPointer>
 #include <QUrl>
+#include "aux_f/q_value.hpp"
+#include "poseinfodialog.h"
 #include "singleton/my_db.hpp"
 
 ResultView::ResultView(QWidget *parent) : QListView(parent) {
@@ -43,6 +45,7 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 
 	// 安全な永続インデックス
 	const QPersistentModelIndex pIndex(idx);
+	const int poseId = dg::ConvertQV<int>(pIndex.data(Qt::UserRole));
 
 	QPointer<QMenu> menu = new QMenu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose);
@@ -55,7 +58,18 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 		const QString filePath = myDb_c.getFilePath(fileId);
 		QApplication::clipboard()->setText(filePath);
 	});
-
 	menu->addAction(copyPathAction);
+
+	auto *showPoseInfoAction = new QAction(tr("Show PoseInfo"), menu);
+	connect(showPoseInfoAction, &QAction::triggered, this, [this, pIndex, poseId]() {
+		if (!pIndex.isValid())
+			return;
+		// PoseInfoDialog を生成して表示
+		auto *dialog = new PoseInfoDialog(poseId, this);
+		dialog->setAttribute(Qt::WA_DeleteOnClose);
+		dialog->show();
+	});
+	menu->addAction(showPoseInfoAction);
+
 	menu->popup(event->globalPos());
 }
