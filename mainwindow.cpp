@@ -4,12 +4,13 @@
 #include <QSqlError>
 #include <aux_f/sql/database.hpp>
 #include "./ui_mainwindow.h"
+#include "aux_f/q_value.hpp"
 #include "aux_f/sql/query.hpp"
+#include "condition/condition.hpp"
+#include "param/querydialog.h"
 #include "singleton/my_db.hpp"
 #include "singleton/my_settings.hpp"
 #include "singleton/my_thumbnail.hpp"
-#include "param/querydialog.h"
-#include "condition/condition.hpp"
 #include "widget/conditionlistmodel.hpp"
 #include "widget/resultpathmodel.h"
 
@@ -133,9 +134,10 @@ void MainWindow::queryDoubleClicked(const QModelIndex &index) {
 void MainWindow::resultViewDoubleClicked(const QModelIndex &index) {
 	Q_ASSERT(_ui->lvResult->model());
 	// モデルからデータを取得
-	const QVariant fileId = _ui->lvResult->model()->data(index, Qt::UserRole);
+	const auto poseId = dg::ConvertQV<int>(_ui->lvResult->model()->data(index, Qt::UserRole));
+	const auto fileId = myDb_c.getFileId(poseId);
 	// パスを取得
-	const QString path = myDb_c.getFilePath(fileId.toInt());
+	const QString path = myDb_c.getFilePath(fileId);
 	// パスが空でなければ
 	if (!path.isEmpty()) {
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));

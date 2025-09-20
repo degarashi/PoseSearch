@@ -37,7 +37,7 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 				case Qt::DecorationRole:
 					return ent.thumbnail;
 				case Qt::UserRole:
-					return ent.fileId;
+					return ent.poseId;
 				default:;
 			}
 		}
