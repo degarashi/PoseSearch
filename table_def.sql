@@ -31,18 +31,24 @@ CREATE TABLE LandmarkName (
     name            TEXT NOT NULL UNIQUE
 );
 
--- 各ポーズに対するランドマークの座標情報を格納するテーブル
+-- Poseに対する各ランドマーク座標
 CREATE TABLE Landmark (
-    poseId          INTEGER NOT NULL,
-    landmarkIndex   INTEGER NOT NULL,
-    presence        REAL NOT NULL CHECK(presence BETWEEN 0 AND 1),
-    visibility      REAL NOT NULL CHECK(visibility BETWEEN 0 AND 1),
-    x               REAL NOT NULL,
-    y               REAL NOT NULL,
-    z               REAL NOT NULL,
-    FOREIGN KEY (poseId) REFERENCES Pose(id),
-    FOREIGN KEY (landmarkIndex) REFERENCES LandmarkName(id),
-    UNIQUE(poseId, landmarkIndex)
+	poseId		    INTEGER NOT NULL REFERENCES Pose(id),
+	landmarkIndex	INTEGER NOT NULL REFERENCES LandmarkName(id),
+	presence        REAL NOT NULL,
+	visibility	    REAL NOT NULL,
+
+	-- 3D Landmark --
+	x		        REAL NOT NULL,
+	y		        REAL NOT NULL,
+	z		        REAL NOT NULL,
+	-- 2D Landmark --
+	td_x            REAL NOT NULL,
+	td_y            REAL NOT NULL,
+
+	CHECK (presence BETWEEN 0 AND 1),
+	CHECK (visibility BETWEEN 0 AND 1),
+	PRIMARY KEY(poseId, landmarkIndex)
 );
 
 -- torsodir の計算方法と信頼度を格納するテーブル
