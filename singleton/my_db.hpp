@@ -29,6 +29,7 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		int getFileId(int poseId) const;
 
 		struct PoseInfo {
+				std::vector<QVector2D> landmarks;
 				QVector3D torsoDir;
 				// [0] = left, [1] = right
 				QVector3D thighDir[2];

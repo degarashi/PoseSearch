@@ -202,7 +202,15 @@ MyDatabase::PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 	if (!crusDirs[1])
 		throw dg::RuntimeError(QString("Right MasseCrusDir not found for poseId=%1").arg(poseId));
 
+	std::vector<QVector2D> landmarks;
+	{
+		auto q = _db->exec("SELECT td_x, td_y FROM Landmark WHERE poseId = ?", poseId);
+		while (q.next())
+			landmarks.emplace_back(dg::ConvertQV<float>(q.value(0)), dg::ConvertQV<float>(q.value(1)));
+	}
+
 	return PoseInfo{
+		std::move(landmarks),
 		torsoDir,
 		{*(thighDirs[0]), *(thighDirs[1])},
 		{*(crusDirs[0]), *(crusDirs[1])},
