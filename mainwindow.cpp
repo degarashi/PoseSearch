@@ -145,9 +145,8 @@ void MainWindow::resultViewDoubleClicked(const QModelIndex &index) {
 }
 
 void MainWindow::detachDB() {
-	// Messageboxで本当に消すか確認する
-	if (QMessageBox::question(this, "Detach Database",
-							  "Are you sure you want to delete the database file?\nThis operation cannot be undone.",
+	// Messageboxで本当にDetachするか確認する
+	if (QMessageBox::question(this, "Detach Database", "Are you sure you want to detach the database file?",
 							  QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
 		mySet.clearValue(MySettings::Entry::DBFileName);
 		qApp->quit();
