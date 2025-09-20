@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QPolygonF>
 #include <QToolTip>
+#include "aux_f/convert.hpp"
 #include "landmark_index.hpp"
 #include "singleton/my_db.hpp"
 #include "ui_poseinfodialog.h"
@@ -197,11 +198,12 @@ namespace {
 
 			QString text = segmentName;
 			if (IsLeftIndex(idx1)) {
-				text += "-L";
+				text = "(L)";
 			}
 			else if (IsRightIndex(idx1)) {
-				text += "-R";
+				text = "(R)";
 			}
+			text += segmentName;
 			InstallPolyFilter(view, MakeQuadPoly(p1F, p2F, offset), text);
 		}
 	}
@@ -270,7 +272,7 @@ namespace {
 			InstallPolyFilter(ui->imageView,
 							  torsoPoly.subtracted(torsoPoly.translated(-TORSO_OFFSET, -TORSO_OFFSET))
 								  .united(torsoPoly.translated(TORSO_OFFSET, TORSO_OFFSET)),
-							  QStringLiteral("TORSO"));
+							  QStringLiteral("TORSO\n") + dg::VecToString(info.torsoDir));
 			ui->imageView->setMouseTracking(true);
 		}
 
@@ -292,20 +294,26 @@ namespace {
 											  QStringLiteral("FOREARM"));
 		}
 
+		struct Tmp {
+				LandmarkIndex lm0, lm1;
+				bool isRight;
+		};
 		// 大腿ポリゴン
-		const std::pair<LandmarkIndex, LandmarkIndex> thighSegments[] = {
-			{LandmarkIndex::LEFT_HIP, LandmarkIndex::LEFT_KNEE}, {LandmarkIndex::RIGHT_HIP, LandmarkIndex::RIGHT_KNEE}};
-		for (const auto &segment : thighSegments) {
-			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, segment, THIGH_OFFSET,
-											  QStringLiteral("THIGH"));
+		const Tmp thighSegments[] = {{LandmarkIndex::LEFT_HIP, LandmarkIndex::LEFT_KNEE, false},
+									 {LandmarkIndex::RIGHT_HIP, LandmarkIndex::RIGHT_KNEE, true}};
+		for (const auto &def : thighSegments) {
+			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, {def.lm0, def.lm1}, THIGH_OFFSET,
+											  QStringLiteral("THIGH\n") +
+												  dg::VecToString(info.thighDir[static_cast<int>(def.isRight)]));
 		}
 
 		// 下腿ポリゴン
-		const std::pair<LandmarkIndex, LandmarkIndex> shinSegments[] = {
-			{LandmarkIndex::LEFT_KNEE, LandmarkIndex::LEFT_ANKLE},
-			{LandmarkIndex::RIGHT_KNEE, LandmarkIndex::RIGHT_ANKLE}};
-		for (const auto &segment : shinSegments) {
-			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, segment, SHIN_OFFSET, QStringLiteral("CRUS"));
+		const Tmp shinSegments[] = {{LandmarkIndex::LEFT_KNEE, LandmarkIndex::LEFT_ANKLE, false},
+									{LandmarkIndex::RIGHT_KNEE, LandmarkIndex::RIGHT_ANKLE, true}};
+		for (const auto &def : shinSegments) {
+			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, {def.lm0, def.lm1}, SHIN_OFFSET,
+											  QStringLiteral("CRUS\n") +
+												  dg::VecToString(info.crusDir[static_cast<int>(def.isRight)]));
 		}
 	}
 } // namespace
