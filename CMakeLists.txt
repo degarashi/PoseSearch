@@ -77,6 +77,7 @@ qt_add_executable(PoseSearch
 	MANUAL_FINALIZATION
     ${MY_SOURCES}
     ${MY_HEADERS}
+    widget/poseinfodialog.h widget/poseinfodialog.cpp widget/poseinfodialog.ui
 )
 add_dependencies(PoseSearch sqlite_vec)
 
