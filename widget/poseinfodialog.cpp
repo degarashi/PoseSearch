@@ -51,6 +51,22 @@ namespace {
 	};
 	constexpr int CONNECTION_COUNT = sizeof(CONNECTIONS) / sizeof(CONNECTIONS[0]);
 
+	// 頭部ランドマーク（BlazePoseの代表的な頭部周り）
+	constexpr LandmarkIndex HEAD_LANDMARKS[] = {
+		LandmarkIndex::NOSE,
+		LandmarkIndex::LEFT_EYE_INNER,
+		LandmarkIndex::LEFT_EYE,
+		LandmarkIndex::LEFT_EYE_OUTER,
+		LandmarkIndex::RIGHT_EYE_INNER,
+		LandmarkIndex::RIGHT_EYE,
+		LandmarkIndex::RIGHT_EYE_OUTER,
+		LandmarkIndex::LEFT_EAR,
+		LandmarkIndex::RIGHT_EAR,
+		LandmarkIndex::MOUTH_LEFT,
+		LandmarkIndex::MOUTH_RIGHT,
+	};
+	constexpr int HEAD_LANDMARK_COUNT = sizeof(HEAD_LANDMARKS) / sizeof(HEAD_LANDMARKS[0]);
+
 	// ポリゴン判定用のオフセット値
 	constexpr qreal TORSO_OFFSET = 5.0;
 	constexpr qreal THIGH_OFFSET = 10.0;
@@ -220,6 +236,7 @@ PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *const parent) : QDialo
 	const int w = img.width();
 	const int h = img.height();
 
+	// 骨格ライン
 	for (const auto &connection : CONNECTIONS) {
 		LandmarkIndex idx1 = connection.first;
 		LandmarkIndex idx2 = connection.second;
@@ -235,6 +252,25 @@ PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *const parent) : QDialo
 
 		drawConnection(painter, p1F, p2F, isLeftIndex(idx1), isRightIndex(idx1), isLeftIndex(idx2), isRightIndex(idx2),
 					   leftPen, rightPen);
+	}
+
+	// 頭部ランドマークの描画（点）
+	{
+		QPen headPen(QColor(30, 144, 255), 2); // DodgerBlue
+		QBrush headBrush(QColor(30, 144, 255, 180));
+		painter.setPen(headPen);
+		painter.setBrush(headBrush);
+		const qreal r = 3.5;
+
+		for (int i = 0; i < HEAD_LANDMARK_COUNT; ++i) {
+			LandmarkIndex idx = HEAD_LANDMARKS[i];
+			if (static_cast<int>(idx) >= static_cast<int>(info.landmarks.size()))
+				continue;
+
+			const auto &lm = info.landmarks[static_cast<int>(idx)];
+			QPointF p(lm.x() * w, lm.y() * h);
+			painter.drawEllipse(QRectF(p.x() - r, p.y() - r, r * 2.0, r * 2.0));
+		}
 	}
 	painter.end();
 
