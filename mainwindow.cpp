@@ -149,6 +149,8 @@ void MainWindow::detachDB() {
 	if (QMessageBox::question(this, "Detach Database", "Are you sure you want to detach the database file?",
 							  QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
 		mySet.clearValue(MySettings::Entry::DBFileName);
+		// サムネイルも一緒にクリア
+		myTn.clearThumbnail();
 		qApp->quit();
 	}
 }
