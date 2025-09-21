@@ -181,7 +181,7 @@ int MyDatabase::getFileId(const int poseId) const {
 	return -1;
 }
 
-MyDatabase::PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
+PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 	// torsoDir
 	const auto torsoOpt = fetchSingleVec3(*_db, "MasseTorsoDir", poseId);
 	if (!torsoOpt)

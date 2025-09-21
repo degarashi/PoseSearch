@@ -8,9 +8,9 @@
 #include <QToolTip>
 #include "aux_f/convert.hpp"
 #include "landmark_index.hpp"
+#include "poseinfo.hpp"
 #include "singleton/my_db.hpp"
 #include "ui_poseinfodialog.h"
-#include "aux_f/angle.hpp"
 
 namespace {
 	constexpr int MAX_IMAGE_WIDTH = 640;
@@ -183,9 +183,9 @@ namespace {
 	}
 
 	// 指定されたランドマークインデックスのペアからポリゴンを作成し、イベントフィルタをインストールするヘルパー関数
-	void CreateAndInstallSegmentPolyFilter(QWidget *const view, const MyDatabase::PoseInfo &info, const int w,
-										   const int h, const std::pair<LandmarkIndex, LandmarkIndex> &segment,
-										   const float offset, const QString &segmentName) {
+	void CreateAndInstallSegmentPolyFilter(QWidget *const view, const PoseInfo &info, const int w, const int h,
+										   const std::pair<LandmarkIndex, LandmarkIndex> &segment, const float offset,
+										   const QString &segmentName) {
 		const LandmarkIndex idx1 = segment.first;
 		const LandmarkIndex idx2 = segment.second;
 
@@ -211,7 +211,7 @@ namespace {
 		}
 	}
 	// 骨格描画処理をまとめたメソッド
-	void DrawSkeleton(QPainter &painter, const MyDatabase::PoseInfo &info, const int w, const int h) {
+	void DrawSkeleton(QPainter &painter, const PoseInfo &info, const int w, const int h) {
 		painter.setRenderHint(QPainter::Antialiasing, true);
 		const QPen leftPen(QColor(0, 200, 0), 2);
 		const QPen rightPen(QColor(220, 0, 0), 2);
@@ -252,7 +252,7 @@ namespace {
 			}
 		}
 	}
-	void SetupPosePolygons(Ui::PoseInfoDialog *const ui, const MyDatabase::PoseInfo &info, const int w, const int h) {
+	void SetupPosePolygons(Ui::PoseInfoDialog *const ui, const PoseInfo &info, const int w, const int h) {
 		// 胴体ポリゴン
 		const LandmarkIndex torsoIdx[] = {LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::RIGHT_SHOULDER,
 										  LandmarkIndex::RIGHT_HIP, LandmarkIndex::LEFT_HIP};

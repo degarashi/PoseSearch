@@ -1,8 +1,8 @@
 #pragma once
 #include <QStringList>
 #include <QVector3D>
-#include "aux_f/angle.hpp"
 #include "aux_f/sql/database.hpp"
+#include "poseinfo.hpp"
 #include "singleton.hpp"
 
 class Condition;
@@ -29,15 +29,6 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		QString getFilePath(int fileId) const;
 		int getFileId(int poseId) const;
 
-		struct PoseInfo {
-				std::vector<QVector2D> landmarks;
-				QVector3D torsoDir;
-				// [0] = left, [1] = right
-				QVector3D thighDir[2];
-				QVector3D crusDir[2];
-				dg::Degree thighFlex[2];
-				dg::Degree crusFlex[2];
-		};
 		// ent.poseIdに関連する姿勢情報を一括取得して返す関数を定義
 		PoseInfo getPoseInfo(int poseId) const;
 
