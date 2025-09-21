@@ -46,10 +46,12 @@ namespace {
 		{LandmarkIndex::LEFT_WRIST, LandmarkIndex::LEFT_THUMB},
 		{LandmarkIndex::LEFT_WRIST, LandmarkIndex::LEFT_INDEX},
 		{LandmarkIndex::LEFT_WRIST, LandmarkIndex::LEFT_PINKY},
+		{LandmarkIndex::LEFT_INDEX, LandmarkIndex::LEFT_PINKY},
 		// 右手（手首=16と付け根）
 		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_THUMB},
 		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_INDEX},
 		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_PINKY},
+		{LandmarkIndex::RIGHT_INDEX, LandmarkIndex::RIGHT_PINKY},
 	};
 	constexpr int CONNECTION_COUNT = sizeof(CONNECTIONS) / sizeof(CONNECTIONS[0]);
 
