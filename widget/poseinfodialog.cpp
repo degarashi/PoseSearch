@@ -271,10 +271,11 @@ namespace {
 			QPolygonF torsoPoly;
 			torsoPoly << QPointF(lShoulder.x() * w, lShoulder.y() * h) << QPointF(rShoulder.x() * w, rShoulder.y() * h)
 					  << QPointF(rHip.x() * w, rHip.y() * h) << QPointF(lHip.x() * w, lHip.y() * h);
-			InstallPolyFilter(ui->imageView,
-							  torsoPoly.subtracted(torsoPoly.translated(-TORSO_OFFSET, -TORSO_OFFSET))
-								  .united(torsoPoly.translated(TORSO_OFFSET, TORSO_OFFSET)),
-							  QStringLiteral("TORSO\n") + dg::VecToString(info.torsoDir));
+			InstallPolyFilter(
+				ui->imageView,
+				torsoPoly.subtracted(torsoPoly.translated(-TORSO_OFFSET, -TORSO_OFFSET))
+					.united(torsoPoly.translated(TORSO_OFFSET, TORSO_OFFSET)),
+				QStringLiteral("TORSO\n%1\n%2").arg(dg::VecToString(info.torsoDir)).arg(info.torsoMethod));
 			ui->imageView->setMouseTracking(true);
 		}
 
