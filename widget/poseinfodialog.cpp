@@ -10,6 +10,7 @@
 #include "landmark_index.hpp"
 #include "singleton/my_db.hpp"
 #include "ui_poseinfodialog.h"
+#include "aux_f/angle.hpp"
 
 namespace {
 	constexpr int MAX_IMAGE_WIDTH = 640;
@@ -297,24 +298,26 @@ namespace {
 
 		struct Tmp {
 				LandmarkIndex lm0, lm1;
-				bool isRight;
+				int index;
 		};
 		// 大腿ポリゴン
-		const Tmp thighSegments[] = {{LandmarkIndex::LEFT_HIP, LandmarkIndex::LEFT_KNEE, false},
-									 {LandmarkIndex::RIGHT_HIP, LandmarkIndex::RIGHT_KNEE, true}};
+		const Tmp thighSegments[] = {{LandmarkIndex::LEFT_HIP, LandmarkIndex::LEFT_KNEE, 0},
+									 {LandmarkIndex::RIGHT_HIP, LandmarkIndex::RIGHT_KNEE, 1}};
 		for (const auto &def : thighSegments) {
 			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, {def.lm0, def.lm1}, THIGH_OFFSET,
-											  QStringLiteral("THIGH\n") +
-												  dg::VecToString(info.thighDir[static_cast<int>(def.isRight)]));
+											  QStringLiteral("THIGH\n%1\n%2")
+												  .arg(dg::VecToString(info.thighDir[def.index]))
+												  .arg(info.thighFlex[def.index].toString()));
 		}
 
 		// 下腿ポリゴン
-		const Tmp shinSegments[] = {{LandmarkIndex::LEFT_KNEE, LandmarkIndex::LEFT_ANKLE, false},
-									{LandmarkIndex::RIGHT_KNEE, LandmarkIndex::RIGHT_ANKLE, true}};
+		const Tmp shinSegments[] = {{LandmarkIndex::LEFT_KNEE, LandmarkIndex::LEFT_ANKLE, 0},
+									{LandmarkIndex::RIGHT_KNEE, LandmarkIndex::RIGHT_ANKLE, 1}};
 		for (const auto &def : shinSegments) {
 			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, {def.lm0, def.lm1}, SHIN_OFFSET,
-											  QStringLiteral("CRUS\n") +
-												  dg::VecToString(info.crusDir[static_cast<int>(def.isRight)]));
+											  QStringLiteral("CRUS\n%1\n%2")
+												  .arg(dg::VecToString(info.crusDir[def.index]))
+												  .arg(info.crusFlex[def.index].toString()));
 		}
 	}
 } // namespace
