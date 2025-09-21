@@ -208,11 +208,31 @@ MyDatabase::PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 		while (q.next())
 			landmarks.emplace_back(dg::ConvertQV<float>(q.value(0)), dg::ConvertQV<float>(q.value(1)));
 	}
+	std::array<dg::Radian, 2> thighFlexInfo;
+	{
+		auto qThighFlex = _db->exec("SELECT is_right, angleRad FROM ThighFlexion WHERE poseId = ?", poseId);
+		while (qThighFlex.next()) {
+			const int isRight = dg::ConvertQV<int>(qThighFlex.value(0));
+			const int idx = (isRight != 0) ? 1 : 0;
+			thighFlexInfo[idx].set(dg::ConvertQV<float>(qThighFlex.value(1)));
+		}
+	}
+	std::array<dg::Radian, 2> crusFlexInfo;
+	{
+		auto qCrusFlex = _db->exec("SELECT is_right, angleRad FROM CrusFlexion WHERE poseId = ?", poseId);
+		while (qCrusFlex.next()) {
+			const int isRight = dg::ConvertQV<int>(qCrusFlex.value(0));
+			const int idx = (isRight != 0) ? 1 : 0;
+			crusFlexInfo[idx].set(dg::ConvertQV<float>(qCrusFlex.value(1)));
+		}
+	}
 
 	return PoseInfo{
 		std::move(landmarks),
 		torsoDir,
 		{*(thighDirs[0]), *(thighDirs[1])},
 		{*(crusDirs[0]), *(crusDirs[1])},
+		{thighFlexInfo[0], thighFlexInfo[1]},
+		{crusFlexInfo[0], crusFlexInfo[1]},
 	};
 }
