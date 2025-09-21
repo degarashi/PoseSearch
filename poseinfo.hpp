@@ -7,6 +7,7 @@
 
 struct PoseInfo {
 		std::vector<QVector2D> landmarks;
+		QString torsoMethod;
 		QVector3D torsoDir;
 		// [0] = left, [1] = right
 		QVector3D thighDir[2];

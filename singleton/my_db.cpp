@@ -188,6 +188,14 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 		throw dg::RuntimeError(QString("MasseTorsoDir not found for poseId=%1").arg(poseId));
 	const QVector3D torsoDir = *torsoOpt;
 
+	// torsoDir(Method)
+	QString method("unknown");
+	{
+		auto q = _db->exec("SELECT method FROM MasseTorsoDir WHERE poseId = ?", poseId);
+		if (q.next())
+			method = dg::ConvertQV<QString>(q.value(0));
+	}
+
 	// thighDir (left/right)
 	const auto thighDirs = fetchLimbDirs(*_db, "MasseThighDir", poseId);
 	if (!thighDirs[0])
@@ -229,6 +237,7 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 
 	return PoseInfo{
 		std::move(landmarks),
+		method,
 		torsoDir,
 		{*(thighDirs[0]), *(thighDirs[1])},
 		{*(crusDirs[0]), *(crusDirs[1])},
