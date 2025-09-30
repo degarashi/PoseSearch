@@ -28,6 +28,7 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		dg::sql::Database &database() const;
 		QString getFilePath(int fileId) const;
 		int getFileId(int poseId) const;
+		QRectF getPoseRect(int poseId) const;
 
 		// ent.poseIdに関連する姿勢情報を一括取得して返す関数を定義
 		PoseInfo getPoseInfo(int poseId) const;

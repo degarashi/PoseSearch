@@ -180,6 +180,17 @@ int MyDatabase::getFileId(const int poseId) const {
 		return dg::ConvertQV<int>(q.value(0));
 	return -1;
 }
+QRectF MyDatabase::getPoseRect(const int poseId) const {
+	auto q = _db->exec("SELECT x0, x1, y0, y1 FROM PoseRect WHERE poseId=?", poseId);
+	if (q.next()) {
+		const float x0 = dg::ConvertQV<float>(q.value(0));
+		const float x1 = dg::ConvertQV<float>(q.value(1));
+		const float y0 = dg::ConvertQV<float>(q.value(2));
+		const float y1 = dg::ConvertQV<float>(q.value(3));
+		return QRectF(QPointF{x0, y0}, QPointF{x1, y1});
+	}
+	return {};
+}
 
 PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 	// torsoDir
@@ -235,13 +246,12 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 		}
 	}
 
-	return PoseInfo{
-		std::move(landmarks),
-		method,
-		torsoDir,
-		{*(thighDirs[0]), *(thighDirs[1])},
-		{*(crusDirs[0]), *(crusDirs[1])},
-		{thighFlexInfo[0], thighFlexInfo[1]},
-		{crusFlexInfo[0], crusFlexInfo[1]},
-	};
+	return PoseInfo{std::move(landmarks),
+					method,
+					torsoDir,
+					{*(thighDirs[0]), *(thighDirs[1])},
+					{*(crusDirs[0]), *(crusDirs[1])},
+					{thighFlexInfo[0], thighFlexInfo[1]},
+					{crusFlexInfo[0], crusFlexInfo[1]},
+					getPoseRect(poseId)};
 }

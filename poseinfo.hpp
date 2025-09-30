@@ -14,4 +14,5 @@ struct PoseInfo {
 		QVector3D crusDir[2];
 		dg::Degree thighFlex[2];
 		dg::Degree crusFlex[2];
+		QRectF rect;
 };
