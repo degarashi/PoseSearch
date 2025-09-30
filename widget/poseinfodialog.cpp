@@ -184,6 +184,18 @@ namespace {
 		view->installEventFilter(filter);
 	}
 
+	void DrawPoseRect(QPainter &p, const QRectF &rect, const int w, const int h) {
+		const QRectF qRect(rect.x() * w, rect.y() * h, rect.width() * w, rect.height() * h);
+		QPolygonF poly;
+		poly << qRect.topLeft() << qRect.topRight() << qRect.bottomRight() << qRect.bottomLeft();
+
+		p.setRenderHint(QPainter::Antialiasing, true);
+		const QPen rectPen(QColor(255, 165, 0), 2); // Orange のペン
+		p.setPen(rectPen);
+		p.setBrush(Qt::NoBrush);
+		p.drawPolygon(poly);
+	}
+
 	// 指定されたランドマークインデックスのペアからポリゴンを作成し、イベントフィルタをインストールするヘルパー関数
 	void CreateAndInstallSegmentPolyFilter(QWidget *const view, const PoseInfo &info, const int w, const int h,
 										   const std::pair<LandmarkIndex, LandmarkIndex> &segment, const float offset,
@@ -350,6 +362,9 @@ PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *const parent) : QDialo
 	{
 		QPainter painter(&img);
 		DrawSkeleton(painter, info, w, h);
+
+		// 姿勢推定で使われた領域を描画
+		DrawPoseRect(painter, info.rect, w, h);
 		painter.end();
 
 		_ui->imageView->setFixedSize(img.size());
