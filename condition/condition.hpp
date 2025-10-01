@@ -5,6 +5,7 @@
 #include <cereal/types/polymorphic.hpp>
 #include <cereal_types/qstring.hpp>
 #include <cereal_types/qvector.hpp>
+#include "aux_f/angle.hpp"
 #include "static_base.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -135,6 +136,22 @@ class Cond_BodyDirPitch : public Condition, public StaticClassBase<Cond_BodyDirP
 			ar(cereal::base_class<Condition>(this));
 		}
 };
+// 条件：大腿の伸展度合い
+class Cond_ThighFlexion : public Condition, public StaticClassBase<Cond_ThighFlexion> {
+	private:
+		std::array<dg::Degree, 2> _flexDeg;
+
+	public:
+		DEF_FUNCS
+		bool _supportNegativeRatio() const override;
+
+		template <typename Ar>
+		void serialize(Ar &ar) {
+			ar(_flexDeg);
+			ar(cereal::base_class<Condition>(this));
+		}
+};
+
 #undef DEF_FUNCS
 
 QJsonArray VecToJArray(const QVector3D &v);
