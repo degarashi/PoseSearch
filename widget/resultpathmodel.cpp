@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QMimeData>
 #include <QUrl>
+#include "aux_f/convert.hpp"
 #include "singleton/my_db.hpp"
 #include "singleton/my_thumbnail.hpp"
 
@@ -25,13 +26,24 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 			const auto &ent = _data[index.row()];
 			switch (role) {
 				case Qt::ToolTipRole: {
-					// カーソルホバー時に表示する文字列
-					auto msg = QString("%1\nScore: %2")
-								   .arg(myDb_c.getFilePath(ent.fileId))
-								   .arg(myDb_c.getScore(ent.poseId).score);
+					const auto info = myDb_c.getPoseInfo(ent.poseId);
 					const auto sc = myDb_c.getScore(ent.poseId);
+					// カーソルホバー時に表示する文字列
+					auto msg = QString("%1\nScore: %2").arg(myDb_c.getFilePath(ent.fileId)).arg(sc.score);
 					for (auto &&scl : sc.individual)
 						msg += QString("\n\t%1").arg(scl);
+
+					msg += "\n--TorsoDir--\n";
+					msg += dg::VecToString(info.torsoDir);
+					msg += "\n--ThighDir--\n";
+					msg += dg::VecToString(info.thighDir[0]);
+					msg += dg::VecToString(info.thighDir[1]);
+					msg += "\n--CrusDir--\n";
+					msg += dg::VecToString(info.crusDir[0]);
+					msg += dg::VecToString(info.crusDir[1]);
+					msg += "\n--ThighFlex--\n";
+					msg += QString("%1, %2").arg(info.thighFlex[0].toString()).arg(info.thighFlex[1].toString());
+
 					return msg;
 				}
 				case Qt::DecorationRole:
