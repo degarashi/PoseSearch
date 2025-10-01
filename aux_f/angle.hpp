@@ -3,7 +3,6 @@
 #include <QString>
 #include <cmath>
 #include <compare>
-#include <concepts>
 #include <numbers>
 
 namespace dg {
