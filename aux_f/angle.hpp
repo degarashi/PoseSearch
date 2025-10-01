@@ -1,9 +1,8 @@
-
 #pragma once
-#include <QString>
 #include <cmath>
 #include <compare>
 #include <numbers>
+#include <string>
 
 namespace dg {
 	// 前方宣言
@@ -73,8 +72,8 @@ namespace dg {
 
 			constexpr auto operator<=>(const Radian &other) const noexcept = default;
 			constexpr bool operator==(const Radian &other) const noexcept = default;
-			QString toString() const {
-				return QString::number(value) + QStringLiteral("(rad)");
+			std::string toString() const {
+				return std::to_string(value) + std::string("(rad)");
 			}
 	};
 
@@ -107,8 +106,8 @@ namespace dg {
 
 			constexpr auto operator<=>(const Degree &other) const noexcept = default;
 			constexpr bool operator==(const Degree &other) const noexcept = default;
-			QString toString() const {
-				return QString::number(value) + QStringLiteral("(deg)");
+			std::string toString() const {
+				return std::to_string(value) + std::string("(deg)");
 			}
 	};
 
