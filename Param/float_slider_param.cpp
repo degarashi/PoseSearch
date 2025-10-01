@@ -12,9 +12,8 @@ FloatSliderParam::FloatSliderParam(const dg::Range<float> &range, const float in
 			[this]() { _ui->label->setText(QString::number(value(), 'f', 2)); }); // 現在の値を小数点以下2桁で表示
 
 	// UIのスライダー値はあくまでUI操作用なので適当にセット
-	// (これだと1000刻みになる)
-	_ui->slider->setRange(0, 1000);
-	_ui->slider->setValue(500);
+	_ui->slider->setRange(0, (1 << 16) - 1);
+	_ui->slider->setValue((1 << 15) - 1);
 
 	// 初期値の設定（非同期実行）
 	QTimer::singleShot(0, this, [this, initial]() { setValue(initial); });
