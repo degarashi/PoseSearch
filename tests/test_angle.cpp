@@ -7,9 +7,12 @@ using namespace dg;
 // Radian正規化処理のテスト
 // 入力値を -π〜π の範囲に収める動作確認
 TEST(AngleTest, NormalizeRadians) {
+	constexpr auto PI = std::numbers::pi_v<float>;
 	EXPECT_NEAR(NormalizeRadians(0.0f), 0.0f, 1e-6); // 0の正規化確認
-	EXPECT_NEAR(NormalizeRadians(std::numbers::pi_v<float> * 2), 0.f, 1e-6); // 2πの正規化確認
-	EXPECT_NEAR(NormalizeRadians(-std::numbers::pi_v<float> * 3 + 1e-4), -std::numbers::pi_v<float> + 1e-4,
+	EXPECT_NEAR(NormalizeRadians(-PI), PI, 1e-6);
+	EXPECT_NEAR(NormalizeRadians(PI), PI, 1e-6);
+	EXPECT_NEAR(NormalizeRadians(PI * 2), 0.f, 1e-6); // 2πの正規化確認
+	EXPECT_NEAR(NormalizeRadians(-PI * 3 + 1e-4), -PI + 1e-4,
 				1e-6); // -3π+微小値の正規化確認
 }
 
@@ -17,6 +20,8 @@ TEST(AngleTest, NormalizeRadians) {
 // 入力値を -180〜180 の範囲に収める動作確認
 TEST(AngleTest, NormalizeDegrees) {
 	EXPECT_NEAR(NormalizeDegrees(0.0f), 0.0f, 1e-6); // 0の正規化確認
+	EXPECT_NEAR(NormalizeDegrees(-180.f), 180.0f, 1e-6);
+	EXPECT_NEAR(NormalizeDegrees(180.f), 180.f, 1e-6);
 	EXPECT_NEAR(NormalizeDegrees(540.0f - 1.f), 180.0f - 1.f, 1e-6); // 540-1度の正規化確認
 	EXPECT_NEAR(NormalizeDegrees(-540.0f + 1.f), -180.0f + 1.f, 1e-6); // -540+1度の正規化確認
 }
