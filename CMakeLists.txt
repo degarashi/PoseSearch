@@ -24,6 +24,8 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 add_executable(mytests
 	tests/test_angle.cpp
+	tests/test_value.cpp
+	aux_f/exception.cpp
 )
 
 target_include_directories(mytests PRIVATE . aux_f)
