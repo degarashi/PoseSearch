@@ -64,7 +64,7 @@ namespace dg::sql {
 	void Database::open() {
 		if (!_db.isOpen()) {
 			if (!_db.open())
-				throw CantOpenDatabase(_db.lastError().text());
+				throw CantOpenDatabase(_db.lastError().text().toStdString());
 			// pragmaの適用
 			for (auto &&p : _pragma) {
 				exec(QString("PRAGMA %1 = %2").arg(p.first, p.second));
@@ -132,7 +132,7 @@ namespace dg::sql {
 			exec(QString("SELECT load_extension('%1', '%2')").arg(path, entry_point));
 		}
 		catch (const ExecutionError &e) {
-			throw CantLoadExtension(e.q_what());
+			throw CantLoadExtension(e.what());
 		}
 	}
 	void Database::beginTransaction() {

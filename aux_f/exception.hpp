@@ -1,37 +1,39 @@
 #pragma once
-#include <QException>
-#include <QObject>
-#include <QString>
+#include <exception>
+#include <string>
 
 namespace dg {
-	class RuntimeError : public QObject, public QException {
-		Q_OBJECT
+	class RuntimeError : public std::exception {
 		protected:
-			QString _msg;
+			std::string _msg; // エラーメッセージ格納
 
 		public:
-			RuntimeError(const QString &msg);
-			virtual const QString &q_what() const noexcept;
+			explicit RuntimeError(const std::string &msg);
+
+			// 標準的なwhat()をオーバーライド
+			const char *what() const noexcept override;
+
+			// 追加インターフェースとしてstd::string参照を返す
+			virtual const std::string &s_what() const noexcept;
 	};
 
 	class InvalidInput : public RuntimeError {
-		Q_OBJECT
 		public:
-			InvalidInput(const QString &reason);
+			explicit InvalidInput(const std::string &reason);
 	};
+
 	class CantOpenFile : public RuntimeError {
-		Q_OBJECT
 		public:
-			CantOpenFile(const QString &path);
+			explicit CantOpenFile(const std::string &path);
 	};
+
 	class UnknownImage : public RuntimeError {
-		Q_OBJECT
 		public:
-			UnknownImage(const QString &path);
+			explicit UnknownImage(const std::string &path);
 	};
+
 	class CantMakeThumbnail : public RuntimeError {
-		Q_OBJECT
 		public:
-			CantMakeThumbnail(const QString &path);
+			explicit CantMakeThumbnail(const std::string &path);
 	};
 } // namespace dg

@@ -1,4 +1,5 @@
 #pragma once
+#include <format>
 #include "aux_f/exception.hpp"
 
 namespace dg {
@@ -31,7 +32,7 @@ namespace dg {
 
 			void validate() const {
 				if (!valid())
-					throw dg::InvalidInput(QString("invalid range min=%1, max=%2").arg(min, max));
+					throw dg::InvalidInput(std::format("invalid range min={}, max={}", min, max));
 			}
 			constexpr bool valid() const noexcept {
 				return min <= max;

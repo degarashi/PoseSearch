@@ -21,7 +21,7 @@ namespace {
 	QString CalculateCacheName(const QString &filePath) {
 		QFile file(filePath);
 		if (!file.open(QIODevice::ReadOnly)) {
-			throw dg::CantOpenFile(filePath);
+			throw dg::CantOpenFile(filePath.toStdString());
 		}
 		// Blake2b_256ハッシュを計算
 		QCryptographicHash hash(QCryptographicHash::Blake2b_256);
@@ -41,7 +41,8 @@ MyThumbnail::MyThumbnail() {
 	QDir thumbnailDir(THUMBNAIL_DIR);
 	if (!thumbnailDir.exists()) {
 		if (!thumbnailDir.mkpath(".")) {
-			throw dg::RuntimeError(QString("Failed to create thumbnail directory: %1").arg(THUMBNAIL_DIR));
+			throw dg::RuntimeError(
+				QString("Failed to create thumbnail directory: %1").arg(THUMBNAIL_DIR).toStdString());
 		}
 	}
 	db.attach(THUMBNAIL_DB, THUMB_DB);
@@ -74,7 +75,7 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds)
 			std::tie(item.thumbnail, item.cacheFileName) = _GenerateThumbnail(item.filePath, item.fileId);
 		}
 		catch (const dg::RuntimeError &e) {
-			qDebug() << "Error generating thumbnail for file-id:" << item.fileId << e.q_what();
+			qDebug() << "Error generating thumbnail for file-id:" << item.fileId << e.what();
 		}
 	};
 	// 最終的に統合するアイテム
@@ -155,19 +156,19 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds)
 
 std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &filePath, const int fileId) {
 	if (fileId <= 0) {
-		throw dg::InvalidInput(QString("Invalid fileId %1").arg(fileId));
+		throw dg::InvalidInput(std::string("Invalid fileId ") + std::to_string(fileId));
 	}
 
 	QFile imgFile(filePath);
 	if (!imgFile.open(QIODevice::ReadOnly))
-		throw dg::CantOpenFile(filePath);
+		throw dg::CantOpenFile(filePath.toStdString());
 
 	// 画像作ってリサイズ
 	QImage img;
 	const auto imgData = imgFile.readAll();
 	if (imgData.length() == 0)
 		// データ長が0の場合はエラー
-		throw dg::UnknownImage(filePath);
+		throw dg::UnknownImage(filePath.toStdString());
 	img = img.fromData(imgData);
 	img = img.scaled(IconSize, IconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	if (img.isNull()) {
@@ -182,16 +183,16 @@ std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &fileP
 
 	// サムネイルをキャッシュディレクトリに保存
 	if (ret.isNull())
-		throw dg::CantMakeThumbnail(filePath);
+		throw dg::CantMakeThumbnail(filePath.toStdString());
 
 	QDir dir;
 	if (!dir.exists(THUMBNAIL_DIR)) {
 		if (!dir.mkpath(THUMBNAIL_DIR)) {
-			throw dg::RuntimeError(QString("Failed to mkdir \"%1\"").arg(THUMBNAIL_DIR));
+			throw dg::RuntimeError(QString("Failed to mkdir \"%1\"").arg(THUMBNAIL_DIR).toStdString());
 		}
 	}
 	if (!ret.save(cachePath, "PNG")) {
-		throw dg::RuntimeError(QString("Failed to save thumbnail \"%1\"").arg(cachePath));
+		throw dg::RuntimeError(QString("Failed to save thumbnail \"%1\"").arg(cachePath).toStdString());
 	}
 	return std::make_tuple(std::move(ret), cacheName);
 }

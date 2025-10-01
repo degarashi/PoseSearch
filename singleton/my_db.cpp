@@ -153,7 +153,7 @@ MyDatabase::QueryScore MyDatabase::getScore(const int poseId) const {
 
 	QueryScore ret;
 	if (!q.next())
-		throw dg::RuntimeError(QString("Pose ID %1 not found in score table.").arg(poseId));
+		throw dg::RuntimeError("Pose ID " + std::to_string(poseId) + " not found in score table.");
 
 	bool ok;
 	ret.score = q.value(1).toFloat(&ok);
@@ -196,7 +196,7 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 	// torsoDir
 	const auto torsoOpt = fetchSingleVec3(*_db, "MasseTorsoDir", poseId);
 	if (!torsoOpt)
-		throw dg::RuntimeError(QString("MasseTorsoDir not found for poseId=%1").arg(poseId));
+		throw dg::RuntimeError("MasseTorsoDir not found for poseId=" + std::to_string(poseId));
 	const QVector3D torsoDir = *torsoOpt;
 
 	// torsoDir(Method)
@@ -210,16 +210,16 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 	// thighDir (left/right)
 	const auto thighDirs = fetchLimbDirs(*_db, "MasseThighDir", poseId);
 	if (!thighDirs[0])
-		throw dg::RuntimeError(QString("Left MasseThighDir not found for poseId=%1").arg(poseId));
+		throw dg::RuntimeError("Left MasseThighDir not found for poseId=" + std::to_string(poseId));
 	if (!thighDirs[1])
-		throw dg::RuntimeError(QString("Right MasseThighDir not found for poseId=%1").arg(poseId));
+		throw dg::RuntimeError("Right MasseThighDir not found for poseId=" + std::to_string(poseId));
 
 	// crusDir (left/right)
 	const auto crusDirs = fetchLimbDirs(*_db, "MasseCrusDir", poseId);
 	if (!crusDirs[0])
-		throw dg::RuntimeError(QString("Left MasseCrusDir not found for poseId=%1").arg(poseId));
+		throw dg::RuntimeError("Left MasseCrusDir not found for poseId=" + std::to_string(poseId));
 	if (!crusDirs[1])
-		throw dg::RuntimeError(QString("Right MasseCrusDir not found for poseId=%1").arg(poseId));
+		throw dg::RuntimeError("Right MasseCrusDir not found for poseId=" + std::to_string(poseId));
 
 	std::vector<QVector2D> landmarks;
 	{

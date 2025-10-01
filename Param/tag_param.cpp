@@ -1,4 +1,5 @@
 #include "tag_param.h"
+#include <format>
 #include "aux_f/exception.hpp"
 #include "singleton/my_db.hpp"
 #include "ui_tag_param.h"
@@ -27,6 +28,6 @@ void TagParam::setValue(const QString &val) {
 	}
 	else {
 		// 見つからない場合はエラー
-		throw dg::InvalidInput(QString("invalid tag %1").arg(val));
+		throw dg::InvalidInput(std::format("invalid tag {}", val.toStdString()));
 	}
 }

@@ -6,7 +6,7 @@
 
 namespace dg::sql {
 	namespace {
-		const QString c_featureName[] = {
+		const std::string c_featureName[] = {
 			"Transactions",
 			"QuerySize",
 			"BLOB",
@@ -25,45 +25,47 @@ namespace dg::sql {
 		};
 	}
 	FeatureNotSupported::FeatureNotSupported(const int num) :
-		RuntimeError(tr("feature not supported: %1").arg(c_featureName[num])), _num(num) {
+		RuntimeError("feature not supported: " + c_featureName[num]), _num(num) {
 	}
 	// ------------------- CantOpenDatabase -------------------
-	CantOpenDatabase::CantOpenDatabase(const QString &path) : RuntimeError(tr("can't open database (%1)").arg(path)) {
+	CantOpenDatabase::CantOpenDatabase(const std::string &path) : RuntimeError("can't open database (" + path + ")") {
 	}
 	// ------------------- CantLoadExtension -------------------
-	CantLoadExtension::CantLoadExtension(const QString &path) :
-		RuntimeError(tr("can't open extension path(%1)").arg(path)) {
+	CantLoadExtension::CantLoadExtension(const std::string &path) :
+		RuntimeError("can't open extension path(" + path + ")") {
 	}
 	// ------------------- ExecutionError -------------------
 	namespace {
-		void RemoveLeadingSpaces(QString text) {
+		void RemoveLeadingSpaces(std::string &text) {
 			// ^\s+   : 行頭の空白（スペースやタブなど）1文字以上
 			// (?m)   : 複数行モード（^ と $ が行頭・行末にマッチする）
 			QRegularExpression re(QStringLiteral("(?m)^\\s+"));
-			text.replace(re, "");
+			QString qtext = QString::fromStdString(text);
+			qtext.replace(re, "");
+			text = qtext.toStdString();
 		}
-		QString PrettyPrintQuery(const QString &query) {
-			QString prettyQuery = query;
+		std::string PrettyPrintQuery(const std::string &query) {
+			std::string prettyQuery = query;
 			RemoveLeadingSpaces(prettyQuery);
 			return prettyQuery;
 		}
 
-		QString PrettyPrintValues(const QSqlQuery &query) {
-			QString ret;
+		std::string PrettyPrintValues(const QSqlQuery &query) {
+			std::string ret;
 
 			// [key: value]
 			if (!query.boundValueNames().empty()) {
-				ret += QStringLiteral("\n---(key:value)---\n");
+				ret += "\n---(key:value)---\n";
 				for (const auto &key : query.boundValueNames()) {
 					const auto &value = query.boundValue(key);
-					ret += QStringLiteral("%1: %2\n").arg(key, value.toString());
+					ret += key.toStdString() + ": " + value.toString().toStdString() + "\n";
 				}
 			}
 			if (!query.boundValues().empty()) {
-				ret += QStringLiteral("\n---(positional)---\n");
+				ret += "\n---(positional)---\n";
 				// Indexed Value
 				for (const auto &value : query.boundValues()) {
-					ret += value.toString();
+					ret += value.toString().toStdString();
 					ret += "\n";
 				}
 			}
@@ -71,10 +73,8 @@ namespace dg::sql {
 		}
 	} // namespace
 	ExecutionError::ExecutionError(const QSqlQuery &query) :
-		// DONE: queryに使われたパラメータを文字列にして連結し、出力
-		RuntimeError(
-			tr("execution error: %1\nquery: %2\nvalues: %3")
-				.arg(query.lastError().text(), PrettyPrintQuery(query.lastQuery()), PrettyPrintValues(query))) {
+		RuntimeError("execution error: " + query.lastError().text().toStdString() + "\nquery: " +
+					 PrettyPrintQuery(query.lastQuery().toStdString()) + "\nvalues: " + PrettyPrintValues(query)) {
 	}
 
 } // namespace dg::sql

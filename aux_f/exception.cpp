@@ -2,22 +2,31 @@
 
 namespace dg {
 	// ------------------- RuntimeError -------------------
-	RuntimeError::RuntimeError(const QString &msg) : _msg(msg) {
+	RuntimeError::RuntimeError(const std::string &msg) : _msg(msg) {
 	}
-	const QString &RuntimeError::q_what() const noexcept {
+
+	const char *RuntimeError::what() const noexcept {
+		return s_what().c_str();
+	}
+
+	const std::string &RuntimeError::s_what() const noexcept {
 		return _msg;
 	}
 
 	// ------------------- InvalidInput -------------------
-	InvalidInput::InvalidInput(const QString &reason) : RuntimeError(tr("invalid input: %1").arg(reason)) {
+	InvalidInput::InvalidInput(const std::string &reason) : RuntimeError("invalid input: " + reason) {
 	}
+
 	// ------------------- CantOpenFile -------------------
-	CantOpenFile::CantOpenFile(const QString &path) : RuntimeError(tr("can't open file path(%1)").arg(path)) {
+	CantOpenFile::CantOpenFile(const std::string &path) : RuntimeError("can't open file path(" + path + ")") {
 	}
+
 	// ------------------- UnknownImage -------------------
-	UnknownImage::UnknownImage(const QString &path) : RuntimeError(tr("can't load image (%1)").arg(path)) {
+	UnknownImage::UnknownImage(const std::string &path) : RuntimeError("can't load image (" + path + ")") {
 	}
+
 	// ------------------- CantMakeThumbnail -------------------
-	CantMakeThumbnail::CantMakeThumbnail(const QString &path) : RuntimeError(tr("can't make thumbnail for (%1)").arg(path)) {
+	CantMakeThumbnail::CantMakeThumbnail(const std::string &path) :
+		RuntimeError("can't make thumbnail for (" + path + ")") {
 	}
 } // namespace dg
