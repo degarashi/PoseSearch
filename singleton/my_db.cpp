@@ -311,7 +311,14 @@ PoseInfo MyDatabase::getPoseInfo(const PoseId poseId) const {
 
 	std::vector<QVector2D> landmarks;
 	{
-		auto q = _db->exec("SELECT td_x, td_y FROM Landmark WHERE poseId = ?", poseId);
+		// clang-format off
+		auto q = _db->exec(R"(
+			SELECT td_x, td_y, landmarkIndex
+				FROM Landmark
+				WHERE poseId = ?
+				ORDER BY landmarkIndex ASC
+		)", poseId);
+		// clang-format on
 		while (q.next()) {
 			if (!q.value(0).isValid() || !q.value(1).isValid()) {
 				qWarning() << "Invalid landmark value for poseId" << EnumToInt(poseId);
@@ -322,7 +329,14 @@ PoseInfo MyDatabase::getPoseInfo(const PoseId poseId) const {
 	}
 	std::array<dg::Radian, 2> thighFlexInfo;
 	{
-		auto qThighFlex = _db->exec("SELECT is_right, angleRad FROM ThighFlexion WHERE poseId = ?", poseId);
+		// clang-format off
+		auto qThighFlex = _db->exec(R"(
+			SELECT is_right, angleRad
+				FROM ThighFlexion
+				WHERE poseId = ?
+				ORDER BY is_right ASC
+			)", poseId);
+		// clang-format on
 		while (qThighFlex.next()) {
 			const int isRight = dg::ConvertQV<int>(qThighFlex.value(0));
 			const int idx = (isRight != 0) ? 1 : 0;
@@ -331,7 +345,14 @@ PoseInfo MyDatabase::getPoseInfo(const PoseId poseId) const {
 	}
 	std::array<dg::Radian, 2> crusFlexInfo;
 	{
-		auto qCrusFlex = _db->exec("SELECT is_right, angleRad FROM CrusFlexion WHERE poseId = ?", poseId);
+		// clang-format off
+		auto qCrusFlex = _db->exec(R"(
+			SELECT is_right, angleRad
+				FROM CrusFlexion
+				WHERE poseId = ?
+				ORDER BY is_right
+			)", poseId);
+		// clang-format on
 		while (qCrusFlex.next()) {
 			const int isRight = dg::ConvertQV<int>(qCrusFlex.value(0));
 			const int idx = (isRight != 0) ? 1 : 0;
