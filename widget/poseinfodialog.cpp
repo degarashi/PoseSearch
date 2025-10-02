@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QPolygonF>
 #include <QToolTip>
+#include <iterator>
 #include "aux_f_q/convert.hpp"
 #include "landmark_index.hpp"
 #include "poseinfo.hpp"
@@ -53,7 +54,7 @@ namespace {
 		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_PINKY},
 		{LandmarkIndex::RIGHT_INDEX, LandmarkIndex::RIGHT_PINKY},
 	};
-	constexpr int CONNECTION_COUNT = sizeof(CONNECTIONS) / sizeof(CONNECTIONS[0]);
+	constexpr auto CONNECTION_COUNT = std::size(CONNECTIONS);
 
 	// 頭部ランドマーク（BlazePoseの代表的な頭部周り）
 	constexpr LandmarkIndex HEAD_LANDMARKS[] = {
@@ -69,7 +70,7 @@ namespace {
 		LandmarkIndex::MOUTH_LEFT,
 		LandmarkIndex::MOUTH_RIGHT,
 	};
-	constexpr int HEAD_LANDMARK_COUNT = sizeof(HEAD_LANDMARKS) / sizeof(HEAD_LANDMARKS[0]);
+	constexpr auto HEAD_LANDMARK_COUNT = std::size(HEAD_LANDMARKS);
 
 	// ポリゴン判定用のオフセット値
 	constexpr float TORSO_OFFSET = 5.0f;
@@ -255,7 +256,7 @@ namespace {
 			painter.setBrush(headBrush);
 			const float r = 3.5f;
 
-			for (int i = 0; i < HEAD_LANDMARK_COUNT; ++i) {
+			for (size_t i = 0; i < HEAD_LANDMARK_COUNT; ++i) {
 				const LandmarkIndex idx = HEAD_LANDMARKS[i];
 				if (static_cast<int>(idx) >= static_cast<int>(info.landmarks.size()))
 					continue;
