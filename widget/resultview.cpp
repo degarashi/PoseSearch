@@ -70,5 +70,16 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 	});
 	menu->addAction(showPoseInfoAction);
 
+	menu->addSeparator();
+
+	// --- ブラックリスト登録/解除 ---
+	const bool isBlacklisted = myDb.isBlacklisted(poseId);
+	auto *blacklistAction = new QAction(isBlacklisted ? tr("Remove Blacklist") : tr("Add Blacklist"), menu);
+	if (isBlacklisted)
+		connect(blacklistAction, &QAction::triggered, this, [poseId]() { myDb.removeBlacklist(poseId); });
+	else
+		connect(blacklistAction, &QAction::triggered, this, [poseId]() { myDb.addBlacklist(poseId); });
+	menu->addAction(blacklistAction);
+
 	menu->popup(event->globalPos());
 }
