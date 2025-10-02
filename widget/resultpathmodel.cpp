@@ -45,6 +45,8 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 					msg += dg::VecToString(info.crusDir[1]);
 					msg += "\n--ThighFlex--\n";
 					msg += QString("%1, %2").arg(info.thighFlex[0].toString()).arg(info.thighFlex[1].toString());
+					msg += "\n--CrusFlex--\n";
+					msg += QString("%1, %2").arg(info.crusFlex[0].toString()).arg(info.crusFlex[1].toString());
 
 					return msg;
 				}
