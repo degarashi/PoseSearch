@@ -178,10 +178,11 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 	std::vector<int> res;
 
 	while (q.next()) {
-		bool ok;
-		const int poseId = q.value(0).toInt(&ok);
-		Q_ASSERT(ok);
-		res.emplace_back(poseId);
+		if (!q.value(0).isValid()) {
+			qWarning() << "Invalid poseId in query result";
+			continue;
+		}
+		res.emplace_back(dg::ConvertQV<int>(q.value(0)));
 	}
 	return res;
 }
