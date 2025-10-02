@@ -54,7 +54,7 @@ MyThumbnail::MyThumbnail() {
 	}
 }
 
-std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsSrc) {
+std::vector<QPixmap> MyThumbnail::getThumbnails(const FileIds &fileIdsSrc) {
 	if (fileIdsSrc.empty())
 		return {};
 
@@ -65,15 +65,15 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsS
 		auto itr = std::unique(fileIds.begin(), fileIds.end());
 		fileIds.erase(itr, fileIds.end());
 	}
-	std::unordered_map<int, QPixmap> pmap;
+	std::unordered_map<FileId, QPixmap> pmap;
 
 	struct WItem {
-			int fileId;
+			FileId fileId;
 			QString filePath;
 			QPixmap thumbnail;
 			QString cacheFileName;
 
-			WItem(const int fileId_v, const QString &filePath_v, const QPixmap &pm = {}) :
+			WItem(const FileId fileId_v, const QString &filePath_v, const QPixmap &pm = {}) :
 				fileId(fileId_v), filePath(filePath_v), thumbnail(pm) {
 			}
 	};
@@ -83,7 +83,7 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsS
 			std::tie(item.thumbnail, item.cacheFileName) = _GenerateThumbnail(item.filePath, item.fileId);
 		}
 		catch (const dg::RuntimeError &e) {
-			qDebug() << "Error generating thumbnail for file-id:" << item.fileId << e.what();
+			qDebug() << "Error generating thumbnail for file-id:" << EnumToInt(item.fileId) << e.what();
 		}
 	};
 	// 並列処理するアイテム
@@ -91,7 +91,7 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsS
 
 	auto &db = myDb.database();
 	// キャッシュを確認して、生成の必要がある物を洗い出す
-	for (const int fileId : fileIds) {
+	for (const FileId fileId : fileIds) {
 		// キャッシュがあるか確認
 		auto q = db.exec("SELECT File.path, Thumbnail.cacheName "
 						 "FROM main.File "
@@ -117,7 +117,8 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsS
 			}
 			else {
 				// キャッシュファイルが破損している場合は再生成
-				qDebug() << "Thumbnail cache corrupted for fileId:" << fileId << "cacheName:" << cachedFileName;
+				qDebug() << "Thumbnail cache corrupted for fileId:" << EnumToInt(fileId)
+						 << "cacheName:" << cachedFileName;
 			}
 		}
 		if (!cacheUsed) {
@@ -131,7 +132,7 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsS
 		future.waitForFinished();
 
 		// 生成されたサムネイルをDBに登録
-		std::vector<int> generatedFileIds;
+		FileIds generatedFileIds;
 		QStringList generatedCacheName;
 		for (const WItem &item : wItem) {
 			// 生成に成功した場合のみDBに登録
@@ -154,9 +155,9 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsS
 	return ret;
 }
 
-std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &filePath, const int fileId) {
-	if (fileId <= 0) {
-		throw dg::InvalidInput(std::string("Invalid fileId ") + std::to_string(fileId));
+std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &filePath, const FileId fileId) {
+	if (EnumToInt(fileId) <= 0) {
+		throw dg::InvalidInput(std::string("Invalid fileId ") + std::to_string(EnumToInt(fileId)));
 	}
 
 	QFile imgFile(filePath);
@@ -197,7 +198,7 @@ std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &fileP
 	return std::make_tuple(std::move(ret), cacheName);
 }
 
-void MyThumbnail::_registerThumbnails(std::vector<int> fileIds, const QStringList &cacheNames) {
+void MyThumbnail::_registerThumbnails(const FileIds &fileIds, const QStringList &cacheNames) {
 	if (fileIds.empty())
 		return;
 

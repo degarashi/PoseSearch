@@ -135,7 +135,7 @@ void MainWindow::queryDoubleClicked(const QModelIndex &index) {
 void MainWindow::resultViewDoubleClicked(const QModelIndex &index) {
 	Q_ASSERT(_ui->lvResult->model());
 	// モデルからデータを取得
-	const auto poseId = dg::ConvertQV<int>(_ui->lvResult->model()->data(index, Qt::UserRole));
+	const auto poseId = dg::ConvertQV<PoseId>(_ui->lvResult->model()->data(index, Qt::UserRole));
 	const auto fileId = myDb_c.getFileId(poseId);
 	// パスを取得
 	const QString path = myDb_c.getFilePath(fileId);

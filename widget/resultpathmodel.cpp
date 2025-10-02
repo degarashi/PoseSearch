@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QUrl>
 #include "aux_f_q/convert.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "singleton/my_db.hpp"
 #include "singleton/my_thumbnail.hpp"
 
@@ -71,7 +72,7 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 					return ent.thumbnail;
 				}
 				case Qt::UserRole:
-					return ent.poseId;
+					return EnumToInt(ent.poseId);
 				default:;
 			}
 		}
@@ -79,12 +80,12 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 	return {};
 }
 
-void ResultPathModel::addIds(const std::vector<int> &poseIds) {
+void ResultPathModel::addIds(const PoseIds &poseIds) {
 	const int count = poseIds.size();
 	if (count == 0)
 		return;
 
-	std::vector<int> fileIds;
+	FileIds fileIds;
 	for (const auto poseId : poseIds)
 		fileIds.emplace_back(myDb_c.getFileId(poseId));
 
@@ -115,7 +116,7 @@ QMimeData *ResultPathModel::mimeData(const QModelIndexList &indexes) const {
 	QMimeData *mimeData = new QMimeData();
 	QList<QUrl> urls;
 	for (const QModelIndex &index : indexes) {
-		const int fileId = index.data(Qt::UserRole).toInt();
+		const FileId fileId = dg::ConvertQV<FileId>(index.data(Qt::UserRole));
 		const QString filePath = myDb.getFilePath(fileId);
 		if (!filePath.isEmpty())
 			urls << QUrl::fromLocalFile(filePath);

@@ -2,6 +2,7 @@
 #include <QAbstractItemModel>
 #include <QPixmap>
 #include <QStringList>
+#include "id.hpp"
 
 class ResultPathModel : public QAbstractListModel {
 		Q_OBJECT
@@ -15,13 +16,13 @@ class ResultPathModel : public QAbstractListModel {
 		QStringList mimeTypes() const override;
 		Qt::DropActions supportedDragActions() const override;
 
-		void addIds(const std::vector<int> &poseIds);
+		void addIds(const PoseIds &poseIds);
 		void clear();
 
 	private:
 		struct Entry {
-				int poseId;
-				int fileId;
+				PoseId poseId;
+				FileId fileId;
 				QPixmap thumbnail;
 		};
 		QList<Entry> _data;

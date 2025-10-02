@@ -83,23 +83,23 @@ QString MyDatabase::getTag(const int idx) const {
 	return _tags.at(idx);
 }
 
-void MyDatabase::addBlacklist(const int fileId) const {
+void MyDatabase::addBlacklist(const FileId fileId) const {
 	const auto hash = getFileHash(fileId);
 	if (hash.isEmpty()) {
-		qWarning() << "addBlacklist: empty hash for fileId" << fileId;
+		qWarning() << "addBlacklist: empty hash for fileId" << EnumToInt(fileId);
 		return;
 	}
 	_db->exec(QString("INSERT OR IGNORE INTO %1 (hash) VALUES (?)").arg(BLACKLIST_TABLE.text()), hash);
 }
-void MyDatabase::removeBlacklist(const int fileId) const {
+void MyDatabase::removeBlacklist(const FileId fileId) const {
 	const auto hash = getFileHash(fileId);
 	if (hash.isEmpty()) {
-		qWarning() << "removeBlacklist: empty hash for fileId" << fileId;
+		qWarning() << "removeBlacklist: empty hash for fileId" << EnumToInt(fileId);
 		return;
 	}
 	_db->exec(QString("DELETE FROM %1 WHERE hash = ?").arg(BLACKLIST_TABLE.text()), hash);
 }
-bool MyDatabase::isBlacklisted(const int fileId) const {
+bool MyDatabase::isBlacklisted(const FileId fileId) const {
 	const auto hash = getFileHash(fileId);
 	if (hash.isEmpty()) {
 		return false;
@@ -140,7 +140,7 @@ namespace {
 		};
 	}
 	// 指定されたテーブルから poseId に対応する QVector3D を1つ取得する関数
-	std::optional<QVector3D> fetchSingleVec3(const dg::sql::Database &db, const QString &table, const int poseId) {
+	std::optional<QVector3D> fetchSingleVec3(const dg::sql::Database &db, const QString &table, const PoseId poseId) {
 		auto q = db.exec(QString("SELECT x, y, z FROM %1 WHERE poseId = ? LIMIT 1").arg(table), poseId);
 		if (!q.next())
 			return std::nullopt;
@@ -149,7 +149,7 @@ namespace {
 
 	// 指定された poseId の左右の方向ベクトルを取得する共通関数
 	std::array<std::optional<QVector3D>, 2> fetchLimbDirs(const dg::sql::Database &db, const QString &table,
-														  const int poseId) {
+														  const PoseId poseId) {
 		std::array<std::optional<QVector3D>, 2> dirs; // [0]=left, [1]=right
 		auto q = db.exec(QString("SELECT is_right, x, y, z FROM %1 WHERE poseId = ?").arg(table), poseId);
 		while (q.next()) {
@@ -161,7 +161,7 @@ namespace {
 	}
 } // namespace
 
-std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist) const {
+PoseIds MyDatabase::query(const int limit, const std::vector<Condition *> &clist) const {
 	if (clist.empty()) {
 		qWarning() << "query called with empty condition list";
 		return {};
@@ -216,19 +216,18 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 						   .arg(BLACKLIST_TABLE.text()),
 					   limit);
 	// 結果の集計
-	std::vector<int> res;
-
+	PoseIds res;
 	while (q.next()) {
 		if (!q.value(0).isValid()) {
 			qWarning() << "Invalid poseId in query result";
 			continue;
 		}
-		res.emplace_back(dg::ConvertQV<int>(q.value(0)));
+		res.emplace_back(dg::ConvertQV<PoseId>(q.value(0)));
 	}
 	return res;
 }
 
-MyDatabase::QueryScore MyDatabase::getScore(const int poseId) const {
+MyDatabase::QueryScore MyDatabase::getScore(const PoseId poseId) const {
 	const auto QStr = QStringLiteral(R"(
 		SELECT score, SUM(score) OVER() AS accum_score
 			FROM %1
@@ -239,7 +238,7 @@ MyDatabase::QueryScore MyDatabase::getScore(const int poseId) const {
 
 	QueryScore ret;
 	if (!q.next())
-		throw dg::RuntimeError("Pose ID " + std::to_string(poseId) + " not found in score table.");
+		throw dg::RuntimeError("Pose ID " + std::to_string(EnumToInt(poseId)) + " not found in score table.");
 
 	ret.score = dg::ConvertQV<float>(q.value(1));
 	do {
@@ -251,28 +250,28 @@ MyDatabase::QueryScore MyDatabase::getScore(const int poseId) const {
 	return ret;
 }
 
-QString MyDatabase::getFilePath(const int fileId) const {
+QString MyDatabase::getFilePath(const FileId fileId) const {
 	auto q = _db->exec("SELECT File.path FROM File WHERE id=?", fileId);
 	if (q.next())
 		return q.value(0).toString();
-	qWarning() << "File path not found for id" << fileId;
+	qWarning() << "File path not found for id" << EnumToInt(fileId);
 	return {};
 }
-QByteArray MyDatabase::getFileHash(int fileId) const {
+QByteArray MyDatabase::getFileHash(const FileId fileId) const {
 	auto q = _db->exec("SELECT File.hash FROM File WHERE id=?", fileId);
 	if (q.next())
 		return dg::ConvertQV<QByteArray>(q.value(0));
-	qWarning() << "File hash not found for id" << fileId;
+	qWarning() << "File hash not found for id" << EnumToInt(fileId);
 	return {};
 }
-int MyDatabase::getFileId(const int poseId) const {
+FileId MyDatabase::getFileId(const PoseId poseId) const {
 	auto q = _db->exec("SELECT fileId FROM Pose WHERE id=?", poseId);
 	if (q.next())
-		return dg::ConvertQV<int>(q.value(0));
-	qWarning() << "FileId not found for poseId" << poseId;
-	return -1;
+		return dg::ConvertQV<FileId>(q.value(0));
+	qWarning() << "FileId not found for poseId" << EnumToInt(poseId);
+	return FileId{-1};
 }
-QRectF MyDatabase::getPoseRect(const int poseId) const {
+QRectF MyDatabase::getPoseRect(const PoseId poseId) const {
 	auto q = _db->exec("SELECT x0, x1, y0, y1 FROM PoseRect WHERE poseId=?", poseId);
 	if (q.next()) {
 		const float x0 = dg::ConvertQV<float>(q.value(0));
@@ -281,15 +280,15 @@ QRectF MyDatabase::getPoseRect(const int poseId) const {
 		const float y1 = dg::ConvertQV<float>(q.value(3));
 		return QRectF(QPointF{x0, y0}, QPointF{x1, y1});
 	}
-	qWarning() << "PoseRect not found for poseId" << poseId;
+	qWarning() << "PoseRect not found for poseId" << EnumToInt(poseId);
 	return {};
 }
 
-PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
+PoseInfo MyDatabase::getPoseInfo(const PoseId poseId) const {
 	// torsoDir
 	const auto torsoOpt = fetchSingleVec3(*_db, "MasseTorsoDir", poseId);
 	if (!torsoOpt)
-		throw dg::RuntimeError("MasseTorsoDir not found for poseId=" + std::to_string(poseId));
+		throw dg::RuntimeError("MasseTorsoDir not found for poseId=" + std::to_string(EnumToInt(poseId)));
 	const QVector3D torsoDir = *torsoOpt;
 
 	// torsoDir(Method)
@@ -303,19 +302,19 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 	// thighDir (left/right)
 	const auto thighDirs = fetchLimbDirs(*_db, "MasseThighDir", poseId);
 	if (!thighDirs[0] || !thighDirs[1])
-		throw dg::RuntimeError("MasseThighDir incomplete for poseId=" + std::to_string(poseId));
+		throw dg::RuntimeError("MasseThighDir incomplete for poseId=" + std::to_string(EnumToInt(poseId)));
 
 	// crusDir (left/right)
 	const auto crusDirs = fetchLimbDirs(*_db, "MasseCrusDir", poseId);
 	if (!crusDirs[0] || !crusDirs[1])
-		throw dg::RuntimeError("MasseCrusDir incomplete for poseId=" + std::to_string(poseId));
+		throw dg::RuntimeError("MasseCrusDir incomplete for poseId=" + std::to_string(EnumToInt(poseId)));
 
 	std::vector<QVector2D> landmarks;
 	{
 		auto q = _db->exec("SELECT td_x, td_y FROM Landmark WHERE poseId = ?", poseId);
 		while (q.next()) {
 			if (!q.value(0).isValid() || !q.value(1).isValid()) {
-				qWarning() << "Invalid landmark value for poseId" << poseId;
+				qWarning() << "Invalid landmark value for poseId" << EnumToInt(poseId);
 				continue;
 			}
 			landmarks.emplace_back(dg::ConvertQV<float>(q.value(0)), dg::ConvertQV<float>(q.value(1)));

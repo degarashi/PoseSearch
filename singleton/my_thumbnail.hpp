@@ -1,6 +1,7 @@
 #pragma once
 #include <QMap>
 #include <QPixmap>
+#include "id.hpp"
 #include "singleton.hpp"
 
 namespace dg::sql {
@@ -14,10 +15,10 @@ class MyThumbnail : public dg::Singleton<MyThumbnail> {
 	public:
 		MyThumbnail();
 		void clearThumbnail();
-		std::vector<QPixmap> getThumbnails(const std::vector<int>& fileIds);
+		std::vector<QPixmap> getThumbnails(const FileIds &fileIds);
 
 	private:
-		static std::pair<QPixmap, QString> _GenerateThumbnail(const QString &filePath, int fileId);
+		static std::pair<QPixmap, QString> _GenerateThumbnail(const QString &filePath, FileId fileId);
 
-		void _registerThumbnails(std::vector<int> fileIds, const QStringList& cacheName);
+		void _registerThumbnails(const FileIds &fileIds, const QStringList &cacheName);
 };

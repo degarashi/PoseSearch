@@ -1,5 +1,6 @@
 #pragma once
 #include <QDialog>
+#include "id.hpp"
 
 namespace Ui {
 	class PoseInfoDialog;
@@ -14,7 +15,7 @@ class PoseInfoDialog final : public QDialog {
 		Q_OBJECT
 
 	public:
-		explicit PoseInfoDialog(int poseId, QWidget *parent = nullptr);
+		explicit PoseInfoDialog(PoseId poseId, QWidget *parent = nullptr);
 
 	private:
 		QSharedPointer<Ui::PoseInfoDialog> _ui;

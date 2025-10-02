@@ -2,6 +2,7 @@
 #include <QStringList>
 #include <QVector3D>
 #include "aux_f_q/sql/database.hpp"
+#include "id.hpp"
 #include "poseinfo.hpp"
 #include "singleton.hpp"
 
@@ -34,22 +35,22 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		QString getTag(int idx) const;
 
 		// ファイル関連
-		QString getFilePath(int fileId) const;
-		int getFileId(int poseId) const;
-		QByteArray getFileHash(int fileId) const;
+		QString getFilePath(FileId fileId) const;
+		FileId getFileId(PoseId poseId) const;
+		QByteArray getFileHash(FileId fileId) const;
 
 		// ポーズ関連
-		QRectF getPoseRect(int poseId) const;
-		PoseInfo getPoseInfo(int poseId) const;
-		QueryScore getScore(int poseId) const;
+		QRectF getPoseRect(PoseId poseId) const;
+		PoseInfo getPoseInfo(PoseId poseId) const;
+		QueryScore getScore(PoseId poseId) const;
 
 		// クエリ関連
-		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
+		PoseIds query(int limit, const std::vector<Condition *> &clist) const;
 
 		// ブラックリスト関連
-		void addBlacklist(int fileId) const;
-		void removeBlacklist(int fileId) const;
-		bool isBlacklisted(int fileId) const;
+		void addBlacklist(FileId fileId) const;
+		void removeBlacklist(FileId fileId) const;
+		bool isBlacklisted(FileId fileId) const;
 		void deleteBlacklist();
 
 	private:

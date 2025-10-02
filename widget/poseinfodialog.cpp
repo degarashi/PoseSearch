@@ -337,7 +337,7 @@ namespace {
 	}
 } // namespace
 
-PoseInfoDialog::PoseInfoDialog(const int poseId, QWidget *const parent) : QDialog(parent), _ui(new Ui::PoseInfoDialog) {
+PoseInfoDialog::PoseInfoDialog(const PoseId poseId, QWidget *const parent) : QDialog(parent), _ui(new Ui::PoseInfoDialog) {
 	_ui->setupUi(this);
 
 	// 画像読み込み

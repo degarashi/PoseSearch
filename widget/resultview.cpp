@@ -46,8 +46,8 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 	// 安全な永続インデックス
 	const QPersistentModelIndex pIndex(idx);
 	Q_ASSERT(pIndex.isValid());
-	const int poseId = dg::ConvertQV<int>(pIndex.data(Qt::UserRole));
-	const int fileId = myDb_c.getFileId(poseId);
+	const PoseId poseId = dg::ConvertQV<PoseId>(pIndex.data(Qt::UserRole));
+	const FileId fileId = myDb_c.getFileId(poseId);
 
 	QPointer<QMenu> menu = new QMenu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose);
@@ -73,8 +73,8 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 	menu->addSeparator();
 	{
 		const auto idx2FileId = [](const QModelIndex &idx) {
-			const int poseId = dg::ConvertQV<int>(idx.data(Qt::UserRole));
-			const int fileId = myDb_c.getFileId(poseId);
+			const PoseId poseId = dg::ConvertQV<PoseId>(idx.data(Qt::UserRole));
+			const FileId fileId = myDb_c.getFileId(poseId);
 			return fileId;
 		};
 		// 選択中の全アイテムに対してブラックリスト解除
