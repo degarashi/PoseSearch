@@ -53,8 +53,8 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 
 	// --- ファイルパスコピー ---
 	auto *copyPathAction = new QAction(tr("Copy FilePath"), menu);
-	connect(copyPathAction, &QAction::triggered, this, [pIndex]() {
-		const int fileId = pIndex.data(Qt::UserRole).toInt();
+	connect(copyPathAction, &QAction::triggered, this, [poseId]() {
+		const int fileId = myDb_c.getFileId(poseId);
 		const QString filePath = myDb_c.getFilePath(fileId);
 		QApplication::clipboard()->setText(filePath);
 	});
