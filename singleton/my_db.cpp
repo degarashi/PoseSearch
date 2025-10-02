@@ -69,6 +69,10 @@ dg::sql::Database &MyDatabase::database() const {
 	return *_db;
 }
 QString MyDatabase::getTag(const int idx) const {
+	if (idx < 0 || idx >= _tags.size()) {
+		qWarning() << "Invalid tag index:" << idx;
+		return {};
+	}
 	return _tags.at(idx);
 }
 
@@ -212,18 +216,21 @@ QString MyDatabase::getFilePath(const int fileId) const {
 	auto q = _db->exec("SELECT File.path FROM File WHERE id=?", fileId);
 	if (q.next())
 		return q.value(0).toString();
+	qWarning() << "File path not found for id" << fileId;
 	return {};
 }
 QByteArray MyDatabase::getFileHash(int fileId) const {
 	auto q = _db->exec("SELECT File.hash FROM File WHERE id=?", fileId);
 	if (q.next())
 		return dg::ConvertQV<QByteArray>(q.value(0));
+	qWarning() << "File hash not found for id" << fileId;
 	return {};
 }
 int MyDatabase::getFileId(const int poseId) const {
 	auto q = _db->exec("SELECT fileId FROM Pose WHERE id=?", poseId);
 	if (q.next())
 		return dg::ConvertQV<int>(q.value(0));
+	qWarning() << "FileId not found for poseId" << poseId;
 	return -1;
 }
 QRectF MyDatabase::getPoseRect(const int poseId) const {
@@ -235,6 +242,7 @@ QRectF MyDatabase::getPoseRect(const int poseId) const {
 		const float y1 = dg::ConvertQV<float>(q.value(3));
 		return QRectF(QPointF{x0, y0}, QPointF{x1, y1});
 	}
+	qWarning() << "PoseRect not found for poseId" << poseId;
 	return {};
 }
 
