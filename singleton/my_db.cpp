@@ -28,9 +28,14 @@ namespace {
 } // namespace
 namespace dg {
 	void LoadVecExtension(dg::sql::Database &db) {
-		// sqlite-vec.dll 拡張機能をロード
-		// sqlite3_vec_init は拡張機能内の初期化関数
-		db.loadExtension("sqlite-vec.dll", "sqlite3_vec_init");
+		try {
+			// sqlite-vec拡張機能をロード（環境依存のため例外処理追加）
+			db.loadExtension("sqlite-vec.dll", "sqlite3_vec_init");
+		}
+		catch (const std::exception &e) {
+			qWarning() << "Failed to load sqlite-vec extension:" << e.what();
+			return;
+		}
 
 		// SQLiteのバージョンとsqlite-vecのバージョンを取得
 		auto q = db.exec("SELECT sqlite_version(), vec_version();");
@@ -40,6 +45,8 @@ namespace dg {
 			// sqlite-vecのバージョン
 			qDebug() << "sqlite-vec Version: " << q.value(1).toString();
 		}
+		else
+			qWarning() << "Failed to retrieve SQLite/vec version";
 	}
 } // namespace dg
 
