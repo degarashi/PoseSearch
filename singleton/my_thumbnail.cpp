@@ -54,19 +54,27 @@ MyThumbnail::MyThumbnail() {
 	}
 }
 
-std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds) {
-	if (fileIds.empty())
+std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIdsSrc) {
+	if (fileIdsSrc.empty())
 		return {};
 
+	// 重複を省く
+	auto fileIds = fileIdsSrc;
+	std::sort(fileIds.begin(), fileIds.end());
+	{
+		auto itr = std::unique(fileIds.begin(), fileIds.end());
+		fileIds.erase(itr, fileIds.end());
+	}
+	std::unordered_map<int, QPixmap> pmap;
+
 	struct WItem {
-			int index;
 			int fileId;
 			QString filePath;
 			QPixmap thumbnail;
 			QString cacheFileName;
 
-			WItem(const int index_v, const int fileId_v, const QString &filePath_v, const QPixmap &pm = {}) :
-				index(index_v), fileId(fileId_v), filePath(filePath_v), thumbnail(pm) {
+			WItem(const int fileId_v, const QString &filePath_v, const QPixmap &pm = {}) :
+				fileId(fileId_v), filePath(filePath_v), thumbnail(pm) {
 			}
 	};
 	// サムネイル生成処理
@@ -78,13 +86,10 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds)
 			qDebug() << "Error generating thumbnail for file-id:" << item.fileId << e.what();
 		}
 	};
-	// 最終的に統合するアイテム
-	std::vector<WItem> result;
 	// 並列処理するアイテム
 	std::vector<WItem> wItem;
 
 	auto &db = myDb.database();
-	int index = 0;
 	// キャッシュを確認して、生成の必要がある物を洗い出す
 	for (const int fileId : fileIds) {
 		// キャッシュがあるか確認
@@ -107,7 +112,7 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds)
 			QPixmap thumbnail;
 			thumbnail.load(THUMBNAIL_DIR + "/" + cachedFileName);
 			if (!thumbnail.isNull()) {
-				result.emplace_back(index, fileId, filePath, std::move(thumbnail));
+				pmap.emplace(fileId, std::move(thumbnail));
 				cacheUsed = true;
 			}
 			else {
@@ -117,9 +122,8 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds)
 		}
 		if (!cacheUsed) {
 			// 処理予約
-			wItem.emplace_back(index, fileId, myDb_c.getFilePath(fileId));
+			wItem.emplace_back(fileId, myDb_c.getFilePath(fileId));
 		}
-		++index;
 	}
 	if (!wItem.empty()) {
 		// 並列処理
@@ -140,17 +144,13 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const std::vector<int> &fileIds)
 
 		// キャッシュがあった分と統合する
 		for (auto &&item : wItem)
-			result.emplace_back(std::move(item));
-
-		// indexでソート
-		std::sort(result.begin(), result.end(), [](const WItem &a, const WItem &b) { return a.index < b.index; });
+			pmap.emplace(item.fileId, item.thumbnail);
 	}
 	// vectorに詰め直す
 	std::vector<QPixmap> ret;
-	ret.reserve(fileIds.size());
-	for (const WItem &res : result)
-		ret.emplace_back(std::move(res.thumbnail));
-
+	ret.reserve(fileIdsSrc.size());
+	for (auto &&fileId : fileIdsSrc)
+		ret.emplace_back(pmap.at(fileId));
 	return ret;
 }
 
