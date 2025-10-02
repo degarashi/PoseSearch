@@ -151,6 +151,21 @@ class Cond_ThighFlexion : public Condition, public StaticClassBase<Cond_ThighFle
 			ar(cereal::base_class<Condition>(this));
 		}
 };
+// 条件：下腿の伸展度合い
+class Cond_CrusFlexion : public Condition, public StaticClassBase<Cond_CrusFlexion> {
+	private:
+		std::array<dg::Degree, 2> _flexDeg;
+
+	public:
+		DEF_FUNCS
+		bool _supportNegativeRatio() const override;
+
+		template <typename Ar>
+		void serialize(Ar &ar) {
+			ar(_flexDeg);
+			ar(cereal::base_class<Condition>(this));
+		}
+};
 
 #undef DEF_FUNCS
 

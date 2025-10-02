@@ -21,6 +21,7 @@ Condition *g_conds[] = {
 	&Cond_BodyDirYaw::StaticClass(),
 	&Cond_BodyDirPitch::StaticClass(),
 	&Cond_ThighFlexion::StaticClass(),
+	&Cond_CrusFlexion::StaticClass(),
 };
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _ui(new Ui::MainWindow) {
