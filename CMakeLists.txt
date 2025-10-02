@@ -10,6 +10,40 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# @brief 指定されたディレクトリからソースファイルとヘッダーファイルを収集する関数
+#
+# @param target_dirs 検索対象のディレクトリリスト
+# @param out_headers 収集されたヘッダーファイルのリストを格納する変数名
+# @param out_sources 収集されたソースファイルのリストを格納する変数名
+function(collect_source_and_headers target_dirs out_headers out_sources)
+	set(collected_headers)
+	set(collected_sources)
+	foreach(dir ${target_dirs})
+		file(GLOB TMP_HEADER RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${dir}/*.h ${dir}/*.hpp ${dir}/*.ui)
+		aux_source_directory(${dir} TMP_SRC)
+		list(APPEND collected_headers ${TMP_HEADER})
+		list(APPEND collected_sources ${TMP_SRC})
+	endforeach()
+	set(${out_headers} ${collected_headers} PARENT_SCOPE)
+	set(${out_sources} ${collected_sources} PARENT_SCOPE)
+endfunction()
+
+# --- 共通ライブラリを作成 ---
+set(LIB_TARGET_FILES_DIR
+	aux_f
+)
+collect_source_and_headers("${LIB_TARGET_FILES_DIR}" LIB_HEADERS LIB_SOURCES)
+
+add_library(PoseSearchLib
+	${LIB_SOURCES}
+)
+target_include_directories(PoseSearchLib
+	PUBLIC
+	.
+	aux_f
+)
+# ---------------------------
+
 # 単体テストコード
 add_subdirectory(tests)
 
@@ -56,24 +90,6 @@ set(TARGET_FILES_DIR
 	condition
 )
 
-# @brief 指定されたディレクトリからソースファイルとヘッダーファイルを収集する関数
-#
-# @param target_dirs 検索対象のディレクトリリスト
-# @param out_headers 収集されたヘッダーファイルのリストを格納する変数名
-# @param out_sources 収集されたソースファイルのリストを格納する変数名
-function(collect_source_and_headers target_dirs out_headers out_sources)
-	set(collected_headers)
-	set(collected_sources)
-	foreach(dir ${target_dirs})
-		file(GLOB TMP_HEADER RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${dir}/*.h ${dir}/*.hpp ${dir}/*.ui)
-		aux_source_directory(${dir} TMP_SRC)
-		list(APPEND collected_headers ${TMP_HEADER})
-		list(APPEND collected_sources ${TMP_SRC})
-	endforeach()
-	set(${out_headers} ${collected_headers} PARENT_SCOPE)
-	set(${out_sources} ${collected_sources} PARENT_SCOPE)
-endfunction()
-
 collect_source_and_headers("${TARGET_FILES_DIR}" MY_HEADERS MY_SOURCES)
 
 qt_add_executable(PoseSearch
@@ -88,6 +104,7 @@ target_sources(PoseSearch PRIVATE ${MY_SOURCES})
 target_include_directories(PoseSearch PRIVATE . cereal cereal_types)
 target_link_libraries(PoseSearch
 	PRIVATE
+	PoseSearchLib
 	Qt${QT_VERSION_MAJOR}::Widgets
 	Qt${QT_VERSION_MAJOR}::Sql
 	Qt${QT_VERSION_MAJOR}::StateMachine

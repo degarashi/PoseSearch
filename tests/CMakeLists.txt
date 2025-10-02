@@ -1,6 +1,5 @@
 include(FetchContent)
 
-# GoogleTest を取得
 FetchContent_Declare(
 	googletest
 	GIT_REPOSITORY https://github.com/google/googletest.git
@@ -14,12 +13,12 @@ enable_testing()
 add_executable(mytests
 	test_angle.cpp
 	test_value.cpp
-	../aux_f/exception.cpp
 )
 
-target_include_directories(mytests PRIVATE .. ../aux_f)
+# 共通ライブラリをリンク
 target_link_libraries(mytests
 	PRIVATE
+	PoseSearchLib
 	GTest::gtest_main
 )
 
