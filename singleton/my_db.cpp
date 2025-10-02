@@ -152,10 +152,16 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 							   "	ON Result.poseId = Pose.id "
 							   "INNER JOIN File "
 							   "	ON Pose.fileId = File.id "
+							   // -- Blacklist除外 --
+							   "LEFT OUTER JOIN %2 BL"
+							   "  ON Pose.id = BL.poseId "
+							   "WHERE BL.poseId IS NULL "
+							   // -------------------
 							   "GROUP BY Result.poseId "
 							   "ORDER BY score DESC "
 							   "LIMIT ?")
-						   .arg(ScoreTable.text()),
+						   .arg(ScoreTable.text())
+						   .arg(BLACKLIST_TABLE.text()),
 					   limit);
 	// 結果の集計
 	std::vector<int> res;
