@@ -142,9 +142,9 @@
     <property name="title">
      <string>Menu(&amp;m)</string>
     </property>
-    <addaction name="actionDelete_Thumbnails_d"/>
     <addaction name="separator"/>
     <addaction name="actionDetach_Database_b"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit_q"/>
    </widget>
    <widget class="QMenu" name="menuConditions_c">
@@ -154,8 +154,16 @@
     <addaction name="actionConditionSave_s"/>
     <addaction name="actionConditionLoad_l"/>
    </widget>
+   <widget class="QMenu" name="menuCache_a">
+    <property name="title">
+     <string>Cache(&amp;a)</string>
+    </property>
+    <addaction name="actionDelete_Thumbnails_d"/>
+    <addaction name="actionDelete_Blacklist_B"/>
+   </widget>
    <addaction name="menuMenu_m"/>
    <addaction name="menuConditions_c"/>
+   <addaction name="menuCache_a"/>
   </widget>
   <action name="actionQuit_q">
    <property name="text">
@@ -183,6 +191,11 @@
   <action name="actionConditionLoad_l">
    <property name="text">
     <string>Load(&amp;l)</string>
+   </property>
+  </action>
+  <action name="actionDelete_Blacklist_B">
+   <property name="text">
+    <string>Delete Blacklist (&amp;B)</string>
    </property>
   </action>
  </widget>
@@ -387,6 +400,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionDelete_Blacklist_B</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>deleteBlacklist()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onAddClicked()</slot>
@@ -400,5 +429,6 @@
   <slot>detachDB()</slot>
   <slot>saveConditions()</slot>
   <slot>loadConditions()</slot>
+  <slot>deleteBlacklist()</slot>
  </slots>
 </ui>

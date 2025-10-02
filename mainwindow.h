@@ -35,6 +35,7 @@ class MainWindow : public QMainWindow {
 		void detachDB();
 		void loadConditions();
 		void saveConditions();
+		void deleteBlacklist();
 
 		void resultViewDoubleClicked(const QModelIndex &index);
 };

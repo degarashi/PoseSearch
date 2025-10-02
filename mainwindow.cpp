@@ -155,3 +155,7 @@ void MainWindow::detachDB() {
 		qApp->quit();
 	}
 }
+
+void MainWindow::deleteBlacklist() {
+	myDb.deleteBlacklist();
+}
