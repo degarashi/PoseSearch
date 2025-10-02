@@ -10,33 +10,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# -----------------------------------
-include(FetchContent)
-
-# GoogleTest を取得
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG v1.17.0
-  GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(googletest)
-enable_testing()
-add_executable(mytests
-	tests/test_angle.cpp
-	tests/test_value.cpp
-	aux_f/exception.cpp
-)
-
-target_include_directories(mytests PRIVATE . aux_f)
-target_link_libraries(mytests
-	PRIVATE
-		GTest::gtest_main
-)
-
-include(GoogleTest)
-gtest_discover_tests(mytests)
-# -----------------------------------
+# 単体テストコード
+add_subdirectory(tests)
 
 # compile_commands.json をツール用にコピー
 add_custom_target(copy-compile-commands ALL
