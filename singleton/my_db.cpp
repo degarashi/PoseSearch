@@ -5,6 +5,19 @@
 #include "condition/condition.hpp"
 
 namespace {
+	const auto BLACKLIST_FILE = QStringLiteral("blacklist.sqlite3");
+	const auto BLACKLIST_DB = QStringLiteral("blacklist");
+	const auto BLACKLIST_TABLE = dg::sql::Name(BLACKLIST_DB, "Blacklist");
+	// clang-format off
+	// ブラックリスト用テーブルレイアウト
+	const auto blacklist_layout = QStringLiteral(
+		R"(
+			CREATE TABLE IF NOT EXISTS %1 (
+				poseId INTEGER PRIMARY KEY
+			)
+		)").arg(BLACKLIST_TABLE.text());
+	// clang-format on
+
 	// スコア計算用の一時テーブルのレイアウト
 	const auto score_layout = QStringLiteral("poseId INTEGER NOT NULL,"
 											 "cond_index INTEGER NOT NULL,"
@@ -36,6 +49,9 @@ MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) : _db(std::move(db
 	while (q.next()) {
 		_tags.append(q.value("name").toString());
 	}
+	_db->attach(BLACKLIST_FILE, BLACKLIST_DB);
+	// Blacklistテーブルを未作成の場合は定義
+	_db->exec(blacklist_layout);
 }
 
 const QStringList &MyDatabase::getTagList() const {
