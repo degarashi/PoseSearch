@@ -207,6 +207,12 @@ QString MyDatabase::getFilePath(const int fileId) const {
 		return q.value(0).toString();
 	return {};
 }
+QByteArray MyDatabase::getFileHash(int fileId) const {
+	auto q = _db->exec("SELECT File.hash FROM File WHERE id=?", fileId);
+	if (q.next())
+		return dg::ConvertQV<QByteArray>(q.value(0));
+	return {};
+}
 int MyDatabase::getFileId(const int poseId) const {
 	auto q = _db->exec("SELECT fileId FROM Pose WHERE id=?", poseId);
 	if (q.next())

@@ -36,6 +36,7 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		// ファイル関連
 		QString getFilePath(int fileId) const;
 		int getFileId(int poseId) const;
+		QByteArray getFileHash(int fileId) const;
 
 		// ポーズ関連
 		QRectF getPoseRect(int poseId) const;
