@@ -1,0 +1,41 @@
+# 全体設定
+[lint]
+enable = true        # lint チェックを有効にする
+severity = "warning" # lint チェックの深刻度を設定 ("warning" または "error")。 "error" にすると CI で即落ちする可能性がある
+
+# 命名規則
+[lint.naming]
+enable = true            # 命名規則のチェックを有効にする
+command_case = "lower"   # コマンド名のケースを小文字に統一 (例: cmake_minimum_required)
+variable_case = "snake"  # 変数名のケースをスネークケースに統一 (例: MY_VAR → my_var)
+macro_case = "unchanged" # マクロ名のケースは変更しない (Qt のマクロなどを壊さないため)
+
+# フォーマット関連
+[lint.format]
+max_line_length = 100        # 1行の最大文字数を設定
+dangle_parens = true         # 関数呼び出しなどで、閉じ括弧を次の行に配置するかどうか
+spaces_inside_parens = false # 括弧の内側にスペースを入れない
+align_args = true            # 関数呼び出しなどで、引数を揃えるかどうか
+
+# 未使用変数
+[lint.unused]
+enable = true # 未使用変数のチェックを有効にする
+ignore_patterns = [
+	"_.*",
+	"QT_.*",
+] # 未使用変数として無視するパターンを指定 (_ で始まる変数、QT_ で始まる変数、GTEST_ で始まる変数は無視)
+
+# Qt 固有マクロや GoogleTest 用マクロを無視
+[lint.ignore]
+commands = [
+	"qt_wrap_ui",
+	"qt_add_executable",
+	"qt_add_library",
+	"qt_add_resources",
+	"gtest_discover_tests",
+	"gtest_add_tests",
+] # 特定の CMake コマンドを lint チェックから除外する
+
+# 将来的に拡張するためのセクション
+[lint.experimental]
+allow_duplicate_commands = false # 重複するコマンドを許可しない (将来的な機能)
