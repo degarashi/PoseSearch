@@ -45,25 +45,24 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 
 	// 安全な永続インデックス
 	const QPersistentModelIndex pIndex(idx);
+	Q_ASSERT(pIndex.isValid());
 	const int poseId = dg::ConvertQV<int>(pIndex.data(Qt::UserRole));
 
 	QPointer<QMenu> menu = new QMenu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose);
 
+	// --- ファイルパスコピー ---
 	auto *copyPathAction = new QAction(tr("Copy FilePath"), menu);
 	connect(copyPathAction, &QAction::triggered, this, [pIndex]() {
-		if (!pIndex.isValid())
-			return;
 		const int fileId = pIndex.data(Qt::UserRole).toInt();
 		const QString filePath = myDb_c.getFilePath(fileId);
 		QApplication::clipboard()->setText(filePath);
 	});
 	menu->addAction(copyPathAction);
 
+	// --- PoseInfoDialog表示 ---
 	auto *showPoseInfoAction = new QAction(tr("Show PoseInfo"), menu);
 	connect(showPoseInfoAction, &QAction::triggered, this, [this, pIndex, poseId]() {
-		if (!pIndex.isValid())
-			return;
 		// PoseInfoDialog を生成して表示
 		auto *dialog = new PoseInfoDialog(poseId, this);
 		dialog->setAttribute(Qt::WA_DeleteOnClose);
