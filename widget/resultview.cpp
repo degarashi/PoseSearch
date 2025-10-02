@@ -71,15 +71,28 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 	menu->addAction(showPoseInfoAction);
 
 	menu->addSeparator();
-
-	// --- ブラックリスト登録/解除 ---
-	const bool isBlacklisted = myDb.isBlacklisted(fileId);
-	auto *blacklistAction = new QAction(isBlacklisted ? tr("Remove Blacklist") : tr("Add Blacklist"), menu);
-	if (isBlacklisted)
-		connect(blacklistAction, &QAction::triggered, this, [fileId]() { myDb.removeBlacklist(fileId); });
-	else
-		connect(blacklistAction, &QAction::triggered, this, [fileId]() { myDb.addBlacklist(fileId); });
-	menu->addAction(blacklistAction);
-
+	{
+		const auto idx2FileId = [](const QModelIndex &idx) {
+			const int poseId = dg::ConvertQV<int>(idx.data(Qt::UserRole));
+			const int fileId = myDb_c.getFileId(poseId);
+			return fileId;
+		};
+		// 選択中の全アイテムに対してブラックリスト解除
+		const std::function<void()> remBl = [this, idx2FileId]() {
+			for (const QModelIndex &idx : selectedIndexes())
+				myDb.removeBlacklist(idx2FileId(idx));
+		};
+		// 選択中の全アイテムに対してブラックリスト登録
+		const std::function<void()> addBl = [this, idx2FileId]() {
+			for (const QModelIndex &idx : selectedIndexes())
+				myDb.addBlacklist(idx2FileId(idx));
+		};
+		// --- ブラックリスト登録/解除 ---
+		const bool isBlacklisted = myDb.isBlacklisted(fileId);
+		// 判定基準はカレントアイテム
+		auto *blacklistAction = new QAction(isBlacklisted ? tr("Remove Blacklist") : tr("Add Blacklist"), menu);
+		connect(blacklistAction, &QAction::triggered, this, isBlacklisted ? remBl : addBl);
+		menu->addAction(blacklistAction);
+	}
 	menu->popup(event->globalPos());
 }
