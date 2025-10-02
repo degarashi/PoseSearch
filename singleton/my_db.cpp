@@ -263,23 +263,24 @@ PoseInfo MyDatabase::getPoseInfo(const int poseId) const {
 
 	// thighDir (left/right)
 	const auto thighDirs = fetchLimbDirs(*_db, "MasseThighDir", poseId);
-	if (!thighDirs[0])
-		throw dg::RuntimeError("Left MasseThighDir not found for poseId=" + std::to_string(poseId));
-	if (!thighDirs[1])
-		throw dg::RuntimeError("Right MasseThighDir not found for poseId=" + std::to_string(poseId));
+	if (!thighDirs[0] || !thighDirs[1])
+		throw dg::RuntimeError("MasseThighDir incomplete for poseId=" + std::to_string(poseId));
 
 	// crusDir (left/right)
 	const auto crusDirs = fetchLimbDirs(*_db, "MasseCrusDir", poseId);
-	if (!crusDirs[0])
-		throw dg::RuntimeError("Left MasseCrusDir not found for poseId=" + std::to_string(poseId));
-	if (!crusDirs[1])
-		throw dg::RuntimeError("Right MasseCrusDir not found for poseId=" + std::to_string(poseId));
+	if (!crusDirs[0] || !crusDirs[1])
+		throw dg::RuntimeError("MasseCrusDir incomplete for poseId=" + std::to_string(poseId));
 
 	std::vector<QVector2D> landmarks;
 	{
 		auto q = _db->exec("SELECT td_x, td_y FROM Landmark WHERE poseId = ?", poseId);
-		while (q.next())
+		while (q.next()) {
+			if (!q.value(0).isValid() || !q.value(1).isValid()) {
+				qWarning() << "Invalid landmark value for poseId" << poseId;
+				continue;
+			}
 			landmarks.emplace_back(dg::ConvertQV<float>(q.value(0)), dg::ConvertQV<float>(q.value(1)));
+		}
 	}
 	std::array<dg::Radian, 2> thighFlexInfo;
 	{
