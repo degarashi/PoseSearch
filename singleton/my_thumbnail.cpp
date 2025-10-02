@@ -202,10 +202,15 @@ void MyThumbnail::_registerThumbnails(const FileIds &fileIds, const QStringList 
 	if (fileIds.empty())
 		return;
 
+	std::vector<int> ids;
+	ids.reserve(fileIds.size());
+	for (auto &&f_id : fileIds)
+		ids.emplace_back(EnumToInt(f_id));
+
 	// データベースにキャッシュ情報を保存または更新
 	auto &db = myDb.database();
 	db.beginTransaction();
-	const auto q = db.batch("INSERT INTO thumb.Thumbnail (fileId, cacheName) VALUES (?,?)", fileIds, cacheNames);
+	const auto q = db.batch("INSERT INTO thumb.Thumbnail (fileId, cacheName) VALUES (?,?)", ids, cacheNames);
 	QSqlError err = q.lastError();
 	if (err.isValid()) {
 		qDebug() << "Database error during thumbnail registration:" << err.text();
