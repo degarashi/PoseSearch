@@ -2,7 +2,7 @@
 #include <QJsonDocument>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include "aux_f/sql/database.hpp"
+#include "aux_f_q/sql/database.hpp"
 #include "param/float_slider_param.h"
 #include "param/paramwrapper.h"
 #include "param/querydialog.h"

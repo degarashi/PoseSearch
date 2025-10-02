@@ -48,7 +48,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED
 set(TARGET_FILES_DIR
 	.
 	aux_f
-	aux_f/sql
+	aux_f_q
+	aux_f_q/sql
 	param
 	widget
 	singleton

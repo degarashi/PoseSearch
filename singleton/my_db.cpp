@@ -1,7 +1,7 @@
 #include "my_db.hpp"
-#include "aux_f/q_value.hpp"
-#include "aux_f/sql/exception.hpp"
-#include "aux_f/sql/query.hpp"
+#include "aux_f_q/q_value.hpp"
+#include "aux_f_q/sql/exception.hpp"
+#include "aux_f_q/sql/query.hpp"
 #include "condition/condition.hpp"
 
 namespace {

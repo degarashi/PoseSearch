@@ -9,7 +9,7 @@
 #include <QMimeData>
 #include <QPointer>
 #include <QUrl>
-#include "aux_f/q_value.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "poseinfodialog.h"
 #include "singleton/my_db.hpp"
 

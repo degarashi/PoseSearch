@@ -1,5 +1,5 @@
 #pragma once
-#include "aux_f/q_value.hpp"
+#include "aux_f_q/q_value.hpp"
 
 namespace dg::sql {
 	template <class T, class Q>

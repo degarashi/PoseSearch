@@ -2,10 +2,10 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QSqlError>
-#include <aux_f/sql/database.hpp>
+#include <aux_f_q/sql/database.hpp>
 #include "./ui_mainwindow.h"
-#include "aux_f/q_value.hpp"
-#include "aux_f/sql/query.hpp"
+#include "aux_f_q/q_value.hpp"
+#include "aux_f_q/sql/query.hpp"
 #include "condition/condition.hpp"
 #include "param/querydialog.h"
 #include "singleton/my_db.hpp"

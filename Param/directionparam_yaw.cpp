@@ -1,6 +1,6 @@
 #include "directionparam_yaw.h"
 #include <QVector2D>
-#include "aux_f/math.hpp"
+#include "aux_f_q/math.hpp"
 
 DirectionParamYaw::DirectionParamYaw(QWidget *parent) : DirectionParamYaw({0, 1}, parent) {
 }

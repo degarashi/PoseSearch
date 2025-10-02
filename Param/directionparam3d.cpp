@@ -1,7 +1,7 @@
 #include "directionparam3d.h"
 #include <QTimer>
 #include "aux_f/exception.hpp"
-#include "aux_f/math.hpp"
+#include "aux_f_q/math.hpp"
 #include "ui_directionparam_3d.h"
 
 DirectionParam3D::DirectionParam3D(QWidget *parent) : DirectionParam3D({1, 0, 0}, parent) {

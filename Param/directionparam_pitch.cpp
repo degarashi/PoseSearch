@@ -1,5 +1,5 @@
 #include "directionparam_pitch.h"
-#include "aux_f/math.hpp"
+#include "aux_f_q/math.hpp"
 
 DirectionParamPitch::DirectionParamPitch(QWidget *parent) : DirectionParamPitch(0, parent) {
 }

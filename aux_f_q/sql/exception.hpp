@@ -1,5 +1,5 @@
 #pragma once
-#include "../exception.hpp"
+#include "aux_f/exception.hpp"
 
 class QSqlQuery;
 

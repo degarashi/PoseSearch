@@ -7,7 +7,7 @@
 #include <QSqlError>
 #include <QtConcurrent/QtConcurrent>
 #include "aux_f/exception.hpp"
-#include "aux_f/sql/database.hpp"
+#include "aux_f_q/sql/database.hpp"
 #include "my_db.hpp"
 
 namespace {

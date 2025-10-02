@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QMimeData>
 #include <QUrl>
-#include "aux_f/convert.hpp"
+#include "aux_f_q/convert.hpp"
 #include "singleton/my_db.hpp"
 #include "singleton/my_thumbnail.hpp"
 

@@ -1,6 +1,6 @@
 #include <QtMath>
-#include "aux_f/convert.hpp"
-#include "aux_f/q_value.hpp"
+#include "aux_f_q/convert.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "condition.hpp"
 #include "param/float_slider_param.h"
 #include "param/paramwrapper.h"
