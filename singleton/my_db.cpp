@@ -199,12 +199,9 @@ MyDatabase::QueryScore MyDatabase::getScore(const int poseId) const {
 	if (!q.next())
 		throw dg::RuntimeError("Pose ID " + std::to_string(poseId) + " not found in score table.");
 
-	bool ok;
-	ret.score = q.value(1).toFloat(&ok);
-	Q_ASSERT(ok);
+	ret.score = dg::ConvertQV<float>(q.value(1));
 	do {
-		const float score = q.value(0).toFloat(&ok);
-		Q_ASSERT(ok);
+		const float score = dg::ConvertQV<float>(q.value(0));
 		ret.individual.emplace_back(score);
 	}
 	while (q.next());
