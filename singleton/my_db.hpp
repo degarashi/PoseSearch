@@ -45,6 +45,11 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		// クエリ関連
 		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 
+		// ブラックリスト関連
+		void addBlacklist(int poseId) const;
+		void removeBlacklist(int poseId) const;
+		bool isBlacklisted(int poseId) const;
+
 	private:
 		QStringList _tags;
 		std::unique_ptr<dg::sql::Database> _db;

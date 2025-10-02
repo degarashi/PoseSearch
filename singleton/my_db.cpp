@@ -64,6 +64,17 @@ dg::sql::Database &MyDatabase::database() const {
 QString MyDatabase::getTag(const int idx) const {
 	return _tags.at(idx);
 }
+
+void MyDatabase::addBlacklist(const int poseId) const {
+	_db->exec(QString("INSERT OR IGNORE INTO %1 (poseId) VALUES (?)").arg(BLACKLIST_TABLE.text()), poseId);
+}
+void MyDatabase::removeBlacklist(const int poseId) const {
+	_db->exec(QString("DELETE FROM %1 WHERE poseId = ?").arg(BLACKLIST_TABLE.text()), poseId);
+}
+bool MyDatabase::isBlacklisted(const int poseId) const {
+	auto q = _db->exec(QString("SELECT poseId FROM %1 WHERE poseId = ?").arg(BLACKLIST_TABLE.text()), poseId);
+	return q.next();
+}
 namespace {
 	// 検索時の最大件数
 	constexpr int SearchAllLimit = 4096;
