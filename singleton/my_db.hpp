@@ -22,19 +22,28 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 				std::vector<float> individual;
 		};
 		using QueryResult_V = std::vector<QueryScore>;
+
+		// コンストラクタ
 		MyDatabase(std::unique_ptr<dg::sql::Database> db);
+
+		// データベースアクセサ
+		dg::sql::Database &database() const;
+
+		// タグ関連
 		const QStringList &getTagList() const;
 		QString getTag(int idx) const;
-		dg::sql::Database &database() const;
+
+		// ファイル関連
 		QString getFilePath(int fileId) const;
 		int getFileId(int poseId) const;
+
+		// ポーズ関連
 		QRectF getPoseRect(int poseId) const;
-
-		// ent.poseIdに関連する姿勢情報を一括取得して返す関数を定義
 		PoseInfo getPoseInfo(int poseId) const;
-
-		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 		QueryScore getScore(int poseId) const;
+
+		// クエリ関連
+		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 
 	private:
 		QStringList _tags;
