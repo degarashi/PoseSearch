@@ -47,14 +47,14 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 	const QPersistentModelIndex pIndex(idx);
 	Q_ASSERT(pIndex.isValid());
 	const int poseId = dg::ConvertQV<int>(pIndex.data(Qt::UserRole));
+	const int fileId = myDb_c.getFileId(poseId);
 
 	QPointer<QMenu> menu = new QMenu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose);
 
 	// --- ファイルパスコピー ---
 	auto *copyPathAction = new QAction(tr("Copy FilePath"), menu);
-	connect(copyPathAction, &QAction::triggered, this, [poseId]() {
-		const int fileId = myDb_c.getFileId(poseId);
+	connect(copyPathAction, &QAction::triggered, this, [fileId]() {
 		const QString filePath = myDb_c.getFilePath(fileId);
 		QApplication::clipboard()->setText(filePath);
 	});
@@ -62,7 +62,7 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 
 	// --- PoseInfoDialog表示 ---
 	auto *showPoseInfoAction = new QAction(tr("Show PoseInfo"), menu);
-	connect(showPoseInfoAction, &QAction::triggered, this, [this, pIndex, poseId]() {
+	connect(showPoseInfoAction, &QAction::triggered, this, [this, poseId]() {
 		// PoseInfoDialog を生成して表示
 		auto *dialog = new PoseInfoDialog(poseId, this);
 		dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -73,12 +73,12 @@ void ResultView::contextMenuEvent(QContextMenuEvent *event) {
 	menu->addSeparator();
 
 	// --- ブラックリスト登録/解除 ---
-	const bool isBlacklisted = myDb.isBlacklisted(poseId);
+	const bool isBlacklisted = myDb.isBlacklisted(fileId);
 	auto *blacklistAction = new QAction(isBlacklisted ? tr("Remove Blacklist") : tr("Add Blacklist"), menu);
 	if (isBlacklisted)
-		connect(blacklistAction, &QAction::triggered, this, [poseId]() { myDb.removeBlacklist(poseId); });
+		connect(blacklistAction, &QAction::triggered, this, [fileId]() { myDb.removeBlacklist(fileId); });
 	else
-		connect(blacklistAction, &QAction::triggered, this, [poseId]() { myDb.addBlacklist(poseId); });
+		connect(blacklistAction, &QAction::triggered, this, [fileId]() { myDb.addBlacklist(fileId); });
 	menu->addAction(blacklistAction);
 
 	menu->popup(event->globalPos());

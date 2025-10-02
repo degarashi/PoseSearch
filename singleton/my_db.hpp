@@ -47,9 +47,9 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		std::vector<int> query(int limit, const std::vector<Condition *> &clist) const;
 
 		// ブラックリスト関連
-		void addBlacklist(int poseId) const;
-		void removeBlacklist(int poseId) const;
-		bool isBlacklisted(int poseId) const;
+		void addBlacklist(int fileId) const;
+		void removeBlacklist(int fileId) const;
+		bool isBlacklisted(int fileId) const;
 
 	private:
 		QStringList _tags;

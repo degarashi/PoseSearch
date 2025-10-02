@@ -5,6 +5,9 @@ CREATE TABLE thumb.Thumbnail (
 );
 
 -- 姿勢解析が上手くいってないのをユーザーが手動でフラグ付けする --
+-- ポーズIdではデータベースを作り直す毎に対象が変わる可能性があるのでHashを格納
+--  = ファイル単位でブラックリスト登録
 CREATE TABLE blacklist.Blacklist (
-	poseId		INTEGER PRIMARY KEY
+    hash        BLOB NOT NULL UNIQUE,       -- SHA2(512)
+    CHECK(LENGTH(hash) == 64)
 );

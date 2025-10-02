@@ -13,7 +13,8 @@ namespace {
 	const auto blacklist_layout = QStringLiteral(
 		R"(
 			CREATE TABLE IF NOT EXISTS %1 (
-				poseId INTEGER PRIMARY KEY
+				hash	BLOB NOT NULL UNIQUE,
+				CHECK(LENGTH(hash) == 64)
 			)
 		)").arg(BLACKLIST_TABLE.text());
 	// clang-format on
@@ -51,14 +52,19 @@ namespace dg {
 } // namespace dg
 
 MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) : _db(std::move(db)), _debugMode(false) {
-	// タグリストを取得してメンバ変数に格納
-	auto q = _db->exec("SELECT name FROM TagInfo");
-	while (q.next()) {
-		_tags.append(q.value("name").toString());
+	try {
+		// タグリストを取得してメンバ変数に格納
+		auto q = _db->exec("SELECT name FROM TagInfo");
+		while (q.next()) {
+			_tags.append(q.value("name").toString());
+		}
+		_db->attach(BLACKLIST_FILE, BLACKLIST_DB);
+		// Blacklistテーブルを未作成の場合は定義
+		_db->exec(blacklist_layout);
 	}
-	_db->attach(BLACKLIST_FILE, BLACKLIST_DB);
-	// Blacklistテーブルを未作成の場合は定義
-	_db->exec(blacklist_layout);
+	catch (const std::exception &e) {
+		qWarning() << "Database initialization failed:" << e.what();
+	}
 }
 
 const QStringList &MyDatabase::getTagList() const {
@@ -76,14 +82,28 @@ QString MyDatabase::getTag(const int idx) const {
 	return _tags.at(idx);
 }
 
-void MyDatabase::addBlacklist(const int poseId) const {
-	_db->exec(QString("INSERT OR IGNORE INTO %1 (poseId) VALUES (?)").arg(BLACKLIST_TABLE.text()), poseId);
+void MyDatabase::addBlacklist(const int fileId) const {
+	const auto hash = getFileHash(fileId);
+	if (hash.isEmpty()) {
+		qWarning() << "addBlacklist: empty hash for fileId" << fileId;
+		return;
+	}
+	_db->exec(QString("INSERT OR IGNORE INTO %1 (hash) VALUES (?)").arg(BLACKLIST_TABLE.text()), hash);
 }
-void MyDatabase::removeBlacklist(const int poseId) const {
-	_db->exec(QString("DELETE FROM %1 WHERE poseId = ?").arg(BLACKLIST_TABLE.text()), poseId);
+void MyDatabase::removeBlacklist(const int fileId) const {
+	const auto hash = getFileHash(fileId);
+	if (hash.isEmpty()) {
+		qWarning() << "removeBlacklist: empty hash for fileId" << fileId;
+		return;
+	}
+	_db->exec(QString("DELETE FROM %1 WHERE hash = ?").arg(BLACKLIST_TABLE.text()), hash);
 }
-bool MyDatabase::isBlacklisted(const int poseId) const {
-	auto q = _db->exec(QString("SELECT poseId FROM %1 WHERE poseId = ?").arg(BLACKLIST_TABLE.text()), poseId);
+bool MyDatabase::isBlacklisted(const int fileId) const {
+	const auto hash = getFileHash(fileId);
+	if (hash.isEmpty()) {
+		return false;
+	}
+	auto q = _db->exec(QString("SELECT 1 FROM %1 WHERE hash = ?").arg(BLACKLIST_TABLE.text()), hash);
 	return q.next();
 }
 namespace {
@@ -97,6 +117,10 @@ namespace {
 	std::vector<T> fetchAll(QSqlQuery &query, const int column = 0) {
 		std::vector<T> result;
 		while (query.next()) {
+			if (!query.value(column).isValid()) {
+				qWarning() << "Invalid value in fetchAll at column" << column;
+				continue;
+			}
 			result.emplace_back(query.value(column).value<T>());
 		}
 		return result;
@@ -133,26 +157,38 @@ namespace {
 } // namespace
 
 std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition *> &clist) const {
-	if (clist.empty())
+	if (clist.empty()) {
+		qWarning() << "query called with empty condition list";
 		return {};
+	}
 
 	// --- スコア計算用テーブル ---
-	_db->dropTable(ScoreTable, true);
-	_db->createTempTable(ScoreTable.table, score_layout, false);
+	try {
+		_db->dropTable(ScoreTable, true);
+		_db->createTempTable(ScoreTable.table, score_layout, false);
+	}
+	catch (const std::exception &e) {
+		qWarning() << "Failed to create score table:" << e.what();
+		return {};
+	}
 
 	for (int index = 0; auto &&cond : clist) {
-		const auto qp = cond->getSqlQuery({
-			.outputTableName = ResultTableName,
-			.ratio = cond->getRatio(),
-		});
-		// 単にResultテーブルへ追加
-		qp.exec(*_db,
-				QString("INSERT INTO %1 "
-						"SELECT poseId, %2, score * :ratio FROM %3")
-					.arg(ScoreTable.text())
-					.arg(index)
-					.arg(ResultTableName),
-				SearchAllLimit);
+		try {
+			const auto qp = cond->getSqlQuery({
+				.outputTableName = ResultTableName,
+				.ratio = cond->getRatio(),
+			});
+			qp.exec(*_db,
+					QString("INSERT INTO %1 "
+							"SELECT poseId, %2, score * :ratio FROM %3")
+						.arg(ScoreTable.text())
+						.arg(index)
+						.arg(ResultTableName),
+					SearchAllLimit);
+		}
+		catch (const std::exception &e) {
+			qWarning() << "Condition query failed:" << e.what();
+		}
 		++index;
 	}
 	// scoreTableにずらっとスコアが入っているので
@@ -165,8 +201,8 @@ std::vector<int> MyDatabase::query(const int limit, const std::vector<Condition 
 							   "	ON Pose.fileId = File.id "
 							   // -- Blacklist除外 --
 							   "LEFT OUTER JOIN %2 BL"
-							   "  ON Pose.id = BL.poseId "
-							   "WHERE BL.poseId IS NULL "
+							   "  ON File.hash = BL.hash "
+							   "WHERE BL.hash IS NULL "
 							   // -------------------
 							   "GROUP BY Result.poseId "
 							   "ORDER BY score DESC "
