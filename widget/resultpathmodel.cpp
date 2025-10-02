@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QImage>
 #include <QMimeData>
+#include <QPainter>
 #include <QUrl>
 #include "aux_f_q/convert.hpp"
 #include "singleton/my_db.hpp"
@@ -46,8 +47,29 @@ QVariant ResultPathModel::data(const QModelIndex &index, const int role) const {
 
 					return msg;
 				}
-				case Qt::DecorationRole:
+
+				case Qt::DecorationRole: {
+					// ブラックリストに登録されているファイルIDの場合はサムネイルを暗く表示する処理
+					if (myDb_c.isBlacklisted(ent.fileId)) {
+						QImage img = ent.thumbnail.toImage();
+						if (!img.isNull()) {
+							// 元画像と同じサイズの透過イメージを作成
+							QImage darkened(img.size(), QImage::Format_ARGB32);
+							darkened.fill(Qt::transparent);
+
+							// QPainter を使って元画像を描画し、その上に半透明の黒を重ねる
+							QPainter p(&darkened);
+							p.drawImage(0, 0, img);
+							p.fillRect(darkened.rect(), QColor(0, 0, 0, 128)); // 半透明黒で暗くする
+							p.end();
+
+							// 暗くした画像を QPixmap に変換して返す
+							return QPixmap::fromImage(darkened);
+						}
+					}
+					// ブラックリスト対象でない場合は通常のサムネイルを返す
 					return ent.thumbnail;
+				}
 				case Qt::UserRole:
 					return ent.poseId;
 				default:;
