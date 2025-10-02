@@ -50,6 +50,7 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		void addBlacklist(int fileId) const;
 		void removeBlacklist(int fileId) const;
 		bool isBlacklisted(int fileId) const;
+		void deleteBlacklist();
 
 	private:
 		QStringList _tags;

@@ -1,4 +1,5 @@
 #include "my_db.hpp"
+#include <QMessageBox>
 #include "aux_f_q/q_value.hpp"
 #include "aux_f_q/sql/exception.hpp"
 #include "aux_f_q/sql/query.hpp"
@@ -105,6 +106,10 @@ bool MyDatabase::isBlacklisted(const int fileId) const {
 	}
 	auto q = _db->exec(QString("SELECT 1 FROM %1 WHERE hash = ?").arg(BLACKLIST_TABLE.text()), hash);
 	return q.next();
+}
+void MyDatabase::deleteBlacklist() {
+	_db->exec("DELETE FROM blacklist.Blacklist");
+	QMessageBox::information(nullptr, "Blacklist Cleared", "Done.");
 }
 namespace {
 	// 検索時の最大件数
