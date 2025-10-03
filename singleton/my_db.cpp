@@ -34,9 +34,9 @@ namespace dg {
 			// sqlite-vec拡張機能をロード（環境依存のため例外処理追加）
 			db.loadExtension("sqlite-vec.dll", "sqlite3_vec_init");
 		}
-		catch (const std::exception &e) {
+		catch (const sql::CantLoadExtension &e) {
 			qWarning() << "Failed to load sqlite-vec extension:" << e.what();
-			return;
+			throw;
 		}
 
 		// SQLiteのバージョンとsqlite-vecのバージョンを取得
