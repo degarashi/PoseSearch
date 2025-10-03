@@ -32,7 +32,7 @@ namespace dg::sql {
 	}
 	// ------------------- CantLoadExtension -------------------
 	CantLoadExtension::CantLoadExtension(const std::string &path) :
-		RuntimeError("can't open extension path(" + path + ")") {
+		RuntimeError("can't load extension: path(" + path + ")") {
 	}
 	// ------------------- ExecutionError -------------------
 	namespace {
