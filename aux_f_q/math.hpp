@@ -1,3 +1,4 @@
+#pragma once
 #include <QVector3D>
 
 namespace dg {

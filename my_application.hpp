@@ -1,3 +1,4 @@
+#pragma once
 #include <QApplication>
 
 #define myApp (static_cast<MyApplication *>(QCoreApplication::instance()))

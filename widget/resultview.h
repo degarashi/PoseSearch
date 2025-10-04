@@ -1,3 +1,4 @@
+#pragma once
 #include <QListView>
 
 class ResultView : public QListView {
