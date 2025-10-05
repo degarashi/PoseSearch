@@ -54,4 +54,6 @@ namespace dg {
 				return min <= max;
 			}
 	};
+	using FRange = Range<float>;
+	using IRange = Range<int>;
 } // namespace dg
