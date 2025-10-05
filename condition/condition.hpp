@@ -6,6 +6,7 @@
 #include <cereal_types/qstring.hpp>
 #include <cereal_types/qvector.hpp>
 #include "aux_f/angle.hpp"
+#include "aux_f/value.hpp"
 #include "static_base.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -54,6 +55,7 @@ class Condition {
 		virtual QuerySeed getSqlQuery(const QueryParam &param) const = 0;
 		float getRatio() const noexcept;
 		void setRatio(float r) noexcept;
+		dg::FRange getRatioRange() const noexcept;
 
 		template <typename Ar>
 		void serialize(Ar &ar) {
