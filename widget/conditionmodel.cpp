@@ -19,7 +19,7 @@ int ConditionModel::rowCount(const QModelIndex &parent) const {
 int ConditionModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	// テーブル列数
-	return ColumnsCount;
+	return static_cast<int>(Column::_Count);
 }
 
 QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
@@ -28,9 +28,9 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 		return {};
 
 	const int row = index.row();
-	const int col = index.column();
+	const auto colIdx = static_cast<Column>(index.column());
 
-	if (row < 0 || row >= _data.size() || col < 0 || col >= ColumnsCount)
+	if (row < 0 || row >= _data.size() || index.column() < 0 || index.column() >= static_cast<int>(Column::_Count))
 		return {};
 
 	// 対象の条件エントリを取得
@@ -38,16 +38,16 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 	Q_ASSERT(ent.cond);
 
 	switch (role) {
-		// 表示テキスト (列0のみ)
+		// 表示テキスト
 		case Qt::DisplayRole:
-			if (col == ColumnText)
+			if (colIdx == Column::Text)
 				return ent.cond->textPresent();
 			// チェック列の表示文字列は不要なので空を返す
 			return {};
 
-		// チェックボックス状態 (列1のみ)
+		// チェックボックス状態
 		case Qt::CheckStateRole:
-			if (col == ColumnEnabled)
+			if (colIdx == Column::Enabled)
 				return ent.enabled ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
 			return {};
 
@@ -66,14 +66,14 @@ bool ConditionModel::setData(const QModelIndex &index, const QVariant &value, co
 		return false;
 
 	const int row = index.row();
-	const int col = index.column();
-	if (row < 0 || row >= _data.size() || col < 0 || col >= ColumnsCount)
+	const auto col = static_cast<Column>(index.column());
+	if (row < 0 || row >= _data.size() || index.column() < 0 || index.column() >= static_cast<int>(Column::_Count))
 		return false;
 
 	switch (role) {
 		// チェックボックス変更
 		case Qt::CheckStateRole: {
-			if (col != ColumnEnabled)
+			if (col != Column::Enabled)
 				return false;
 
 			const bool newEnabled = value.toBool();
@@ -96,14 +96,14 @@ Qt::ItemFlags ConditionModel::flags(const QModelIndex &index) const {
 	if (!index.isValid())
 		return Qt::NoItemFlags;
 
-	const int col = index.column();
+	const auto col = static_cast<Column>(index.column());
 
 	// 列ごとのフラグ設定
 	switch (col) {
-		case ColumnText:
+		case Column::Text:
 			// テキスト列は選択可能・有効
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-		case ColumnEnabled:
+		case Column::Enabled:
 			// チェック列は選択可能・有効・ユーザーチェック可能
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
 		default:
@@ -116,10 +116,11 @@ QVariant ConditionModel::headerData(int section, Qt::Orientation orientation, in
 	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return {};
 
-	switch (section) {
-		case ColumnText:
+	const auto col = static_cast<Column>(section);
+	switch (col) {
+		case Column::Text:
 			return QStringLiteral("Condition"); // 条件のテキスト
-		case ColumnEnabled:
+		case Column::Enabled:
 			return QStringLiteral("Enabled"); // 有効フラグ
 		default:
 			return {};
@@ -163,8 +164,8 @@ void ConditionModel::addCondition(const Condition_SP &cond) {
 	endInsertRows();
 
 	// 挿入後に当該行の表示/チェック状態を明示的に更新通知 (必要最小限のロール)
-	const auto idxText = index(newRow, ColumnText);
-	const auto idxEnabled = index(newRow, ColumnEnabled);
+	const auto idxText = index(newRow, static_cast<int>(Column::Text));
+	const auto idxEnabled = index(newRow, static_cast<int>(Column::Enabled));
 	emit dataChanged(idxText, idxText, {Qt::DisplayRole, Qt::UserRole});
 	emit dataChanged(idxEnabled, idxEnabled, {Qt::CheckStateRole});
 }
@@ -193,7 +194,7 @@ QModelIndex ConditionModel::index(int row, int column, const QModelIndex &parent
 		return {};
 	if (row < 0 || row >= static_cast<int>(_data.size()))
 		return {};
-	if (column < 0 || column >= ColumnsCount)
+	if (column < 0 || column >= static_cast<int>(Column::_Count))
 		return {};
 	return createIndex(row, column);
 }

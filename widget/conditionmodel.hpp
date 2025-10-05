@@ -30,10 +30,10 @@ class ConditionModel : public QAbstractTableModel {
 		};
 		using Data = std::vector<Entry>;
 
-		enum Column : int {
-			ColumnText,
-			ColumnEnabled,
-			ColumnsCount,
+		enum class Column : int {
+			Text,
+			Enabled,
+			_Count,
 		};
 
 	public:
