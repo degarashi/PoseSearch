@@ -38,9 +38,10 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 	Q_ASSERT(ent.cond);
 
 	switch (role) {
-		// 表示テキスト
 		case Qt::DisplayRole:
-			if (colIdx == Column::Text)
+			if (colIdx == Column::Title)
+				return ent.cond->dialogName();
+			if (colIdx == Column::Info)
 				return ent.cond->textPresent();
 			// チェック列の表示文字列は不要なので空を返す
 			return {};
@@ -100,7 +101,8 @@ Qt::ItemFlags ConditionModel::flags(const QModelIndex &index) const {
 
 	// 列ごとのフラグ設定
 	switch (col) {
-		case Column::Text:
+		case Column::Title:
+		case Column::Info:
 			// テキスト列は選択可能・有効
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 		case Column::Enabled:
@@ -118,10 +120,12 @@ QVariant ConditionModel::headerData(int section, Qt::Orientation orientation, in
 
 	const auto col = static_cast<Column>(section);
 	switch (col) {
-		case Column::Text:
-			return QStringLiteral("Condition"); // 条件のテキスト
+		case Column::Title:
+			return QStringLiteral("Name");
 		case Column::Enabled:
-			return QStringLiteral("Enabled"); // 有効フラグ
+			return QStringLiteral("Enabled");
+		case Column::Info:
+			return QStringLiteral("Info");
 		default:
 			return {};
 	}
@@ -164,10 +168,12 @@ void ConditionModel::addCondition(const Condition_SP &cond) {
 	endInsertRows();
 
 	// 挿入後に当該行の表示/チェック状態を明示的に更新通知 (必要最小限のロール)
-	const auto idxText = index(newRow, static_cast<int>(Column::Text));
 	const auto idxEnabled = index(newRow, static_cast<int>(Column::Enabled));
-	emit dataChanged(idxText, idxText, {Qt::DisplayRole, Qt::UserRole});
+	const auto idxTitle = index(newRow, static_cast<int>(Column::Title));
+	const auto idxInfo = index(newRow, static_cast<int>(Column::Info));
 	emit dataChanged(idxEnabled, idxEnabled, {Qt::CheckStateRole});
+	emit dataChanged(idxTitle, idxTitle, {Qt::DisplayRole, Qt::UserRole});
+	emit dataChanged(idxInfo, idxInfo, {Qt::DisplayRole, Qt::UserRole});
 }
 
 void ConditionModel::clear() {
