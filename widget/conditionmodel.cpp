@@ -1,6 +1,12 @@
 #include "conditionmodel.hpp"
 #include "condition/condition.hpp"
 
+ConditionModel::Entry::Entry(Condition_SP c, bool en) : cond(std::move(c)), enabled(en) {
+	Q_ASSERT(cond);
+}
+ConditionModel::Entry::Entry() : cond(nullptr), enabled(false) {
+}
+
 ConditionModel::ConditionModel(QObject *parent) : QAbstractTableModel(parent) {
 }
 

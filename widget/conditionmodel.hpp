@@ -19,11 +19,8 @@ class ConditionModel : public QAbstractTableModel {
 				bool enabled;
 
 				// cereal用にデフォルト構築を許可
-				Entry() : cond(nullptr), enabled(false) {
-				}
-				explicit Entry(Condition_SP c, bool en = true) : cond(std::move(c)), enabled(en) {
-					Q_ASSERT(cond);
-				}
+				Entry();
+				explicit Entry(Condition_SP c, bool en = true);
 
 				template <typename Ar>
 				void serialize(Ar &ar) {
