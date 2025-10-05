@@ -4,6 +4,11 @@
 #include <QMenu>
 #include <QPointer>
 
+ConditionView::ConditionView(QWidget *parent) : QTableView(parent) {
+	auto *header = horizontalHeader();
+	header->setVisible(false);
+}
+
 void ConditionView::setModel(QAbstractItemModel *model) {
 	QTableView::setModel(model);
 

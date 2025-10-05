@@ -5,7 +5,7 @@ class ConditionView : public QTableView {
 		Q_OBJECT
 
 	public:
-		using QTableView::QTableView;
+		ConditionView(QWidget *parent);
 		void setModel(QAbstractItemModel *model) override;
 
 	protected:
