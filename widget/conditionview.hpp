@@ -6,6 +6,7 @@ class ConditionView : public QTableView {
 
 	public:
 		using QTableView::QTableView;
+		void setModel(QAbstractItemModel *model) override;
 
 	protected:
 		void contextMenuEvent(QContextMenuEvent *event) override;
