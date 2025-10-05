@@ -1,4 +1,5 @@
 #include "conditionmodel.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "condition/condition.hpp"
 
 ConditionModel::Entry::Entry(Condition_SP c, bool en) : cond(std::move(c)), enabled(en) {
@@ -38,13 +39,23 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 	Q_ASSERT(ent.cond);
 
 	switch (role) {
-		case Qt::DisplayRole:
-			if (colIdx == Column::Title)
-				return ent.cond->dialogName();
-			if (colIdx == Column::Info)
-				return ent.cond->textPresent();
-			// チェック列の表示文字列は不要なので空を返す
+		case Qt::EditRole:
+			if (colIdx == Column::Slider)
+				return ent.cond->getRatio();
 			return {};
+
+		case Qt::DisplayRole:
+			switch (colIdx) {
+				case Column::Title:
+					return ent.cond->dialogName();
+				case Column::Info:
+					return ent.cond->textPresent();
+				case Column::Slider:
+					// 小数点以下は2ケタまでにする
+					return QString::number(ent.cond->getRatio(), 'f', 2);
+				default:
+					return {};
+			}
 
 		// チェックボックス状態
 		case Qt::CheckStateRole:
@@ -71,17 +82,21 @@ bool ConditionModel::setData(const QModelIndex &index, const QVariant &value, co
 	if (row < 0 || row >= _data.size() || index.column() < 0 || index.column() >= static_cast<int>(Column::_Count))
 		return false;
 
+	auto &ent = _data[row];
 	switch (role) {
+		case Qt::EditRole:
+			ent.cond->setRatio(dg::ConvertQV<float>(value));
+			break;
 		// チェックボックス変更
 		case Qt::CheckStateRole: {
 			if (col != Column::Enabled)
 				return false;
 
 			const bool newEnabled = value.toBool();
-			if (_data[row].enabled == newEnabled)
+			if (ent.enabled == newEnabled)
 				return true; // 変更なし
 
-			_data[row].enabled = newEnabled;
+			ent.enabled = newEnabled;
 			// setData でデータが変更された際に dataChanged シグナルを発行する
 			emit dataChanged(index, index, QList<int>{Qt::CheckStateRole});
 			return true;
@@ -99,22 +114,21 @@ Qt::ItemFlags ConditionModel::flags(const QModelIndex &index) const {
 
 	const auto col = static_cast<Column>(index.column());
 
-	// 列ごとのフラグ設定
 	switch (col) {
 		case Column::Title:
 		case Column::Info:
-			// テキスト列は選択可能・有効
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 		case Column::Enabled:
-			// チェック列は選択可能・有効・ユーザーチェック可能
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+		case Column::Slider:
+			// スライダー列は編集可能
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 		default:
 			return Qt::NoItemFlags;
 	}
 }
 
 QVariant ConditionModel::headerData(int section, Qt::Orientation orientation, int role) const {
-	// ヘッダー表示 (水平のみ)
 	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return {};
 
@@ -122,6 +136,8 @@ QVariant ConditionModel::headerData(int section, Qt::Orientation orientation, in
 	switch (col) {
 		case Column::Title:
 			return QStringLiteral("Name");
+		case Column::Slider:
+			return QStringLiteral("Ratio");
 		case Column::Enabled:
 			return QStringLiteral("Enabled");
 		case Column::Info:
@@ -171,9 +187,11 @@ void ConditionModel::addCondition(const Condition_SP &cond) {
 	const auto idxEnabled = index(newRow, static_cast<int>(Column::Enabled));
 	const auto idxTitle = index(newRow, static_cast<int>(Column::Title));
 	const auto idxInfo = index(newRow, static_cast<int>(Column::Info));
+	const auto idxSlider = index(newRow, static_cast<int>(Column::Slider));
 	emit dataChanged(idxEnabled, idxEnabled, {Qt::CheckStateRole});
 	emit dataChanged(idxTitle, idxTitle, {Qt::DisplayRole, Qt::UserRole});
 	emit dataChanged(idxInfo, idxInfo, {Qt::DisplayRole, Qt::UserRole});
+	emit dataChanged(idxSlider, idxSlider, {Qt::DisplayRole, Qt::EditRole});
 }
 
 void ConditionModel::clear() {

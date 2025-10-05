@@ -3,10 +3,13 @@
 #include <QHeaderView>
 #include <QMenu>
 #include <QPointer>
+#include "widget/conditionlist_dlg.hpp"
 
 ConditionView::ConditionView(QWidget *parent) : QTableView(parent) {
 	auto *header = horizontalHeader();
 	header->setVisible(false);
+
+	setItemDelegate(new SliderDelegate(this));
 }
 
 void ConditionView::setModel(QAbstractItemModel *model) {
@@ -16,12 +19,10 @@ void ConditionView::setModel(QAbstractItemModel *model) {
 		return;
 
 	auto *header = horizontalHeader();
-	// 1列目（チェックボックス）は最小限
 	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-	// 2列目は内容に応じて調整
 	header->setSectionResizeMode(1, QHeaderView::Interactive);
-	// 3列目は可能な限りスペースを与える
-	header->setSectionResizeMode(2, QHeaderView::Stretch);
+	header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+	header->setSectionResizeMode(3, QHeaderView::Stretch);
 }
 
 void ConditionView::contextMenuEvent(QContextMenuEvent *event) {
