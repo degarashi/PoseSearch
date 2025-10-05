@@ -10,7 +10,7 @@
 
 class Condition;
 using Condition_SP = std::shared_ptr<Condition>;
-class ConditionListModel : public QAbstractTableModel {
+class ConditionModel : public QAbstractTableModel {
 		Q_OBJECT
 
 	public:
@@ -40,7 +40,7 @@ class ConditionListModel : public QAbstractTableModel {
 		};
 
 	public:
-		explicit ConditionListModel(QObject *parent = nullptr);
+		explicit ConditionModel(QObject *parent = nullptr);
 
 		// QAbstractItemModel overrides
 		int rowCount(const QModelIndex &parent = QModelIndex()) const override;

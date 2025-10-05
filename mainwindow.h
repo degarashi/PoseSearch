@@ -9,7 +9,7 @@ namespace Ui {
 QT_END_NAMESPACE
 
 class ResultPathModel;
-class ConditionListModel;
+class ConditionModel;
 class MainWindow : public QMainWindow {
 		Q_OBJECT
 
@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow {
 		MainWindow(QWidget *parent = nullptr);
 
 	private:
-		using Cond_SP = std::shared_ptr<ConditionListModel>;
+		using Cond_SP = std::shared_ptr<ConditionModel>;
 		Cond_SP _clm;
 		ResultPathModel *_rpm;
 		QSharedPointer<Ui::MainWindow> _ui;

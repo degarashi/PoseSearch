@@ -5,7 +5,7 @@
 #include <cereal/types/memory.hpp>
 #include <fstream>
 #include "mainwindow.h"
-#include "widget/conditionlistmodel.hpp"
+#include "widget/conditionmodel.hpp"
 #include "condition/condition.hpp"
 
 void MainWindow::loadConditions() {
@@ -20,7 +20,7 @@ void MainWindow::loadConditions() {
 		return;
 	}
 	cereal::BinaryInputArchive archive(ifs);
-	Cond_SP clm; // 新しいConditionListModelを作成
+	Cond_SP clm;
 	try {
 		archive(clm);
 	}

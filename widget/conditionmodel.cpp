@@ -1,22 +1,22 @@
-#include "conditionlistmodel.hpp"
+#include "conditionmodel.hpp"
 #include "condition/condition.hpp"
 
-ConditionListModel::ConditionListModel(QObject *parent) : QAbstractTableModel(parent) {
+ConditionModel::ConditionModel(QObject *parent) : QAbstractTableModel(parent) {
 }
 
-int ConditionListModel::rowCount(const QModelIndex &parent) const {
+int ConditionModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	// 条件リストのサイズを行数として返す
 	return _data.size();
 }
 
-int ConditionListModel::columnCount(const QModelIndex &parent) const {
+int ConditionModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	// テーブル列数
 	return ColumnsCount;
 }
 
-QVariant ConditionListModel::data(const QModelIndex &index, const int role) const {
+QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 	// インデックスの有効性と範囲チェック
 	if (!index.isValid())
 		return {};
@@ -55,7 +55,7 @@ QVariant ConditionListModel::data(const QModelIndex &index, const int role) cons
 	}
 }
 
-bool ConditionListModel::setData(const QModelIndex &index, const QVariant &value, const int role) {
+bool ConditionModel::setData(const QModelIndex &index, const QVariant &value, const int role) {
 	if (!index.isValid())
 		return false;
 
@@ -85,7 +85,7 @@ bool ConditionListModel::setData(const QModelIndex &index, const QVariant &value
 	return false;
 }
 
-Qt::ItemFlags ConditionListModel::flags(const QModelIndex &index) const {
+Qt::ItemFlags ConditionModel::flags(const QModelIndex &index) const {
 	// 無効なインデックスに対して呼び出した際のクラッシュを防ぐ
 	if (!index.isValid())
 		return Qt::NoItemFlags;
@@ -105,7 +105,7 @@ Qt::ItemFlags ConditionListModel::flags(const QModelIndex &index) const {
 	}
 }
 
-QVariant ConditionListModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant ConditionModel::headerData(int section, Qt::Orientation orientation, int role) const {
 	// ヘッダー表示 (水平のみ)
 	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
 		return {};
@@ -120,7 +120,7 @@ QVariant ConditionListModel::headerData(int section, Qt::Orientation orientation
 	}
 }
 
-bool ConditionListModel::removeRows(const int row, const int count, const QModelIndex &parent) {
+bool ConditionModel::removeRows(const int row, const int count, const QModelIndex &parent) {
 	// 常にルートノードを想定しているため、parent は無効であるべき
 	if (parent.isValid())
 		return false;
@@ -143,7 +143,7 @@ bool ConditionListModel::removeRows(const int row, const int count, const QModel
 	return true;
 }
 
-void ConditionListModel::addCondition(const Condition_SP &cond) {
+void ConditionModel::addCondition(const Condition_SP &cond) {
 	Q_ASSERT(cond);
 	const int newRow = _data.size();
 
@@ -163,17 +163,17 @@ void ConditionListModel::addCondition(const Condition_SP &cond) {
 	emit dataChanged(idxEnabled, idxEnabled, {Qt::CheckStateRole});
 }
 
-void ConditionListModel::clear() {
+void ConditionModel::clear() {
 	beginResetModel();
 	_data.clear();
 	endResetModel();
 }
 
-const ConditionListModel::Data &ConditionListModel::data() const {
+const ConditionModel::Data &ConditionModel::data() const {
 	return _data;
 }
 
-bool ConditionListModel::isConditionValid() const {
+bool ConditionModel::isConditionValid() const {
 	// 少なくとも一つの条件が有効であれば true
 	for (const auto &item : _data) {
 		if (item.enabled)
@@ -182,7 +182,7 @@ bool ConditionListModel::isConditionValid() const {
 	return false;
 }
 
-QModelIndex ConditionListModel::index(int row, int column, const QModelIndex &parent) const {
+QModelIndex ConditionModel::index(int row, int column, const QModelIndex &parent) const {
 	if (parent.isValid())
 		return {};
 	if (row < 0 || row >= static_cast<int>(_data.size()))

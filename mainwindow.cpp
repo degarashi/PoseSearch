@@ -11,7 +11,7 @@
 #include "singleton/my_db.hpp"
 #include "singleton/my_settings.hpp"
 #include "singleton/my_thumbnail.hpp"
-#include "widget/conditionlistmodel.hpp"
+#include "widget/conditionmodel.hpp"
 #include "widget/resultpathmodel.h"
 
 // Conditionを生成する為のclass default object
@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _ui(new Ui::MainW
 	_ui->lvResult->setModel(_rpm);
 
 	// 条件リストモデルの作成
-	_setConditionModel(std::make_shared<ConditionListModel>(this));
+	_setConditionModel(std::make_shared<ConditionModel>(this));
 
 	// 対応するフィルタをComboBoxに設定
 	for (auto *cond : g_conds)
