@@ -116,7 +116,7 @@ void MainWindow::deleteThumbnails() {
 	myTn.clearThumbnail();
 }
 
-void MainWindow::queryDoubleClicked(const QModelIndex &index) {
+void MainWindow::queryEdit(const QModelIndex &index) {
 	// Queryの編集(Condition*)
 	auto *cond = _clm->data(index, Qt::ItemDataRole::UserRole).value<Condition *>();
 

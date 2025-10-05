@@ -31,7 +31,7 @@ class MainWindow : public QMainWindow {
 		void clearCondition();
 		void checkCondition();
 		void deleteThumbnails();
-		void queryDoubleClicked(const QModelIndex &index);
+		void queryEdit(const QModelIndex &index);
 		void detachDB();
 		void loadConditions();
 		void saveConditions();

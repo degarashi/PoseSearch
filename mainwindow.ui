@@ -329,7 +329,7 @@
    <sender>lvQueryView</sender>
    <signal>doubleClicked(QModelIndex)</signal>
    <receiver>MainWindow</receiver>
-   <slot>queryDoubleClicked(QModelIndex)</slot>
+   <slot>queryEdit(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>126</x>
@@ -430,7 +430,7 @@
   <slot>addCondition()</slot>
   <slot>resultViewDoubleClicked(QModelIndex)</slot>
   <slot>deleteThumbnails()</slot>
-  <slot>queryDoubleClicked(QModelIndex)</slot>
+  <slot>queryEdit(QModelIndex)</slot>
   <slot>detachDB()</slot>
   <slot>saveConditions()</slot>
   <slot>loadConditions()</slot>
