@@ -1,50 +1,82 @@
 #pragma once
+
 #include <QAbstractItemModel>
+#include <QModelIndex>
+#include <QVariant>
+#include <QVector>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
+#include "condition/condition.hpp"
 
 class Condition;
 using Condition_SP = std::shared_ptr<Condition>;
-class ConditionListModel : public QAbstractListModel {
+class ConditionListModel : public QAbstractTableModel {
 		Q_OBJECT
-	private:
-		struct DataEnt {
+
+	public:
+		struct Entry {
 				Condition_SP cond;
 				bool enabled;
+
+				// cereal用にデフォルト構築を許可
+				Entry() : cond(nullptr), enabled(false) {
+				}
+				explicit Entry(Condition_SP c, bool en = true) : cond(std::move(c)), enabled(en) {
+					Q_ASSERT(cond);
+				}
 
 				template <typename Ar>
 				void serialize(Ar &ar) {
 					ar(cond, enabled);
+					Q_ASSERT(cond);
 				}
 		};
-		using Data = std::vector<DataEnt>;
-		Data _data;
+		using Data = std::vector<Entry>;
+
+		enum Column : int {
+			ColumnText,
+			ColumnEnabled,
+			ColumnsCount,
+		};
 
 	public:
 		explicit ConditionListModel(QObject *parent = nullptr);
 
-		// 指定された親インデックスに対応する子アイテムの行数を返す
-		virtual int rowCount(const QModelIndex &parent) const override;
-		// 指定されたモデルインデックスとロールに対応するデータを返す
-		virtual QVariant data(const QModelIndex &index, int role) const override;
-		// 指定された行範囲のアイテムを削除
-		bool removeRows(int row, int count, const QModelIndex &parent) override;
+		// QAbstractItemModel overrides
+		int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+		int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+		QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 		bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 		Qt::ItemFlags flags(const QModelIndex &index) const override;
+		QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+		bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+		QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
+		// 便利関数
 		void addCondition(const Condition_SP &cond);
 		void clear();
 
 		template <typename Ar>
 		void serialize(Ar &ar) {
-			ar(_data);
 			if constexpr (Ar::is_loading::value) {
-				// モデルが更新されたことを知らせる
-				emit dataChanged(index(0), index(_data.size()), {Qt::DisplayRole, Qt::UserRole});
+				// ロード時はモデル全体が入れ替わるため、リセット通知で安全に更新する
+				beginResetModel();
+				ar(_data);
+#ifdef QT_DEBUG
+				for (const auto &ent : _data)
+					Q_ASSERT(ent.cond);
+#endif
+				endResetModel();
+			}
+			else {
+				ar(_data);
 			}
 		}
 
 		// 条件リスト全体を取得
 		const Data &data() const;
 		bool isConditionValid() const;
+
+	private:
+		Data _data;
 };
