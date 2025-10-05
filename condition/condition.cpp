@@ -37,7 +37,7 @@ void Condition::_clone(Condition &dst) const {
 }
 
 QString Condition::_textPresent(const QString &src) const {
-	return QString("%1 {ratio=%2, %3}").arg(dialogName()).arg(_ratio).arg(src);
+	return QString("ratio=%2, %3").arg(_ratio).arg(src);
 }
 
 void Condition::setupDialog(QueryDialog &dlg) const {
