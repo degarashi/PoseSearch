@@ -1,11 +1,11 @@
 #pragma once
-#include <QListView>
+#include <QTableView>
 
-class ConditionListView : public QListView {
+class ConditionView : public QTableView {
 		Q_OBJECT
 
 	public:
-		using QListView::QListView;
+		using QTableView::QTableView;
 
 	protected:
 		void contextMenuEvent(QContextMenuEvent *event) override;

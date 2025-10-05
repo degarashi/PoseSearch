@@ -32,7 +32,7 @@
            </widget>
           </item>
           <item>
-           <widget class="ConditionListView" name="lvQueryView"/>
+           <widget class="ConditionView" name="lvQueryView"/>
           </item>
          </layout>
         </item>
@@ -206,9 +206,9 @@
    <header>widget/resultview.h</header>
   </customwidget>
   <customwidget>
-   <class>ConditionListView</class>
+   <class>ConditionView</class>
    <extends>QListView</extends>
-   <header>widget/conditionlistview.hpp</header>
+   <header>widget/conditionview.hpp</header>
    <slots>
     <signal>onItemEdit(QModelIndex)</signal>
    </slots>
