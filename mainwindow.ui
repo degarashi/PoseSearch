@@ -209,6 +209,9 @@
    <class>ConditionListView</class>
    <extends>QListView</extends>
    <header>widget/conditionlistview.hpp</header>
+   <slots>
+    <signal>onItemEdit(QModelIndex)</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -414,6 +417,22 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lvQueryView</sender>
+   <signal>onItemEdit(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>queryEdit(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>139</y>
     </hint>
     <hint type="destinationlabel">
      <x>264</x>
