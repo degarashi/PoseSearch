@@ -53,6 +53,7 @@ class Condition {
 
 		virtual QuerySeed getSqlQuery(const QueryParam &param) const = 0;
 		float getRatio() const noexcept;
+		void setRatio(float r) noexcept;
 
 		template <typename Ar>
 		void serialize(Ar &ar) {

@@ -56,7 +56,9 @@ void Condition::loadParamFromDialog(const QVariantList &vl) {
 float Condition::getRatio() const noexcept {
 	return _ratio;
 }
-
+void Condition::setRatio(const float r) noexcept {
+	_ratio = r;
+}
 // -----------------------------------------
 QJsonArray VecToJArray(const QVector3D &v) {
 	return {v.x(), v.y(), v.z()};
