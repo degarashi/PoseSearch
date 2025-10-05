@@ -329,22 +329,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>lvQueryView</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>queryEdit(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>126</x>
-     <y>141</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>cbQuery</sender>
    <signal>textActivated(QString)</signal>
    <receiver>MainWindow</receiver>
