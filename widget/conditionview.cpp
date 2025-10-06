@@ -10,7 +10,7 @@ ConditionView::ConditionView(QWidget *parent) : QTableView(parent) {
 	auto *header = horizontalHeader();
 	header->setVisible(false);
 
-	setItemDelegate(new SliderDelegate(this));
+	setItemDelegateForColumn(static_cast<int>(ConditionModel::Column::Ratio), new SliderDelegate);
 }
 
 void ConditionView::setModel(QAbstractItemModel *model) {

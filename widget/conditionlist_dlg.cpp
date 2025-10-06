@@ -1,47 +1,67 @@
 #include "conditionlist_dlg.hpp"
-#include "aux_f/value.hpp"
+#include <QApplication>
+#include <QPainter>
+#include <QSlider>
+#include <QStyleOptionProgressBar>
+#include <QStyledItemDelegate>
 #include "aux_f_q/q_value.hpp"
 #include "cond_data.hpp"
+#include "conditionmodel.hpp"
 
-namespace {
-	constexpr int MIN_V = 0;
-	constexpr int MAX_V = 1000;
-} // namespace
+// 表示時はプログレスバー
+void SliderDelegate::paint(QPainter *const painter, const QStyleOptionViewItem &option,
+						   const QModelIndex &index) const {
+	if (index.column() == static_cast<int>(ConditionModel::Column::Ratio)) {
+		const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
+		const int percent = static_cast<int>(dg::Remap<float>(p.current, p.range.min, p.range.max, 0.0f, 100.0f));
 
-// 編集開始時にセル用エディタを生成
-// parent 引数は生成エディタの親ウィジェット参照
-// QStyleOptionViewItem 引数は表示オプション参照
-QWidget *SliderDelegate::createEditor(QWidget *const parent, const QStyleOptionViewItem &, const QModelIndex &) const {
+		QStyleOptionProgressBar bar;
+		bar.rect = option.rect;
+		bar.minimum = 0;
+		bar.maximum = 100;
+		bar.progress = percent;
+		bar.text = QString::number(p.current, 'f', 2);
+		bar.textVisible = true;
+
+		QApplication::style()->drawControl(QStyle::CE_ProgressBar, &bar, painter);
+	}
+	else {
+		QStyledItemDelegate::paint(painter, option, index);
+	}
+}
+
+// 編集開始時はスライダーを生成
+QWidget *SliderDelegate::createEditor(QWidget *const parent, const QStyleOptionViewItem &,
+									  const QModelIndex &index) const {
+	if (index.column() != static_cast<int>(ConditionModel::Column::Ratio))
+		return nullptr;
+
 	auto *const slider = new QSlider(Qt::Horizontal, parent);
-	slider->setMinimum(MIN_V);
-	slider->setMaximum(MAX_V);
-
-	// 背景をセルと同じ色で塗る
-	slider->setAutoFillBackground(true);
-	QPalette pal = slider->palette();
-	pal.setColor(QPalette::Window, pal.color(QPalette::Base));
-	slider->setPalette(pal);
-
+	slider->setMinimum(0);
+	slider->setMaximum(1000); // 精度を上げたい場合は大きめに
 	return slider;
 }
 
-// モデルからエディタへ値を反映
+// モデル値をスライダーに反映
 void SliderDelegate::setEditorData(QWidget *const editor, const QModelIndex &index) const {
-	// スライダー位置や範囲などの初期値設定
+	if (index.column() != static_cast<int>(ConditionModel::Column::Ratio))
+		return;
+
 	const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
-	QSlider *const slider = qobject_cast<QSlider *>(editor);
-	// intへマッピングする
-	const float value = dg::Remap<float>(p.current, p.range.min, p.range.max, MIN_V, MAX_V);
-	slider->setValue(std::round(value));
+	auto *const slider = qobject_cast<QSlider *>(editor);
+	const float mapped = dg::Remap<float>(p.current, p.range.min, p.range.max, 0.0f, 1000.0f);
+	slider->setValue(std::lround(mapped));
 }
 
-// エディタからモデルへ値を書き戻す
+// スライダー値をモデルに書き戻す
 void SliderDelegate::setModelData(QWidget *const editor, QAbstractItemModel *const model,
 								  const QModelIndex &index) const {
+	if (index.column() != static_cast<int>(ConditionModel::Column::Ratio))
+		return;
+
 	const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
-	QSlider *const slider = qobject_cast<QSlider *>(editor);
-	// int -> floatへマッピング
-	const auto value = dg::Remap<float>(slider->value(), MIN_V, MAX_V, p.range.min, p.range.max);
+	auto *const slider = qobject_cast<QSlider *>(editor);
+	const float value = dg::Remap<float>(slider->value(), 0.0f, 1000.0f, p.range.min, p.range.max);
 	model->setData(index, value, Qt::EditRole);
 }
 

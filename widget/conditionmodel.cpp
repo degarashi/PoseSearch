@@ -42,7 +42,7 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 
 	switch (role) {
 		case Qt::EditRole:
-			if (colIdx == Column::Slider)
+			if (colIdx == Column::Ratio)
 				return QVariant::fromValue(CondParam{ent.cond->getRatio(), ent.cond->getRatioRange()});
 			return {};
 
@@ -52,23 +52,25 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 					return ent.cond->dialogName();
 				case Column::Info:
 					return ent.cond->textPresent();
-				case Column::Slider:
-					// 小数点以下は2ケタまでにする
-					return QString::number(ent.cond->getRatio(), 'f', 2);
 				default:
 					return {};
 			}
 
-		// チェックボックス状態
+		// プログレスバー用の値を返す
+		case Qt::UserRole:
+			if (colIdx == Column::Ratio) {
+				// 0〜100 の整数値に変換して返す
+				const float ratio = ent.cond->getRatio();
+				const int percent = static_cast<int>(ratio * 100.0f);
+				return percent;
+			}
+			// 条件オブジェクトへのポインタを返す
+			return QVariant::fromValue(ent.cond.get());
+
 		case Qt::CheckStateRole:
 			if (colIdx == Column::Enabled)
 				return ent.enabled ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
 			return {};
-
-		// 条件オブジェクトへのポインタ (列に依らず行のメタ情報として返す)
-		case Qt::UserRole:
-			// QVariant::fromValue() を使用してポインタを直接格納する
-			return QVariant::fromValue(ent.cond.get());
 
 		default:
 			return {};
@@ -122,8 +124,8 @@ Qt::ItemFlags ConditionModel::flags(const QModelIndex &index) const {
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 		case Column::Enabled:
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
-		case Column::Slider:
-			// スライダー列は編集可能
+		case Column::Ratio:
+			// プログレスバー表示用に編集可能にしておく
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 		default:
 			return Qt::NoItemFlags;
@@ -138,8 +140,8 @@ QVariant ConditionModel::headerData(int section, Qt::Orientation orientation, in
 	switch (col) {
 		case Column::Title:
 			return QStringLiteral("Name");
-		case Column::Slider:
-			return QStringLiteral("Ratio");
+		case Column::Ratio:
+			return QStringLiteral("Progress");
 		case Column::Enabled:
 			return QStringLiteral("Enabled");
 		case Column::Info:
@@ -189,11 +191,11 @@ void ConditionModel::addCondition(const Condition_SP &cond) {
 	const auto idxEnabled = index(newRow, static_cast<int>(Column::Enabled));
 	const auto idxTitle = index(newRow, static_cast<int>(Column::Title));
 	const auto idxInfo = index(newRow, static_cast<int>(Column::Info));
-	const auto idxSlider = index(newRow, static_cast<int>(Column::Slider));
+	const auto idxRatio = index(newRow, static_cast<int>(Column::Ratio));
 	emit dataChanged(idxEnabled, idxEnabled, {Qt::CheckStateRole});
 	emit dataChanged(idxTitle, idxTitle, {Qt::DisplayRole, Qt::UserRole});
 	emit dataChanged(idxInfo, idxInfo, {Qt::DisplayRole, Qt::UserRole});
-	emit dataChanged(idxSlider, idxSlider, {Qt::DisplayRole, Qt::EditRole});
+	emit dataChanged(idxRatio, idxRatio, {Qt::UserRole});
 }
 
 void ConditionModel::clear() {

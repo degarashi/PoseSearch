@@ -6,6 +6,7 @@ class SliderDelegate : public QStyledItemDelegate {
 		public : using QStyledItemDelegate::QStyledItemDelegate; // 基底デリゲートのコンストラクタ群を継承する宣言
 
 		QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const override;
+		void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 		void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 		void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;

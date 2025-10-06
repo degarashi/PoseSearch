@@ -33,7 +33,7 @@ class ConditionModel : public QAbstractTableModel {
 
 		enum class Column : int {
 			Enabled,
-			Slider,
+			Ratio,
 			Title,
 			Info,
 			_Count,
