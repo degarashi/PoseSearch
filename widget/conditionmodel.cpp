@@ -15,7 +15,7 @@ ConditionModel::ConditionModel(QObject *parent) : QAbstractTableModel(parent) {
 int ConditionModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	// 条件リストのサイズを行数として返す
-	return _data.size();
+	return static_cast<int>(_data.size());
 }
 
 int ConditionModel::columnCount(const QModelIndex &parent) const {
@@ -32,11 +32,12 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 	const int row = index.row();
 	const auto colIdx = static_cast<Column>(index.column());
 
-	if (row < 0 || row >= _data.size() || index.column() < 0 || index.column() >= static_cast<int>(Column::_Count))
+	if (row < 0 || row >= static_cast<int>(_data.size()) || index.column() < 0 ||
+		index.column() >= static_cast<int>(Column::_Count))
 		return {};
 
 	// 対象の条件エントリを取得
-	const auto &ent = _data[row];
+	const auto &ent = _data[static_cast<std::size_t>(row)];
 	Q_ASSERT(ent.cond);
 
 	switch (role) {
@@ -80,10 +81,11 @@ bool ConditionModel::setData(const QModelIndex &index, const QVariant &value, co
 
 	const int row = index.row();
 	const auto col = static_cast<Column>(index.column());
-	if (row < 0 || row >= _data.size() || index.column() < 0 || index.column() >= static_cast<int>(Column::_Count))
+	if (row < 0 || row >= static_cast<int>(_data.size()) || index.column() < 0 ||
+		index.column() >= static_cast<int>(Column::_Count))
 		return false;
 
-	auto &ent = _data[row];
+	auto &ent = _data[static_cast<std::size_t>(row)];
 	switch (role) {
 		case Qt::EditRole:
 			ent.cond->setRatio(dg::ConvertQV<float>(value));
@@ -154,7 +156,7 @@ bool ConditionModel::removeRows(const int row, const int count, const QModelInde
 		return false;
 
 	// 範囲チェック
-	if (row < 0 || count <= 0 || row + count > _data.size())
+	if (row < 0 || count <= 0 || row + count > static_cast<int>(_data.size()))
 		return false;
 
 	// 行削除を開始
@@ -173,7 +175,7 @@ bool ConditionModel::removeRows(const int row, const int count, const QModelInde
 
 void ConditionModel::addCondition(const Condition_SP &cond) {
 	Q_ASSERT(cond);
-	const int newRow = _data.size();
+	const int newRow = static_cast<int>(_data.size());
 
 	// 行追加をモデルに通知
 	beginInsertRows(QModelIndex(), newRow, newRow);
