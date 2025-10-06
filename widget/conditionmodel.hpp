@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QHeaderView>
 #include <QModelIndex>
 #include <QVariant>
 #include <QVector>
@@ -54,6 +55,7 @@ class ConditionModel : public QAbstractTableModel {
 		// 便利関数
 		void addCondition(const Condition_SP &cond);
 		void clear();
+		std::vector<QHeaderView::ResizeMode> getResizeMode() const noexcept;
 
 		template <typename Ar>
 		void serialize(Ar &ar) {

@@ -223,3 +223,11 @@ QModelIndex ConditionModel::index(int row, int column, const QModelIndex &parent
 		return {};
 	return createIndex(row, column);
 }
+std::vector<QHeaderView::ResizeMode> ConditionModel::getResizeMode() const noexcept {
+	return {
+		QHeaderView::ResizeToContents,
+		QHeaderView::Interactive,
+		QHeaderView::ResizeToContents,
+		QHeaderView::Stretch,
+	};
+}
