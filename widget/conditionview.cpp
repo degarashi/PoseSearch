@@ -4,6 +4,7 @@
 #include <QMenu>
 #include <QPointer>
 #include "widget/conditionlist_dlg.hpp"
+#include "widget/conditionmodel.hpp"
 
 ConditionView::ConditionView(QWidget *parent) : QTableView(parent) {
 	auto *header = horizontalHeader();
@@ -19,10 +20,9 @@ void ConditionView::setModel(QAbstractItemModel *model) {
 		return;
 
 	auto *header = horizontalHeader();
-	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-	header->setSectionResizeMode(1, QHeaderView::Interactive);
-	header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-	header->setSectionResizeMode(3, QHeaderView::Stretch);
+	int idx = 0;
+	for (const auto cm = qobject_cast<ConditionModel *>(model); const auto flag : cm->getResizeMode())
+		header->setSectionResizeMode(idx++, flag);
 }
 
 void ConditionView::contextMenuEvent(QContextMenuEvent *event) {
