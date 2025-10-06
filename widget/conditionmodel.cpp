@@ -1,5 +1,6 @@
 #include "conditionmodel.hpp"
 #include "aux_f_q/q_value.hpp"
+#include "cond_data.hpp"
 #include "condition/condition.hpp"
 
 ConditionModel::Entry::Entry(Condition_SP c, bool en) : cond(std::move(c)), enabled(en) {
@@ -41,7 +42,7 @@ QVariant ConditionModel::data(const QModelIndex &index, const int role) const {
 	switch (role) {
 		case Qt::EditRole:
 			if (colIdx == Column::Slider)
-				return ent.cond->getRatio();
+				return QVariant::fromValue(CondParam{ent.cond->getRatio(), ent.cond->getRatioRange()});
 			return {};
 
 		case Qt::DisplayRole:

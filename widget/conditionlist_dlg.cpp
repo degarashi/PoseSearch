@@ -1,6 +1,7 @@
 #include "conditionlist_dlg.hpp"
 #include "aux_f/value.hpp"
 #include "aux_f_q/q_value.hpp"
+#include "cond_data.hpp"
 
 namespace {
 	constexpr int MIN_V = 0;
@@ -14,24 +15,32 @@ QWidget *SliderDelegate::createEditor(QWidget *parent, const QStyleOptionViewIte
 	auto *const slider = new QSlider(Qt::Horizontal, parent);
 	slider->setMinimum(MIN_V);
 	slider->setMaximum(MAX_V);
+
+	// 背景をセルと同じ色で塗る
+	slider->setAutoFillBackground(true);
+	QPalette pal = slider->palette();
+	pal.setColor(QPalette::Window, pal.color(QPalette::Base));
+	slider->setPalette(pal);
+
 	return slider;
 }
 
 // モデルからエディタへ値を反映
 void SliderDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
 	// スライダー位置や範囲などの初期値設定
-	auto value = dg::ConvertQV<float>(index.model()->data(index, Qt::EditRole));
+	const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
 	QSlider *const slider = qobject_cast<QSlider *>(editor);
 	// intへマッピングする
-	value = dg::Remap<float>(value, 0.f, 1.f, MIN_V, MAX_V);
+	const float value = dg::Remap<float>(p.current, p.range.min, p.range.max, MIN_V, MAX_V);
 	slider->setValue(std::round(value));
 }
 
 // エディタからモデルへ値を書き戻す
 void SliderDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
+	const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
 	QSlider *const slider = qobject_cast<QSlider *>(editor);
 	// int -> floatへマッピング
-	const auto value = dg::Remap<float>(slider->value(), MIN_V, MAX_V, 0.f, 1.f);
+	const auto value = dg::Remap<float>(slider->value(), MIN_V, MAX_V, p.range.min, p.range.max);
 	model->setData(index, value, Qt::EditRole);
 }
 
