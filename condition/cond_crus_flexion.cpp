@@ -41,8 +41,7 @@ Condition_SP Cond_CrusFlexion::clone() const {
 }
 
 QString Cond_CrusFlexion::textPresent() const {
-	return _textPresent(
-		QStringLiteral("crus-flexion-dir: %1, %2").arg(_flexDeg[0].toString(), _flexDeg[1].toString()));
+	return QStringLiteral("crus-flexion-dir: %1, %2").arg(_flexDeg[0].toString(), _flexDeg[1].toString());
 }
 
 void Cond_CrusFlexion::setupDialog(QueryDialog &dlg) const {

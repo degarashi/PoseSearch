@@ -38,10 +38,6 @@ void Condition::_clone(Condition &dst) const {
 	dst._ratio = _ratio;
 }
 
-QString Condition::_textPresent(const QString &src) const {
-	return QString("ratio=%2, %3").arg(_ratio).arg(src);
-}
-
 void Condition::setupDialog(QueryDialog &dlg) const {
 	// Ratio項
 	dlg.addParam(new ParamWrapper(new FloatSliderParam(getRatioRange(), _ratio), "Ratio"));

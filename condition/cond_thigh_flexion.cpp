@@ -41,8 +41,7 @@ Condition_SP Cond_ThighFlexion::clone() const {
 }
 
 QString Cond_ThighFlexion::textPresent() const {
-	return _textPresent(
-		QStringLiteral("thigh-flexion-dir: %1, %2").arg(_flexDeg[0].toString(), _flexDeg[1].toString()));
+	return QStringLiteral("thigh-flexion-dir: %1, %2").arg(_flexDeg[0].toString(), _flexDeg[1].toString());
 }
 
 void Cond_ThighFlexion::setupDialog(QueryDialog &dlg) const {

@@ -22,7 +22,7 @@ Condition_SP Cond_BodyDirPitch::clone() const {
 }
 
 QString Cond_BodyDirPitch::textPresent() const {
-	return _textPresent(QString("pitch: %1").arg(_pitch));
+	return QString("pitch: %1").arg(_pitch);
 }
 
 void Cond_BodyDirPitch::setupDialog(QueryDialog &dlg) const {

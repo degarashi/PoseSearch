@@ -64,7 +64,6 @@ class Condition {
 
 	protected:
 		void _clone(Condition &dst) const;
-		QString _textPresent(const QString &src) const;
 		virtual bool _supportNegativeRatio() const;
 
 	private:

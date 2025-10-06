@@ -21,7 +21,7 @@ Condition_SP Cond_BodyDirYaw::clone() const {
 }
 
 QString Cond_BodyDirYaw::textPresent() const {
-	return _textPresent(QString("yaw-dir: %1").arg(dg::VecToString(_yawDir)));
+	return QString("yaw-dir: %1").arg(dg::VecToString(_yawDir));
 }
 
 void Cond_BodyDirYaw::setupDialog(QueryDialog &dlg) const {

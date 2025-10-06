@@ -15,7 +15,7 @@ Condition_SP Cond_Tag::clone() const {
 }
 
 QString Cond_Tag::textPresent() const {
-	return _textPresent(QString("tag: %1").arg(_tagName));
+	return QString("tag: %1").arg(_tagName);
 }
 
 void Cond_Tag::setupDialog(QueryDialog &dlg) const {
