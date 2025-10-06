@@ -89,8 +89,8 @@ bool ConditionModel::setData(const QModelIndex &index, const QVariant &value, co
 	switch (role) {
 		case Qt::EditRole:
 			ent.cond->setRatio(dg::ConvertQV<float>(value));
-			break;
-		// チェックボックス変更
+			emit dataChanged(index, index, {Qt::UserRole});
+			return true;
 		case Qt::CheckStateRole: {
 			if (col != Column::Enabled)
 				return false;
@@ -100,8 +100,7 @@ bool ConditionModel::setData(const QModelIndex &index, const QVariant &value, co
 				return true; // 変更なし
 
 			ent.enabled = newEnabled;
-			// setData でデータが変更された際に dataChanged シグナルを発行する
-			emit dataChanged(index, index, QList<int>{Qt::CheckStateRole});
+			emit dataChanged(index, index, {Qt::CheckStateRole});
 			return true;
 		}
 		default:
