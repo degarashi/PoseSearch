@@ -369,3 +369,21 @@ PoseInfo MyDatabase::getPoseInfo(const PoseId poseId) const {
 					{crusFlexInfo[0], crusFlexInfo[1]},
 					getPoseRect(poseId)};
 }
+
+size_t MyDatabase::getNImages() const {
+	auto q = _db->exec("SELECT COUNT(*) FROM File");
+	if (q.next())
+		return static_cast<size_t>(dg::ConvertQV<qint64>(q.value(0)));
+
+	qWarning() << "Failed to retrieve image count";
+	return 0;
+}
+
+size_t MyDatabase::getNPoses() const {
+	auto q = _db->exec("SELECT COUNT(*) FROM Pose");
+	if (q.next())
+		return static_cast<size_t>(dg::ConvertQV<qint64>(q.value(0)));
+
+	qWarning() << "Failed to retrieve pose count";
+	return 0;
+}

@@ -53,6 +53,8 @@ class MyDatabase : public dg::Singleton<MyDatabase> {
 		bool isBlacklisted(FileId fileId) const;
 		void deleteBlacklist();
 
+		size_t getNImages() const;
+		size_t getNPoses() const;
 	private:
 		QStringList _tags;
 		std::unique_ptr<dg::sql::Database> _db;
