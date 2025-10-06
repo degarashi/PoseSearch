@@ -11,7 +11,7 @@ namespace {
 // 編集開始時にセル用エディタを生成
 // parent 引数は生成エディタの親ウィジェット参照
 // QStyleOptionViewItem 引数は表示オプション参照
-QWidget *SliderDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const {
+QWidget *SliderDelegate::createEditor(QWidget *const parent, const QStyleOptionViewItem &, const QModelIndex &) const {
 	auto *const slider = new QSlider(Qt::Horizontal, parent);
 	slider->setMinimum(MIN_V);
 	slider->setMaximum(MAX_V);
@@ -26,7 +26,7 @@ QWidget *SliderDelegate::createEditor(QWidget *parent, const QStyleOptionViewIte
 }
 
 // モデルからエディタへ値を反映
-void SliderDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
+void SliderDelegate::setEditorData(QWidget *const editor, const QModelIndex &index) const {
 	// スライダー位置や範囲などの初期値設定
 	const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
 	QSlider *const slider = qobject_cast<QSlider *>(editor);
@@ -36,7 +36,8 @@ void SliderDelegate::setEditorData(QWidget *editor, const QModelIndex &index) co
 }
 
 // エディタからモデルへ値を書き戻す
-void SliderDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
+void SliderDelegate::setModelData(QWidget *const editor, QAbstractItemModel *const model,
+								  const QModelIndex &index) const {
 	const auto p = dg::ConvertQV<CondParam>(index.model()->data(index, Qt::EditRole));
 	QSlider *const slider = qobject_cast<QSlider *>(editor);
 	// int -> floatへマッピング
@@ -45,7 +46,7 @@ void SliderDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
 }
 
 // セル領域に合わせてエディタの位置と大きさを更新
-void SliderDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+void SliderDelegate::updateEditorGeometry(QWidget *const editor, const QStyleOptionViewItem &option,
 										  const QModelIndex &) const {
 	editor->setGeometry(option.rect);
 }
