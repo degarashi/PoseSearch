@@ -36,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), _ui(new Ui::MainW
 	// 対応するフィルタをComboBoxに設定
 	for (auto *cond : g_conds)
 		_ui->cbQuery->addItem(cond->dialogName());
+
+    const auto nImage = myDb_c.getNImages();
+    const auto nPose = myDb_c.getNPoses();
+    _ui->statusBar->showMessage(QString("Images: %1, Poses: %2 in Database").arg(nImage).arg(nPose));
 }
 void MainWindow::_setConditionModel(Cond_SP clm) {
 	_ui->lvQueryView->setModel(nullptr);
