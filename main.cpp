@@ -7,6 +7,7 @@
 #include "singleton/my_db.hpp"
 #include "singleton/my_settings.hpp"
 #include "singleton/my_thumbnail.hpp"
+#include "widget/cond_data.hpp"
 
 int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]) {
 		mySet.setValue(MySettings::Entry::DBFileName, dbFileName);
 	}
 
+	qRegisterMetaType<CondParam>("CondParam");
 	try {
 		auto db = std::make_unique<dg::sql::Database>("DGDB", dbFileName, dg::sql::FeatureV{},
 													  dg::sql::PragmaV{{"foreign_keys", "true"}});
