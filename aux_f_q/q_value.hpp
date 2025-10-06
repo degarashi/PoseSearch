@@ -32,7 +32,6 @@ namespace dg {
 			requires std::is_enum_v<T>
 		T _ConvertQV(const QVariant &v, T *) {
 			using Underlying = std::underlying_type_t<T>;
-			Q_ASSERT(v.canConvert<Underlying>());
 			return static_cast<T>(v.value<Underlying>());
 		}
 
