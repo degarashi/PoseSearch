@@ -36,6 +36,13 @@ namespace dg {
 			return static_cast<T>(v.value<Underlying>());
 		}
 
+		// ユーザー定義型（構造体など）
+		template <typename T>
+			requires(!std::is_enum_v<T> && !std::is_integral_v<T>)
+		T _ConvertQV(const QVariant &v, T *) {
+			return v.value<T>();
+		}
+
 	} // namespace detail
 
 	template <typename T>
