@@ -38,7 +38,9 @@ int main(int argc, char *argv[]) {
 		return a.exec();
 	}
 	catch (const dg::RuntimeError &e) {
-		QMessageBox::critical(nullptr, "Database Error", QString::fromStdString(e.s_what()));
+		QMessageBox::critical(
+			nullptr, "Error",
+			QString("An error has occurred \n\nDetails:\n %1").arg(QString::fromStdString(e.s_what())));
 	}
 	return 1;
 }
