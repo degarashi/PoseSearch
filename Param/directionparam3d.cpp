@@ -2,6 +2,7 @@
 #include <QTimer>
 #include "aux_f/exception.hpp"
 #include "aux_f_q/math.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "ui_directionparam_3d.h"
 
 DirectionParam3D::DirectionParam3D(QWidget *parent) : DirectionParam3D({1, 0, 0}, parent) {
@@ -22,8 +23,8 @@ DirectionParam3D::DirectionParam3D(const QVector3D &initial, QWidget *parent) :
 }
 
 QVector3D DirectionParam3D::value() const {
-	const float yaw = _ui->yaw->result().toFloat();
-	const float pitch = _ui->pitch->result().toFloat();
+	const float yaw = dg::ConvertQV<float>(_ui->yaw->result());
+	const float pitch = dg::ConvertQV<float>(_ui->pitch->result());
 	return dg::YawPitchToVec(yaw, pitch);
 }
 
