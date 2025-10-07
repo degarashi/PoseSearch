@@ -1,6 +1,7 @@
 #pragma once
 #include <QSqlDatabase>
 #include <QSqlDriver>
+#include "aux_f/debug.hpp"
 #include "name.hpp"
 #include "query.hpp"
 
@@ -47,12 +48,12 @@ namespace dg::sql {
 
 			// --- Query ---
 			template <typename... Ts>
-			QSqlQuery exec(const QString &text, Ts &&...ts) const {
+			QSqlQuery exec(WithLocation<QString> text, Ts &&...ts) const {
 				return ::dg::sql::Query(_db, text, std::forward<Ts>(ts)...);
 			}
 
 			template <typename... Ts>
-			QSqlQuery batch(const QString &text, Ts &&...ts) const {
+			QSqlQuery batch(WithLocation<QString> text, Ts &&...ts) const {
 				return ::dg::sql::Query<&::dg::sql::Batch>(_db, text, std::forward<Ts>(ts)...);
 			}
 	};
