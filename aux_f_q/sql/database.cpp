@@ -30,7 +30,7 @@ namespace dg::sql {
 	int Database::getNTempTable() const {
 		auto q = exec("SELECT COUNT(*) FROM sqlite_temp_master");
 		if (q.next())
-			return q.value(0).toInt();
+			return dg::ConvertQV<int>(q.value(0));
 		return 0;
 	}
 	bool Database::hasTable(const Name &name) const {
