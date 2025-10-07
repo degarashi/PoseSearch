@@ -23,8 +23,8 @@ namespace dg::sql {
 			AddBind<WithNull, Proc>(q, args...);
 		}
 
-		template <bool WithNull, Proc_p Proc, class... Args>
-		QSqlQuery Query(const QSqlDatabase &db, const QString &str, const Args &...args) {
+		template <bool WithNull, Proc_p Proc, class Str, class... Args>
+		QSqlQuery Query(const QSqlDatabase &db, const Str &str, const Args &...args) {
 			QSqlQuery q(db);
 			q.prepare(str);
 			AddBind<WithNull, Proc>(q, args...);
@@ -33,12 +33,12 @@ namespace dg::sql {
 		}
 	} // namespace detail
 
-	template <Proc_p Proc = &Query, typename... Args>
-	QSqlQuery Query(const QSqlDatabase &db, const QString &str, const Args &...args) {
+	template <Proc_p Proc = &Query, typename Str, typename... Args>
+	QSqlQuery Query(const QSqlDatabase &db, const Str &str, const Args &...args) {
 		return detail::Query<false, Proc>(db, str, args...);
 	}
-	template <Proc_p Proc = &Query, typename... Args>
-	QSqlQuery QueryWithNull(const QSqlDatabase &db, const QString &str, const Args &...args) {
+	template <Proc_p Proc = &Query, typename Str, typename... Args>
+	QSqlQuery QueryWithNull(const QSqlDatabase &db, const Str &str, const Args &...args) {
 		return detail::Query<true, Proc>(db, str, args...);
 	}
 } // namespace dg::sql
