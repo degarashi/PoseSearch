@@ -1,6 +1,7 @@
 #include <qmath.h>
-#include "aux_f_q/convert.hpp"
 #include "aux_f/value.hpp"
+#include "aux_f_q/convert.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "condition.hpp"
 #include "param/directionparam_pitch.h"
 #include "param/paramwrapper.h"
@@ -35,9 +36,7 @@ bool Cond_BodyDirPitch::_supportNegativeRatio() const {
 }
 
 void Cond_BodyDirPitch::loadParamFromDialog(const QVariantList &vl) {
-	bool ok;
-	_pitch = vl[0].toInt(&ok);
-	Q_ASSERT(ok);
+	_pitch = dg::ConvertQV<int>(vl[0]);
 	Condition::loadParamFromDialog(vl);
 }
 
