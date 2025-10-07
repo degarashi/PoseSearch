@@ -1,5 +1,6 @@
 #include <qmath.h>
 #include "aux_f_q/convert.hpp"
+#include "aux_f_q/q_value.hpp"
 #include "condition.hpp"
 #include "param/directionparam_yaw.h"
 #include "param/paramwrapper.h"
@@ -30,10 +31,7 @@ void Cond_BodyDirYaw::setupDialog(QueryDialog &dlg) const {
 }
 
 void Cond_BodyDirYaw::loadParamFromDialog(const QVariantList &vl) {
-	bool ok;
-	const int yaw_deg = vl[0].toInt(&ok);
-	Q_ASSERT(ok);
-
+	const int yaw_deg = dg::ConvertQV<int>(vl[0]);
 	const float yaw_rad = qDegreesToRadians(yaw_deg);
 	_yawDir = {std::sin(yaw_rad), std::cos(yaw_rad)};
 	Condition::loadParamFromDialog(vl);
