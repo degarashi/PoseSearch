@@ -1,8 +1,14 @@
 #include "exception.hpp"
+#include "aux_f/debug.hpp"
 
 namespace dg {
+	namespace {
+		std::string MakeString(const std::string& msg) {
+			return WithLocationUtil::OutputSourceLog() + msg;
+		}
+	} // namespace
 	// ------------------- RuntimeError -------------------
-	RuntimeError::RuntimeError(const std::string &msg) : _msg(msg) {
+	RuntimeError::RuntimeError(const std::string &msg) : _msg(MakeString(msg)) {
 	}
 
 	const char *RuntimeError::what() const noexcept {
