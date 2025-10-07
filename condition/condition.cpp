@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include "aux_f_q/q_value.hpp"
 #include "aux_f_q/sql/database.hpp"
 #include "param/float_slider_param.h"
 #include "param/paramwrapper.h"
@@ -47,7 +48,7 @@ void Condition::setupDialog(QueryDialog &dlg) const {
 void Condition::loadParamFromDialog(const QVariantList &vl) {
 	if (vl.isEmpty())
 		throw dg::InvalidInput("Invalid parameter list received from dialog");
-	_ratio = vl.back().toFloat();
+	_ratio = dg::ConvertQV<float>(vl.back());
 }
 
 float Condition::getRatio() const noexcept {
