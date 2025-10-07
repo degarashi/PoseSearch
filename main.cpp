@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
@@ -14,7 +15,7 @@ int main(int argc, char *argv[]) {
 	MySettings::InitializeUsing("./settings.ini");
 	// データベースファイル名の取得。設定に保存されていればそれを、なければファイルダイアログを開く
 	QString dbFileName = mySet_c.getValue(MySettings::Entry::DBFileName).toString();
-	if (dbFileName.isEmpty()) {
+	if (dbFileName.isEmpty() || !QFile::exists(dbFileName)) {
 		dbFileName =
 			QFileDialog::getOpenFileName(nullptr, "open database...", "", "SQLite Database (*.db *.sqlite *.sqlite3)");
 		if (dbFileName.isEmpty())
