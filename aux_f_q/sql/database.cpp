@@ -123,9 +123,17 @@ namespace dg::sql {
 	}
 	void Database::clearTable(const Name &table) {
 		const QString TempName("dg_temp_table");
-		copyTableDesc({table.db, TempName}, table, true);
-		dropTable(table);
-		renameTable({table.db, TempName}, table.table);
+		beginTransaction();
+		try {
+			copyTableDesc({table.db, TempName}, table, true);
+			dropTable(table);
+			renameTable({table.db, TempName}, table.table);
+			commitTransaction();
+		}
+		catch (...) {
+			rollbackTransaction();
+			throw;
+		}
 	}
 	void Database::loadExtension(const QString &path, const QString &entry_point) {
 		try {
