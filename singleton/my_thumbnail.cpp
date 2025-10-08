@@ -47,10 +47,12 @@ MyThumbnail::MyThumbnail() {
 	}
 	db.attach(THUMBNAIL_DB, THUMB_DB);
 	if (!db.hasTable(THUMB_TABLE)) {
-		db.exec("CREATE TABLE thumb.Thumbnail ( "
-				"	fileId		INTEGER PRIMARY KEY, "
-				"	cacheName	TEXT NOT NULL UNIQUE "
-				"); ");
+		db.exec(R"(
+			CREATE TABLE thumb.Thumbnail (
+				fileId		INTEGER PRIMARY KEY REFERENCES File(id),
+				cacheName	TEXT NOT NULL
+			);
+		)");
 	}
 }
 
