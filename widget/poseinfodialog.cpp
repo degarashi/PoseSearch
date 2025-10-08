@@ -9,6 +9,7 @@
 #include <QToolTip>
 #include <iterator>
 #include "aux_f_q/convert.hpp"
+#include "aux_f_q/image.hpp"
 #include "landmark_index.hpp"
 #include "poseinfo.hpp"
 #include "singleton/my_db.hpp"
@@ -355,30 +356,7 @@ PoseInfoDialog::PoseInfoDialog(const PoseId poseId, QWidget *const parent) :
 	if (img.width() > MAX_IMAGE_WIDTH)
 		img = img.scaled(MAX_IMAGE_WIDTH, MAX_IMAGE_WIDTH, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-	// Exif の回転情報を取得
-	QImageIOHandler::Transformations t = reader.transformation();
-
-	using enum QImageIOHandler::Transformation;
-	// 必要に応じて回転・反転を適用
-	switch (t) {
-		case TransformationRotate90:
-			img = img.transformed(QTransform().rotate(90));
-			break;
-		case TransformationRotate180:
-			img = img.transformed(QTransform().rotate(180));
-			break;
-		case TransformationRotate270:
-			img = img.transformed(QTransform().rotate(270));
-			break;
-		case TransformationMirror: {
-			QTransform t;
-			t.scale(-1, 1); // 水平方向に反転
-			img = img.transformed(t);
-			break;
-		}
-		default:
-			qWarning() << "not supported transform mode-type";
-	}
+	img = dg::RotateByExif(reader.transformation(), img);
 
 	_ui->imageView->setFixedSize(img.size());
 	adjustSize();
