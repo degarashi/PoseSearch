@@ -3,10 +3,12 @@
 #include <QDir>
 #include <QFile>
 #include <QImage>
+#include <QImageReader>
 #include <QMessageBox>
 #include <QSqlError>
 #include <QtConcurrent/QtConcurrent>
 #include "aux_f/exception.hpp"
+#include "aux_f_q/image.hpp"
 #include "aux_f_q/sql/database.hpp"
 #include "my_db.hpp"
 
@@ -162,22 +164,17 @@ std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &fileP
 		throw dg::InvalidInput(std::string("Invalid fileId ") + std::to_string(EnumToInt(fileId)));
 	}
 
-	QFile imgFile(filePath);
-	if (!imgFile.open(QIODevice::ReadOnly))
+	QImageReader reader(filePath);
+	reader.setAutoTransform(false);
+	if (!reader.canRead())
 		throw dg::CantOpenFile(filePath.toStdString());
 
-	// 画像作ってリサイズ
-	QImage img;
-	const auto imgData = imgFile.readAll();
-	if (imgData.length() == 0)
-		// データ長が0の場合はエラー
-		throw dg::UnknownImage(filePath.toStdString());
-	img = img.fromData(imgData);
+	QImage img = reader.read();
 	img = img.scaled(IconSize, IconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	if (img.isNull()) {
+	if (img.isNull())
 		throw dg::CantMakeThumbnail("resizing image is failed");
-	}
-	// リサイズした画像からサムネイルを作成
+	img = dg::RotateByExif(reader.transformation(), img);
+
 	QPixmap ret;
 	ret = ret.fromImage(img);
 
