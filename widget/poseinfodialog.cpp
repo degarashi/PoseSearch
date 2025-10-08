@@ -1,6 +1,7 @@
 #include "poseinfodialog.h"
 #include <QEvent>
 #include <QImage>
+#include <QImageReader>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
@@ -338,18 +339,48 @@ namespace {
 	}
 } // namespace
 
-PoseInfoDialog::PoseInfoDialog(const PoseId poseId, QWidget *const parent) : QDialog(parent), _ui(new Ui::PoseInfoDialog) {
+PoseInfoDialog::PoseInfoDialog(const PoseId poseId, QWidget *const parent) :
+	QDialog(parent), _ui(new Ui::PoseInfoDialog) {
 	_ui->setupUi(this);
 
-	// 画像読み込み
+	// 画像読み込み（Exifを考慮して回転）
 	const QString filePath = myDb_c.getFilePath(myDb_c.getFileId(poseId));
-	QPixmap pix(filePath);
-	if (pix.isNull())
+	QImageReader reader(filePath);
+	reader.setAutoTransform(false); // 自動回転はオフ
+	QImage img = reader.read();
+	if (img.isNull())
 		return;
-	if (pix.width() > MAX_IMAGE_WIDTH) {
-		pix = pix.scaled(MAX_IMAGE_WIDTH, MAX_IMAGE_WIDTH, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+	// まず縮小
+	if (img.width() > MAX_IMAGE_WIDTH)
+		img = img.scaled(MAX_IMAGE_WIDTH, MAX_IMAGE_WIDTH, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+	// Exif の回転情報を取得
+	QImageIOHandler::Transformations t = reader.transformation();
+
+	using enum QImageIOHandler::Transformation;
+	// 必要に応じて回転・反転を適用
+	switch (t) {
+		case TransformationRotate90:
+			img = img.transformed(QTransform().rotate(90));
+			break;
+		case TransformationRotate180:
+			img = img.transformed(QTransform().rotate(180));
+			break;
+		case TransformationRotate270:
+			img = img.transformed(QTransform().rotate(270));
+			break;
+		case TransformationMirror: {
+			QTransform t;
+			t.scale(-1, 1); // 水平方向に反転
+			img = img.transformed(t);
+			break;
+		}
+		default:
+			qWarning() << "not supported transform mode-type";
 	}
-	_ui->imageView->setFixedSize(pix.size());
+
+	_ui->imageView->setFixedSize(img.size());
 	adjustSize();
 
 	// ポーズ情報取得
@@ -357,7 +388,6 @@ PoseInfoDialog::PoseInfoDialog(const PoseId poseId, QWidget *const parent) : QDi
 	if (info.landmarks.empty())
 		return;
 
-	QImage img = pix.toImage();
 	const int w = img.width();
 	const int h = img.height();
 	{
