@@ -19,58 +19,58 @@ namespace {
 	constexpr int MAX_IMAGE_WIDTH = 640;
 
 	// BlazePoseのランドマーク接続定義
-	constexpr std::pair<LandmarkIndex, LandmarkIndex> CONNECTIONS[] = {
+	constexpr std::pair<BlazePoseLandmarkIndex, BlazePoseLandmarkIndex> CONNECTIONS[] = {
 		// 左腕
-		{LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::LEFT_ELBOW},
-		{LandmarkIndex::LEFT_ELBOW, LandmarkIndex::LEFT_WRIST},
+		{BlazePoseLandmarkIndex::LEFT_SHOULDER, BlazePoseLandmarkIndex::LEFT_ELBOW},
+		{BlazePoseLandmarkIndex::LEFT_ELBOW, BlazePoseLandmarkIndex::LEFT_WRIST},
 		// 右腕
-		{LandmarkIndex::RIGHT_SHOULDER, LandmarkIndex::RIGHT_ELBOW},
-		{LandmarkIndex::RIGHT_ELBOW, LandmarkIndex::RIGHT_WRIST},
+		{BlazePoseLandmarkIndex::RIGHT_SHOULDER, BlazePoseLandmarkIndex::RIGHT_ELBOW},
+		{BlazePoseLandmarkIndex::RIGHT_ELBOW, BlazePoseLandmarkIndex::RIGHT_WRIST},
 		// 肩（左右跨ぎ）
-		{LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::RIGHT_SHOULDER},
+		{BlazePoseLandmarkIndex::LEFT_SHOULDER, BlazePoseLandmarkIndex::RIGHT_SHOULDER},
 		// 腰（左右跨ぎ）
-		{LandmarkIndex::LEFT_HIP, LandmarkIndex::RIGHT_HIP},
+		{BlazePoseLandmarkIndex::LEFT_HIP, BlazePoseLandmarkIndex::RIGHT_HIP},
 		// 胴体（同側）
-		{LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::LEFT_HIP},
-		{LandmarkIndex::RIGHT_SHOULDER, LandmarkIndex::RIGHT_HIP},
+		{BlazePoseLandmarkIndex::LEFT_SHOULDER, BlazePoseLandmarkIndex::LEFT_HIP},
+		{BlazePoseLandmarkIndex::RIGHT_SHOULDER, BlazePoseLandmarkIndex::RIGHT_HIP},
 		// 左脚
-		{LandmarkIndex::LEFT_HIP, LandmarkIndex::LEFT_KNEE},
-		{LandmarkIndex::LEFT_KNEE, LandmarkIndex::LEFT_ANKLE},
+		{BlazePoseLandmarkIndex::LEFT_HIP, BlazePoseLandmarkIndex::LEFT_KNEE},
+		{BlazePoseLandmarkIndex::LEFT_KNEE, BlazePoseLandmarkIndex::LEFT_ANKLE},
 		// 右脚
-		{LandmarkIndex::RIGHT_HIP, LandmarkIndex::RIGHT_KNEE},
-		{LandmarkIndex::RIGHT_KNEE, LandmarkIndex::RIGHT_ANKLE},
+		{BlazePoseLandmarkIndex::RIGHT_HIP, BlazePoseLandmarkIndex::RIGHT_KNEE},
+		{BlazePoseLandmarkIndex::RIGHT_KNEE, BlazePoseLandmarkIndex::RIGHT_ANKLE},
 		// 左足
-		{LandmarkIndex::LEFT_ANKLE, LandmarkIndex::LEFT_HEEL},
-		{LandmarkIndex::LEFT_HEEL, LandmarkIndex::LEFT_FOOT_INDEX},
+		{BlazePoseLandmarkIndex::LEFT_ANKLE, BlazePoseLandmarkIndex::LEFT_HEEL},
+		{BlazePoseLandmarkIndex::LEFT_HEEL, BlazePoseLandmarkIndex::LEFT_FOOT_INDEX},
 		// 右足
-		{LandmarkIndex::RIGHT_ANKLE, LandmarkIndex::RIGHT_HEEL},
-		{LandmarkIndex::RIGHT_HEEL, LandmarkIndex::RIGHT_FOOT_INDEX},
+		{BlazePoseLandmarkIndex::RIGHT_ANKLE, BlazePoseLandmarkIndex::RIGHT_HEEL},
+		{BlazePoseLandmarkIndex::RIGHT_HEEL, BlazePoseLandmarkIndex::RIGHT_FOOT_INDEX},
 		// 左手（手首=15と付け根）
-		{LandmarkIndex::LEFT_WRIST, LandmarkIndex::LEFT_THUMB},
-		{LandmarkIndex::LEFT_WRIST, LandmarkIndex::LEFT_INDEX},
-		{LandmarkIndex::LEFT_WRIST, LandmarkIndex::LEFT_PINKY},
-		{LandmarkIndex::LEFT_INDEX, LandmarkIndex::LEFT_PINKY},
+		{BlazePoseLandmarkIndex::LEFT_WRIST, BlazePoseLandmarkIndex::LEFT_THUMB},
+		{BlazePoseLandmarkIndex::LEFT_WRIST, BlazePoseLandmarkIndex::LEFT_INDEX},
+		{BlazePoseLandmarkIndex::LEFT_WRIST, BlazePoseLandmarkIndex::LEFT_PINKY},
+		{BlazePoseLandmarkIndex::LEFT_INDEX, BlazePoseLandmarkIndex::LEFT_PINKY},
 		// 右手（手首=16と付け根）
-		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_THUMB},
-		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_INDEX},
-		{LandmarkIndex::RIGHT_WRIST, LandmarkIndex::RIGHT_PINKY},
-		{LandmarkIndex::RIGHT_INDEX, LandmarkIndex::RIGHT_PINKY},
+		{BlazePoseLandmarkIndex::RIGHT_WRIST, BlazePoseLandmarkIndex::RIGHT_THUMB},
+		{BlazePoseLandmarkIndex::RIGHT_WRIST, BlazePoseLandmarkIndex::RIGHT_INDEX},
+		{BlazePoseLandmarkIndex::RIGHT_WRIST, BlazePoseLandmarkIndex::RIGHT_PINKY},
+		{BlazePoseLandmarkIndex::RIGHT_INDEX, BlazePoseLandmarkIndex::RIGHT_PINKY},
 	};
 	constexpr auto CONNECTION_COUNT = std::size(CONNECTIONS);
 
 	// 頭部ランドマーク（BlazePoseの代表的な頭部周り）
-	constexpr LandmarkIndex HEAD_LANDMARKS[] = {
-		LandmarkIndex::NOSE,
-		LandmarkIndex::LEFT_EYE_INNER,
-		LandmarkIndex::LEFT_EYE,
-		LandmarkIndex::LEFT_EYE_OUTER,
-		LandmarkIndex::RIGHT_EYE_INNER,
-		LandmarkIndex::RIGHT_EYE,
-		LandmarkIndex::RIGHT_EYE_OUTER,
-		LandmarkIndex::LEFT_EAR,
-		LandmarkIndex::RIGHT_EAR,
-		LandmarkIndex::MOUTH_LEFT,
-		LandmarkIndex::MOUTH_RIGHT,
+	constexpr BlazePoseLandmarkIndex HEAD_LANDMARKS[] = {
+		BlazePoseLandmarkIndex::NOSE,
+		BlazePoseLandmarkIndex::LEFT_EYE_INNER,
+		BlazePoseLandmarkIndex::LEFT_EYE,
+		BlazePoseLandmarkIndex::LEFT_EYE_OUTER,
+		BlazePoseLandmarkIndex::RIGHT_EYE_INNER,
+		BlazePoseLandmarkIndex::RIGHT_EYE,
+		BlazePoseLandmarkIndex::RIGHT_EYE_OUTER,
+		BlazePoseLandmarkIndex::LEFT_EAR,
+		BlazePoseLandmarkIndex::RIGHT_EAR,
+		BlazePoseLandmarkIndex::MOUTH_LEFT,
+		BlazePoseLandmarkIndex::MOUTH_RIGHT,
 	};
 	constexpr auto HEAD_LANDMARK_COUNT = std::size(HEAD_LANDMARKS);
 
@@ -81,20 +81,20 @@ namespace {
 	constexpr float UPPER_ARM_OFFSET = 15.0f;
 	constexpr float FOREARM_OFFSET = 15.0f;
 
-	bool IsLeftIndex(const LandmarkIndex idx) {
-		return idx == LandmarkIndex::LEFT_SHOULDER || idx == LandmarkIndex::LEFT_ELBOW ||
-			idx == LandmarkIndex::LEFT_WRIST || idx == LandmarkIndex::LEFT_HIP || idx == LandmarkIndex::LEFT_KNEE ||
-			idx == LandmarkIndex::LEFT_ANKLE || idx == LandmarkIndex::LEFT_HEEL ||
-			idx == LandmarkIndex::LEFT_FOOT_INDEX || idx == LandmarkIndex::LEFT_PINKY ||
-			idx == LandmarkIndex::LEFT_INDEX || idx == LandmarkIndex::LEFT_THUMB;
+	bool IsLeftIndex(const BlazePoseLandmarkIndex idx) {
+		return idx == BlazePoseLandmarkIndex::LEFT_SHOULDER || idx == BlazePoseLandmarkIndex::LEFT_ELBOW ||
+			idx == BlazePoseLandmarkIndex::LEFT_WRIST || idx == BlazePoseLandmarkIndex::LEFT_HIP || idx == BlazePoseLandmarkIndex::LEFT_KNEE ||
+			idx == BlazePoseLandmarkIndex::LEFT_ANKLE || idx == BlazePoseLandmarkIndex::LEFT_HEEL ||
+			idx == BlazePoseLandmarkIndex::LEFT_FOOT_INDEX || idx == BlazePoseLandmarkIndex::LEFT_PINKY ||
+			idx == BlazePoseLandmarkIndex::LEFT_INDEX || idx == BlazePoseLandmarkIndex::LEFT_THUMB;
 	}
 
-	bool IsRightIndex(const LandmarkIndex idx) {
-		return idx == LandmarkIndex::RIGHT_SHOULDER || idx == LandmarkIndex::RIGHT_ELBOW ||
-			idx == LandmarkIndex::RIGHT_WRIST || idx == LandmarkIndex::RIGHT_HIP || idx == LandmarkIndex::RIGHT_KNEE ||
-			idx == LandmarkIndex::RIGHT_ANKLE || idx == LandmarkIndex::RIGHT_HEEL ||
-			idx == LandmarkIndex::RIGHT_FOOT_INDEX || idx == LandmarkIndex::RIGHT_PINKY ||
-			idx == LandmarkIndex::RIGHT_INDEX || idx == LandmarkIndex::RIGHT_THUMB;
+	bool IsRightIndex(const BlazePoseLandmarkIndex idx) {
+		return idx == BlazePoseLandmarkIndex::RIGHT_SHOULDER || idx == BlazePoseLandmarkIndex::RIGHT_ELBOW ||
+			idx == BlazePoseLandmarkIndex::RIGHT_WRIST || idx == BlazePoseLandmarkIndex::RIGHT_HIP || idx == BlazePoseLandmarkIndex::RIGHT_KNEE ||
+			idx == BlazePoseLandmarkIndex::RIGHT_ANKLE || idx == BlazePoseLandmarkIndex::RIGHT_HEEL ||
+			idx == BlazePoseLandmarkIndex::RIGHT_FOOT_INDEX || idx == BlazePoseLandmarkIndex::RIGHT_PINKY ||
+			idx == BlazePoseLandmarkIndex::RIGHT_INDEX || idx == BlazePoseLandmarkIndex::RIGHT_THUMB;
 	}
 	void DrawConnection(QPainter &painter, const QPointF &p1, const QPointF &p2, const bool left1, const bool right1,
 						const bool left2, const bool right2, const QPen &leftPen, const QPen &rightPen) {
@@ -201,10 +201,10 @@ namespace {
 
 	// 指定されたランドマークインデックスのペアからポリゴンを作成し、イベントフィルタをインストールするヘルパー関数
 	void CreateAndInstallSegmentPolyFilter(QWidget *const view, const PoseInfo &info, const int w, const int h,
-										   const std::pair<LandmarkIndex, LandmarkIndex> &segment, const float offset,
+										   const std::pair<BlazePoseLandmarkIndex, BlazePoseLandmarkIndex> &segment, const float offset,
 										   const QString &segmentName) {
-		const LandmarkIndex idx1 = segment.first;
-		const LandmarkIndex idx2 = segment.second;
+		const BlazePoseLandmarkIndex idx1 = segment.first;
+		const BlazePoseLandmarkIndex idx2 = segment.second;
 
 		if (static_cast<int>(idx1) < static_cast<int>(info.landmarks.size()) &&
 			static_cast<int>(idx2) < static_cast<int>(info.landmarks.size())) {
@@ -234,8 +234,8 @@ namespace {
 		const QPen rightPen(QColor(220, 0, 0), 2);
 
 		for (const auto &connection : CONNECTIONS) {
-			const LandmarkIndex idx1 = connection.first;
-			const LandmarkIndex idx2 = connection.second;
+			const BlazePoseLandmarkIndex idx1 = connection.first;
+			const BlazePoseLandmarkIndex idx2 = connection.second;
 
 			if (static_cast<int>(idx1) >= static_cast<int>(info.landmarks.size()) ||
 				static_cast<int>(idx2) >= static_cast<int>(info.landmarks.size()))
@@ -259,7 +259,7 @@ namespace {
 			const float r = 3.5f;
 
 			for (size_t i = 0; i < HEAD_LANDMARK_COUNT; ++i) {
-				const LandmarkIndex idx = HEAD_LANDMARKS[i];
+				const BlazePoseLandmarkIndex idx = HEAD_LANDMARKS[i];
 				if (static_cast<int>(idx) >= static_cast<int>(info.landmarks.size()))
 					continue;
 
@@ -271,20 +271,20 @@ namespace {
 	}
 	void SetupPosePolygons(Ui::PoseInfoDialog *const ui, const PoseInfo &info, const int w, const int h) {
 		// 胴体ポリゴン
-		const LandmarkIndex torsoIdx[] = {LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::RIGHT_SHOULDER,
-										  LandmarkIndex::RIGHT_HIP, LandmarkIndex::LEFT_HIP};
+		const BlazePoseLandmarkIndex torsoIdx[] = {BlazePoseLandmarkIndex::LEFT_SHOULDER, BlazePoseLandmarkIndex::RIGHT_SHOULDER,
+										  BlazePoseLandmarkIndex::RIGHT_HIP, BlazePoseLandmarkIndex::LEFT_HIP};
 		bool torsoOk = true;
-		for (const LandmarkIndex idx : torsoIdx) {
+		for (const BlazePoseLandmarkIndex idx : torsoIdx) {
 			if (static_cast<int>(idx) >= static_cast<int>(info.landmarks.size())) {
 				torsoOk = false;
 				break;
 			}
 		}
 		if (torsoOk) {
-			const auto &lShoulder = info.landmarks[static_cast<int>(LandmarkIndex::LEFT_SHOULDER)];
-			const auto &rShoulder = info.landmarks[static_cast<int>(LandmarkIndex::RIGHT_SHOULDER)];
-			const auto &rHip = info.landmarks[static_cast<int>(LandmarkIndex::RIGHT_HIP)];
-			const auto &lHip = info.landmarks[static_cast<int>(LandmarkIndex::LEFT_HIP)];
+			const auto &lShoulder = info.landmarks[static_cast<int>(BlazePoseLandmarkIndex::LEFT_SHOULDER)];
+			const auto &rShoulder = info.landmarks[static_cast<int>(BlazePoseLandmarkIndex::RIGHT_SHOULDER)];
+			const auto &rHip = info.landmarks[static_cast<int>(BlazePoseLandmarkIndex::RIGHT_HIP)];
+			const auto &lHip = info.landmarks[static_cast<int>(BlazePoseLandmarkIndex::LEFT_HIP)];
 			QPolygonF torsoPoly;
 			torsoPoly << QPointF(lShoulder.x() * w, lShoulder.y() * h) << QPointF(rShoulder.x() * w, rShoulder.y() * h)
 					  << QPointF(rHip.x() * w, rHip.y() * h) << QPointF(lHip.x() * w, lHip.y() * h);
@@ -297,30 +297,30 @@ namespace {
 		}
 
 		// 上腕ポリゴン
-		const std::pair<LandmarkIndex, LandmarkIndex> upperArmSegments[] = {
-			{LandmarkIndex::LEFT_SHOULDER, LandmarkIndex::LEFT_ELBOW},
-			{LandmarkIndex::RIGHT_SHOULDER, LandmarkIndex::RIGHT_ELBOW}};
+		const std::pair<BlazePoseLandmarkIndex, BlazePoseLandmarkIndex> upperArmSegments[] = {
+			{BlazePoseLandmarkIndex::LEFT_SHOULDER, BlazePoseLandmarkIndex::LEFT_ELBOW},
+			{BlazePoseLandmarkIndex::RIGHT_SHOULDER, BlazePoseLandmarkIndex::RIGHT_ELBOW}};
 		for (const auto &segment : upperArmSegments) {
 			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, segment, UPPER_ARM_OFFSET,
 											  QStringLiteral("UPPER ARM"));
 		}
 
 		// 前腕ポリゴン
-		const std::pair<LandmarkIndex, LandmarkIndex> forearmSegments[] = {
-			{LandmarkIndex::LEFT_ELBOW, LandmarkIndex::LEFT_WRIST},
-			{LandmarkIndex::RIGHT_ELBOW, LandmarkIndex::RIGHT_WRIST}};
+		const std::pair<BlazePoseLandmarkIndex, BlazePoseLandmarkIndex> forearmSegments[] = {
+			{BlazePoseLandmarkIndex::LEFT_ELBOW, BlazePoseLandmarkIndex::LEFT_WRIST},
+			{BlazePoseLandmarkIndex::RIGHT_ELBOW, BlazePoseLandmarkIndex::RIGHT_WRIST}};
 		for (const auto &segment : forearmSegments) {
 			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, segment, FOREARM_OFFSET,
 											  QStringLiteral("FOREARM"));
 		}
 
 		struct Tmp {
-				LandmarkIndex lm0, lm1;
+				BlazePoseLandmarkIndex lm0, lm1;
 				int index;
 		};
 		// 大腿ポリゴン
-		const Tmp thighSegments[] = {{LandmarkIndex::LEFT_HIP, LandmarkIndex::LEFT_KNEE, 0},
-									 {LandmarkIndex::RIGHT_HIP, LandmarkIndex::RIGHT_KNEE, 1}};
+		const Tmp thighSegments[] = {{BlazePoseLandmarkIndex::LEFT_HIP, BlazePoseLandmarkIndex::LEFT_KNEE, 0},
+									 {BlazePoseLandmarkIndex::RIGHT_HIP, BlazePoseLandmarkIndex::RIGHT_KNEE, 1}};
 		for (const auto &def : thighSegments) {
 			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, {def.lm0, def.lm1}, THIGH_OFFSET,
 											  QStringLiteral("THIGH\n%1\n%2")
@@ -329,8 +329,8 @@ namespace {
 		}
 
 		// 下腿ポリゴン
-		const Tmp shinSegments[] = {{LandmarkIndex::LEFT_KNEE, LandmarkIndex::LEFT_ANKLE, 0},
-									{LandmarkIndex::RIGHT_KNEE, LandmarkIndex::RIGHT_ANKLE, 1}};
+		const Tmp shinSegments[] = {{BlazePoseLandmarkIndex::LEFT_KNEE, BlazePoseLandmarkIndex::LEFT_ANKLE, 0},
+									{BlazePoseLandmarkIndex::RIGHT_KNEE, BlazePoseLandmarkIndex::RIGHT_ANKLE, 1}};
 		for (const auto &def : shinSegments) {
 			CreateAndInstallSegmentPolyFilter(ui->imageView, info, w, h, {def.lm0, def.lm1}, SHIN_OFFSET,
 											  QStringLiteral("CRUS\n%1\n%2")

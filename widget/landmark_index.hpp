@@ -1,7 +1,7 @@
 #pragma once
 
 // BlazePoseのランドマーク定義
-enum class LandmarkIndex {
+enum class BlazePoseLandmarkIndex {
 	NOSE = 0,
 	LEFT_EYE_INNER = 1,
 	LEFT_EYE = 2,
