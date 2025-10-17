@@ -240,7 +240,7 @@ std::pair<QPixmap, QString> MyThumbnail::_GenerateThumbnail(const QString &fileP
 	QPixmap ret;
 	ret = ret.fromImage(img);
 
-	const QString cacheName = CalculateCacheName(filePath);
+	const QString cacheName = CalculateCacheName(filePath, myDb_c.usingPartialHash());
 	const QString cachePath(THUMBNAIL_DIR + "/" + cacheName);
 
 	// サムネイルをキャッシュディレクトリに保存
