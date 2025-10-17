@@ -19,37 +19,78 @@ namespace {
 	static const auto THUMB_TABLE = dg::sql::Name(THUMB_DB, "Thumbnail");
 	constexpr int IconSize = 64;
 
-	// ファイルパスからキャッシュファイル名を計算
-	QString CalculateCacheName(const QString &filePath) {
+	QString CalculateCacheName(const QString &filePath, const bool partialHash = false) {
 		QFile file(filePath);
 		if (!file.open(QIODevice::ReadOnly)) {
 			throw dg::CantOpenFile(filePath.toStdString());
 		}
 
+		const qint64 fileSize = file.size();
+		constexpr qint64 PARTIAL_BLOCK_SIZE = 128 * 1024; // 128KB
+
 		blake3_hasher hasher;
 		blake3_hasher_init(&hasher);
 
-		// 64KBチャンクでハッシュ
-		QByteArray buf;
-		buf.resize(64 * 1024);
-		while (true) {
-			const qint64 readBytes = file.read(buf.data(), buf.size());
-			if (readBytes < 0) {
-				file.close();
-				throw dg::RuntimeError("Failed to read file for hashing: " + filePath.toStdString());
-			}
-			if (readBytes == 0)
-				break;
-			blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(buf.constData()),
-								 static_cast<size_t>(readBytes));
+		// ファイルサイズをまずハッシュに含める
+		{
+			const QByteArray sizeBytes = QByteArray::number(fileSize);
+			blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(sizeBytes.constData()),
+								 static_cast<size_t>(sizeBytes.size()));
 		}
 
-		// BLAKE3の出力は32バイト（256bit）
+		const auto closeFileAndThrowError = [&file, &filePath]() {
+			file.close();
+			throw dg::RuntimeError("Failed to read file for hashing: " + filePath.toStdString());
+		};
+		if (partialHash && fileSize > PARTIAL_BLOCK_SIZE * 3) {
+			QByteArray buf;
+			buf.resize(PARTIAL_BLOCK_SIZE);
+
+			// 先頭
+			file.seek(0);
+			qint64 readed = file.read(buf.data(), buf.size());
+			if (readed != buf.size())
+				closeFileAndThrowError();
+			blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(buf.constData()),
+								 static_cast<size_t>(readed));
+
+			// 中間
+			const qint64 mid = fileSize / 2;
+			file.seek(std::max<qint64>(0, mid - PARTIAL_BLOCK_SIZE / 2));
+			readed = file.read(buf.data(), buf.size());
+			if (readed != buf.size())
+				closeFileAndThrowError();
+			blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(buf.constData()),
+								 static_cast<size_t>(buf.size()));
+
+			// 末尾
+			file.seek(std::max<qint64>(0, fileSize - PARTIAL_BLOCK_SIZE));
+			readed = file.read(buf.data(), buf.size());
+			if (readed != buf.size())
+				closeFileAndThrowError();
+			blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(buf.constData()),
+								 static_cast<size_t>(buf.size()));
+		}
+		else {
+			// 全体ハッシュ（64KBチャンク）
+			QByteArray buf;
+			buf.resize(64 * 1024);
+			while (true) {
+				const qint64 readBytes = file.read(buf.data(), buf.size());
+				if (readBytes < 0)
+					closeFileAndThrowError();
+				if (readBytes == 0)
+					break;
+				blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(buf.constData()),
+									 static_cast<size_t>(readBytes));
+			}
+		}
+		file.close();
+
+		// finalize
 		uint8_t out_c[BLAKE3_OUT_LEN];
 		blake3_hasher_finalize(&hasher, out_c, BLAKE3_OUT_LEN);
 		const QByteArray hashBytes(reinterpret_cast<const char *>(out_c), BLAKE3_OUT_LEN);
-
-		file.close();
 
 		// ハッシュ値を16進数文字列に変換
 		const QString hashString = QString(hashBytes.toHex());
