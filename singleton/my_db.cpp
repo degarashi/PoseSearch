@@ -52,7 +52,8 @@ namespace dg {
 	}
 } // namespace dg
 
-MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) : _db(std::move(db)), _debugMode(false) {
+MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) :
+	_db(std::move(db)), _debugMode(false), _usePartialHash(false) {
 	try {
 		// タグリストを取得してメンバ変数に格納
 		auto q = _db->exec("SELECT name FROM TagInfo");
@@ -62,6 +63,11 @@ MyDatabase::MyDatabase(std::unique_ptr<dg::sql::Database> db) : _db(std::move(db
 		_db->attach(BLACKLIST_FILE, BLACKLIST_DB);
 		// Blacklistテーブルを未作成の場合は定義
 		_db->exec(blacklist_layout);
+
+		// Read meta info
+		q = _db->exec("SELECT partialHash FROM Meta");
+		if (q.next())
+			_usePartialHash = dg::ConvertQV<bool>(q.value(0));
 	}
 	catch (const std::exception &e) {
 		qWarning() << "Database initialization failed:" << e.what();
@@ -386,4 +392,8 @@ size_t MyDatabase::getNPoses() const {
 
 	qWarning() << "Failed to retrieve pose count";
 	return 0;
+}
+
+bool MyDatabase::usingPartialHash() const {
+	return _usePartialHash;
 }
