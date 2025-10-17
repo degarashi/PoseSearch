@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(PoseSearch VERSION 0.1 LANGUAGES CXX)
+project(PoseSearch VERSION 0.1 LANGUAGES C CXX)
 include(ExternalProject)
 
 set(CMAKE_AUTOUIC ON)
@@ -9,6 +9,15 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include(FetchContent)
+FetchContent_Declare(
+	blake3
+	GIT_REPOSITORY https://github.com/BLAKE3-team/BLAKE3.git
+	GIT_TAG        1.8.2
+)
+FetchContent_MakeAvailable(blake3)
+add_subdirectory(${blake3_SOURCE_DIR}/c)
 
 # @brief 指定されたディレクトリからソースファイルとヘッダーファイルを収集する関数
 #
@@ -41,6 +50,7 @@ target_include_directories(PoseSearchLib
 	PUBLIC
 	.
 	aux_f
+	${blake3_SOURCE_DIR}/c
 )
 # ---------------------------
 
@@ -104,6 +114,7 @@ target_sources(PoseSearch PRIVATE ${MY_SOURCES})
 target_include_directories(PoseSearch PRIVATE . cereal cereal_types)
 target_link_libraries(PoseSearch
 	PRIVATE
+	BLAKE3::blake3
 	PoseSearchLib
 	Qt${QT_VERSION_MAJOR}::Widgets
 	Qt${QT_VERSION_MAJOR}::Sql
