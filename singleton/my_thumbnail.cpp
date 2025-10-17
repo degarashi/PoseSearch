@@ -1,5 +1,4 @@
 #include "my_thumbnail.hpp"
-#include <QCryptographicHash>
 #include <QDir>
 #include <QFile>
 #include <QImage>
@@ -7,6 +6,7 @@
 #include <QMessageBox>
 #include <QSqlError>
 #include <QtConcurrent/QtConcurrent>
+#include <blake3.h>
 #include "aux_f/exception.hpp"
 #include "aux_f_q/image.hpp"
 #include "aux_f_q/sql/database.hpp"
@@ -25,13 +25,34 @@ namespace {
 		if (!file.open(QIODevice::ReadOnly)) {
 			throw dg::CantOpenFile(filePath.toStdString());
 		}
-		// Blake2b_256ハッシュを計算
-		QCryptographicHash hash(QCryptographicHash::Blake2b_256);
-		hash.addData(&file);
-		const QByteArray hashBytes = hash.result();
+
+		blake3_hasher hasher;
+		blake3_hasher_init(&hasher);
+
+		// 64KBチャンクでハッシュ
+		QByteArray buf;
+		buf.resize(64 * 1024);
+		while (true) {
+			const qint64 readBytes = file.read(buf.data(), buf.size());
+			if (readBytes < 0) {
+				file.close();
+				throw dg::RuntimeError("Failed to read file for hashing: " + filePath.toStdString());
+			}
+			if (readBytes == 0)
+				break;
+			blake3_hasher_update(&hasher, reinterpret_cast<const uint8_t *>(buf.constData()),
+								 static_cast<size_t>(readBytes));
+		}
+
+		// BLAKE3の出力は32バイト（256bit）
+		uint8_t out_c[BLAKE3_OUT_LEN];
+		blake3_hasher_finalize(&hasher, out_c, BLAKE3_OUT_LEN);
+		const QByteArray hashBytes(reinterpret_cast<const char *>(out_c), BLAKE3_OUT_LEN);
+
+		file.close();
+
 		// ハッシュ値を16進数文字列に変換
 		const QString hashString = QString(hashBytes.toHex());
-		file.close();
 		// ".png"拡張子を付けて返す
 		return hashString + ".png";
 	}
