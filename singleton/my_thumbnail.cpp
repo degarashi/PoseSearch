@@ -111,12 +111,13 @@ MyThumbnail::MyThumbnail() {
 	}
 	db.attach(THUMBNAIL_DB, THUMB_DB);
 	if (!db.hasTable(THUMB_TABLE)) {
-		db.exec(R"(
-			CREATE TABLE thumb.Thumbnail (
+		db.exec(QString(R"(
+			CREATE TABLE %1 (
 				fileId		INTEGER PRIMARY KEY REFERENCES File(id),
 				cacheName	TEXT NOT NULL
 			);
-		)");
+		)")
+					.arg(THUMB_TABLE.text()));
 	}
 }
 
@@ -159,11 +160,12 @@ std::vector<QPixmap> MyThumbnail::getThumbnails(const FileIds &fileIdsSrc) {
 	// キャッシュを確認して、生成の必要がある物を洗い出す
 	for (const FileId fileId : fileIds) {
 		// キャッシュがあるか確認
-		auto q = db.exec("SELECT File.path, Thumbnail.cacheName "
-						 "FROM main.File "
-						 "LEFT JOIN thumb.Thumbnail "
-						 "	ON File.id = Thumbnail.fileId "
-						 "WHERE File.id = ? ",
+		auto q = db.exec(QString("SELECT File.path, Thumbnail.cacheName "
+								 "FROM main.File "
+								 "LEFT JOIN %1 "
+								 "	ON File.id = Thumbnail.fileId "
+								 "WHERE File.id = ? ")
+							 .arg(THUMB_TABLE.text()),
 						 fileId);
 
 		q.next();
@@ -271,7 +273,8 @@ void MyThumbnail::_registerThumbnails(const FileIds &fileIds, const QStringList 
 	// データベースにキャッシュ情報を保存または更新
 	auto &db = myDb.database();
 	db.beginTransaction();
-	const auto q = db.batch("INSERT INTO thumb.Thumbnail (fileId, cacheName) VALUES (?,?)", ids, cacheNames);
+	const auto q =
+		db.batch(QString("INSERT INTO %1 (fileId, cacheName) VALUES (?,?)").arg(THUMB_TABLE.text()), ids, cacheNames);
 	QSqlError err = q.lastError();
 	if (err.isValid()) {
 		qDebug() << "Database error during thumbnail registration:" << err.text();
@@ -297,7 +300,7 @@ void MyThumbnail::clearThumbnail() {
 	}
 	// データベースからも関連情報を削除
 	auto &db = myDb.database();
-	db.exec("DELETE FROM thumb.Thumbnail");
+	db.exec(QString("DELETE FROM %1").arg(THUMB_TABLE.text()));
 	// 削除した件数をQMessageBoxで表示
 	QMessageBox::information(nullptr, "Thumbnail Cleared", QString("Removed %1 thumbnail files.").arg(removedCount));
 }
