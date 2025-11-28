@@ -113,7 +113,7 @@ MyThumbnail::MyThumbnail() {
 	if (!db.hasTable(THUMB_TABLE)) {
 		db.exec(QString(R"(
 			CREATE TABLE %1 (
-				fileId		INTEGER PRIMARY KEY REFERENCES File(id),
+				fileId		INTEGER PRIMARY KEY,
 				cacheName	TEXT NOT NULL
 			);
 		)")
